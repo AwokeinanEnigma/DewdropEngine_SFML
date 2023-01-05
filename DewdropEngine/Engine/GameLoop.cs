@@ -1,12 +1,7 @@
-﻿using DewDrop.Graphics;
-using DewDrop.GUI;
-using DewDrop.GUI.Fonts;
+﻿using DewDrop.GUI;
 using DewDrop.Scenes.Transitions;
 using DewDrop.Scenes;
-using DewDrop.Utilities;
-using SFML.Graphics;
 using SFML.System;
-using System.Diagnostics;
 
 namespace DewDrop
 {
@@ -15,21 +10,25 @@ namespace DewDrop
         private static float _sixty_fps = 1.0f / 60.0f;
         private static float _technically_sixty_fps = 1.0f / 59.0f;
 
-        private static float _deltaTime = 1;
+        private static Time _deltaTime;
         private static int _frameLoops = 0;
         private static float _maxDeltaTime = 0.25f;
         private static float _accumulator = 0;
 
         private static Clock frameTimer;
 
+        private static Clock _deltaTimeClock;
         private static void StartGameLoop()
         {
-           // GameLoop();
+            _deltaTimeClock = new Clock();
+
+            // GameLoop();
         }
 
         public static void GameLoop()
         {
             Update();
+            _deltaTime = _deltaTimeClock.Restart();
             Render();
         }
 
@@ -68,8 +67,13 @@ namespace DewDrop
                 //SceneManager.Instance.Push(new ErrorScene(ex));
             }
 
+
+
             ViewManager.Instance.UseDefault();
         }
+
+        public static int aaa;
+        public static int aaaa;
         public static void Render()
         {
 

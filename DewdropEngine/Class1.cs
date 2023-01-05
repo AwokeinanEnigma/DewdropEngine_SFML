@@ -1,4 +1,5 @@
-﻿using SFML.System;
+﻿using DewDrop.Utilities;
+using SFML.System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace DewDrop
 {
     public class Nothing
     {
-        public Vector2f Position;
+        public Vector2 Position;
         public Nothing() { 
         
         }

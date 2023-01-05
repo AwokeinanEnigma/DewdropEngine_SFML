@@ -50,7 +50,7 @@ namespace Prototype.Scenes
         {
             base.Focus();
             ViewManager.Instance.FollowActor = null;
-            ViewManager.Instance.Center = new Vector2f(160f, 90f);
+            ViewManager.Instance.Center = new Vector2(160f, 90f);
             //Engine.ClearColor = Color.Black;
         }
 

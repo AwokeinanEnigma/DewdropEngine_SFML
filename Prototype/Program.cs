@@ -46,7 +46,7 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 
         private float wobbleSpeed;
 
-        private float wobbleDamp;
+        private int wobbleDamp;
         public void Show()
         {
             Font font = new Font("C:/Windows/Fonts/arial.ttf");
@@ -64,8 +64,6 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             Debug.Log("1");
 
             Debug.Log("3");
-
-
 
             SceneManager.Instance.Push(new ErrorScene());
 

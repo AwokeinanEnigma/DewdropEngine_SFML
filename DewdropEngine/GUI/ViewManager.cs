@@ -41,7 +41,7 @@ namespace DewDrop.GUI
             }
         }
 
-        public Vector2f FinalCenter
+        public Vector2 FinalCenter
         {
             get
             {
@@ -49,15 +49,15 @@ namespace DewDrop.GUI
             }
         }
 
-        public Vector2f FinalTopLeft
+        public Vector2 FinalTopLeft
         {
             get
             {
-                return this.GetCenter() - (Engine.Screen_Size / 2).TranslateToV2F();
+                return this.GetCenter() - (Engine.Screen_Size / 2);
             }
         }
 
-        public Vector2f Center
+        public Vector2 Center
         {
             get
             {
@@ -69,12 +69,12 @@ namespace DewDrop.GUI
                 this.viewCenter = value;
                 if (this.previousViewCenter != this.viewCenter && this.OnMove != null)
                 {
-                    this.OnMove(this, this.view.Center);
+                    this.OnMove(this, new Vector2(this.view.Center));
                 }
             }
         }
 
-        public Vector2f TopLeft
+        public Vector2 TopLeft
         {
             get
             {
@@ -96,7 +96,7 @@ namespace DewDrop.GUI
             }
         }
 
-        public Vector2f Offset
+        public Vector2 Offset
         {
             get
             {
@@ -125,14 +125,14 @@ namespace DewDrop.GUI
             this.window = Engine.RenderTexture;
             this.view = new View(new Vector2f(0f, 0f), new Vector2f(320f, 180f));
             this.window.SetView(this.view);
-            this.viewCenter = Vector2.Zero_F;
-            this.offset = Vector2.Zero_F;
-            this.shakeOffset = Vector2.Zero_F;
+            this.viewCenter = Vector2.Zero;
+            this.offset = Vector2.Zero;
+            this.shakeOffset = Vector2.Zero;
             this.viewRect = default(FloatRect);
             this.SetViewRect();
         }
 
-        private Vector2f GetCenter()
+        private Vector2 GetCenter()
         {
             return Vector2.Truncate(this.viewCenter + this.offset + this.shakeOffset);
         }
@@ -154,10 +154,10 @@ namespace DewDrop.GUI
         {
             if (this.shakeProgress < this.shakeDuration)
             {
-                float num = this.shakeIntensity.X * (1f - shakeProgress / (float)this.shakeDuration);
-                float num2 = this.shakeIntensity.Y * (1f - shakeProgress / (float)this.shakeDuration);
-                this.shakeOffset.X = -num + 1 * num * 2f;
-                this.shakeOffset.Y = -num2 + 1 * num2 * 2f;
+                float num = this.shakeIntensity.x * (1f - shakeProgress / (float)this.shakeDuration);
+                float num2 = this.shakeIntensity.y * (1f - shakeProgress / (float)this.shakeDuration);
+                this.shakeOffset.x = -num + 1 * num * 2f;
+                this.shakeOffset.y = -num2 + 1 * num2 * 2f;
                 this.shakeProgress++;
             }
             if (this.followActor != null)
@@ -205,10 +205,10 @@ namespace DewDrop.GUI
                     }
                 }
             }
-            this.view.Center = Vector2.Truncate(this.viewCenter + this.offset + this.shakeOffset);
+            this.view.Center = Vector2.Truncate(this.viewCenter + this.offset + this.shakeOffset).TranslateToV2F();
             if (this.previousViewCenter != this.viewCenter && this.OnMove != null)
             {
-                this.OnMove(this, this.view.Center);
+                this.OnMove(this, new Vector2(this.view.Center));
             }
         }
 
@@ -221,7 +221,7 @@ namespace DewDrop.GUI
             }
         }
 
-        public void MoveTo(Vector2f position, float speed)
+        public void MoveTo(Vector2 position, float speed)
         {
             if (speed > 0f)
             {
@@ -240,7 +240,7 @@ namespace DewDrop.GUI
 
         public void MoveTo(float x, float y, float speed)
         {
-            this.MoveTo(new Vector2f(x, y), speed);
+            this.MoveTo(new Vector2(x, y), speed);
         }
 
         public void CancelMoveTo()
@@ -250,12 +250,12 @@ namespace DewDrop.GUI
 
         public void Move(float x, float y)
         {
-            this.Move(new Vector2f(x, y));
+            this.Move(new Vector2(x, y));
         }
 
-        public void Move(Vector2f offset)
+        public void Move(Vector2 offset)
         {
-            this.view.Move(offset);
+            this.view.Move(offset.TranslateToV2F());
         }
 
         public void UseView()
@@ -271,16 +271,16 @@ namespace DewDrop.GUI
         public void Reset()
         {
             this.view.Reset(new FloatRect(0f, 0f, 320f, 180f));
-            this.viewCenter = this.view.Center;
-            this.shakeOffset = Vector2.Zero_F;
+            this.viewCenter = new Vector2( this.view.Center );
+            this.shakeOffset = Vector2.Zero;
         }
 
-        public void Shake(Vector2f intensity, float duration)
+        public void Shake(Vector2 intensity, float duration)
         {
             this.shakeIntensity = intensity;
             this.shakeDuration = (int)(duration * 60f);
             this.shakeProgress = 0;
-            this.shakeOffset = Vector2.Zero_F;
+            this.shakeOffset = Vector2.Zero;
         }
 
         private static ViewManager instance;
@@ -293,15 +293,15 @@ namespace DewDrop.GUI
 
         private FloatRect viewRect;
 
-        private Vector2f previousViewCenter;
+        private Vector2 previousViewCenter;
 
-        private Vector2f viewCenter;
+        private Vector2 viewCenter;
 
-        private Vector2f offset;
+        private Vector2 offset;
 
-        private Vector2f shakeOffset;
+        private Vector2 shakeOffset;
 
-        private Vector2f shakeIntensity;
+        private Vector2 shakeIntensity;
 
         private int shakeDuration;
 
@@ -309,9 +309,9 @@ namespace DewDrop.GUI
 
         private bool isMovingTo;
 
-        private Vector2f moveFromPosition;
+        private Vector2 moveFromPosition;
 
-        private Vector2f moveToPosition;
+        private Vector2 moveToPosition;
 
         private float moveToSpeed;
 
@@ -325,7 +325,7 @@ namespace DewDrop.GUI
             ExpOut
         }
 
-        public delegate void OnMoveHandler(ViewManager sender, Vector2f newCenter);
+        public delegate void OnMoveHandler(ViewManager sender, Vector2 newCenter);
 
         public delegate void OnMoveToCompleteHandler(ViewManager sender);
     }
