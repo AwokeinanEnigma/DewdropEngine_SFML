@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x86</Platforms>
+    <RootNamespace>DewDrop</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\openSansPX.ttf" />
+    <None Remove="Resources\pal.frag" />
+    <None Remove="Resources\pal.vert" />
+    <None Remove="Resources\text.frag" />
+    <None Remove="Resources\text.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\openSansPX.ttf" />
+    <EmbeddedResource Include="Resources\pal.frag" />
+    <EmbeddedResource Include="Resources\pal.vert" />
+    <EmbeddedResource Include="Resources\text.frag" />
+    <EmbeddedResource Include="Resources\text.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SFML.Net" Version="2.5.0" />
+  </ItemGroup>
+
+</Project>
