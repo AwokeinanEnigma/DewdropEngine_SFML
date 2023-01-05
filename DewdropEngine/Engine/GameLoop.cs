@@ -1,8 +1,10 @@
 ﻿using DewDrop.Graphics;
+using DewDrop.GUI.Fonts;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
 using System.Runtime.CompilerServices;
+using Violet.GUI;
 
 namespace DewDrop
 {
@@ -33,7 +35,8 @@ namespace DewDrop
             float time, lastTime;
             time = frameTimer.ElapsedTime.AsSeconds();
             lastTime = time;
-
+            TextRegion ADA = new TextRegion(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
+            Text thingie = new Text("aa", new FontData().Font, new FontData().Size);
             while (window.IsOpen)
             {
                 time = frameTimer.ElapsedTime.AsSeconds();
@@ -79,7 +82,10 @@ namespace DewDrop
 
                     debugPipeline.Draw();
 
+                    frameBuffer.Clear(Color.Black);
+                    //frameBuffer.Draw(thingie);
                     frameBuffer.Display();
+
                     window.Clear(SFML.Graphics.Color.Black);
                     window.Draw(frameBufferVertexArray, frameBufferState);
                     window.Display();

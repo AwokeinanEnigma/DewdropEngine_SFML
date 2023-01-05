@@ -17,10 +17,22 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         static void Main(string[] args)
         {
             Engine.Initialize();
+            TextRegion ADA = new TextRegion(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
+            ADA.Color = Color.Blue;
+            TextRegion ADAA = new TextRegion(new Vector2(146, 14), 90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
+            ADAA.Color = Color.Red;
+            TextRegion ADAAA = new TextRegion(new Vector2(149, 14), 80, new FontData(), "CCCCCCCCCCCCCCCCCCCCCC");
+            ADAAA.Color = Color.Green;
+            //GenericText ADA = new GenericText("BALLS ITCH MY BALLS ITCH ITCHY ITCHY!!!", 10, new Vector2(143, 14), new FontData());
+            Debug.Log("2");
+            Engine.DebugPipeline.Add(ADA);
+            Engine.DebugPipeline.Add(ADAA);
+            Engine.DebugPipeline.Add(ADAAA);
+            Engine.Window.SetMouseCursorVisible(false);
+
             Console.WriteLine("Press ESC key to close window");
             MyWindow window = new MyWindow();
             window.Show();
-
 
             Console.WriteLine("All done");
         }
@@ -49,17 +61,7 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             Debug.Log("0");
             pipeline = new RenderPipeline(Engine.RenderTexture);
             Debug.Log("1");
-            TextRegion ADA = new TextRegion(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
-            ADA.Color = Color.Blue;
-            TextRegion ADAA = new TextRegion(new Vector2(146, 14),  90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
-            ADAA.Color = Color.Red;
-            TextRegion ADAAA = new TextRegion(new Vector2(149, 14), 80, new FontData(), "CCCCCCCCCCCCCCCCCCCCCC");
-            ADAAA.Color = Color.Green;
-            //GenericText ADA = new GenericText("BALLS ITCH MY BALLS ITCH ITCHY ITCHY!!!", 10, new Vector2(143, 14), new FontData());
-            Debug.Log("2");
-            pipeline.Add(ADA);
-            pipeline.Add(ADAA);
-            pipeline.Add(ADAAA);
+
             Debug.Log("3");
 
 
