@@ -7,7 +7,8 @@ using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
 using DewDrop.Utilities;
-using Violet.GUI;
+using DewDrop.Scenes;
+using Prototype.Scenes;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 {
@@ -17,11 +18,11 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         static void Main(string[] args)
         {
             Engine.Initialize();
-            TextRegion ADA = new TextRegion(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
+            GenericText ADA = new GenericText(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
             ADA.Color = Color.Blue;
-            TextRegion ADAA = new TextRegion(new Vector2(146, 14), 90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
+            GenericText ADAA = new GenericText(new Vector2(146, 14), 90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
             ADAA.Color = Color.Red;
-            TextRegion ADAAA = new TextRegion(new Vector2(149, 14), 80, new FontData(), "CCCCCCCCCCCCCCCCCCCCCC");
+            GenericText ADAAA = new GenericText(new Vector2(149, 14), 80, new FontData(), "CCCCCCCCCCCCCCCCCCCCCC");
             ADAAA.Color = Color.Green;
             //GenericText ADA = new GenericText("BALLS ITCH MY BALLS ITCH ITCHY ITCHY!!!", 10, new Vector2(143, 14), new FontData());
             Debug.Log("2");
@@ -66,6 +67,8 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 
 
 
+            SceneManager.Instance.Push(new ErrorScene());
+
             Clock clock = new Clock();
             float delta = 0f;
             float angle = 0f;
@@ -75,10 +78,8 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             {
                 delta = clock.Restart().AsSeconds();
                 angle += angleSpeed * delta;
-                Engine.Window.DispatchEvents();
 
-                pipeline.Draw();
-
+                Engine.GameLoop();
 
 
             }

@@ -1,10 +1,12 @@
 ﻿using DewDrop.Graphics;
+using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
+using DewDrop.Scenes.Transitions;
+using DewDrop.Scenes;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
-using System.Runtime.CompilerServices;
-using Violet.GUI;
+using System.Diagnostics;
 
 namespace DewDrop
 {
@@ -22,79 +24,61 @@ namespace DewDrop
 
         private static void StartGameLoop()
         {
-            GameLoop();
+           // GameLoop();
         }
 
-        private static void GameLoop()
+        public static void GameLoop()
         {
-            frameTimer = new Clock();
-            frameTimer.Restart();
+            Update();
+            Render();
+        }
 
-            const int MAX_FRAMESKIP = 5;
-
-            float time, lastTime;
-            time = frameTimer.ElapsedTime.AsSeconds();
-            lastTime = time;
-            TextRegion ADA = new TextRegion(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
-            Text thingie = new Text("aa", new FontData().Font, new FontData().Size);
-            while (window.IsOpen)
+        public static void Update()
+        {
+            // This is wrapped in a try catch statement to detect errors and such.
+            try
             {
-                time = frameTimer.ElapsedTime.AsSeconds();
-                _deltaTime = time - lastTime;
-                lastTime = time;
+                // Update our audio as soon as possible
+                //AudioManager.Instance.Update();
 
+                // This makes input and other events from the window work
+                window.DispatchEvents();
 
-                if (_deltaTime > _maxDeltaTime)
-                {
-                    Debug.LogWarning($"Passed the threshold for max deltaTime, deltaTime is {_deltaTime}, lastTime is {lastTime}");
-                    _deltaTime = _maxDeltaTime;
-                }
+                // Update cruciel game instances
+                SceneManager.Instance.Update();
+                ViewManager.Instance.Update();
+                ViewManager.Instance.UseView();
 
-                //_deltaTime = 0.01666666666F;
-
-                _accumulator += _deltaTime;
-                //deltaText.DisplayedString = $"d {_deltaTime}" + Environment.NewLine +
-                //    $"a {_accumulator}";
-                _frameLoops = 0;
-
-
-
-                while (_accumulator >= _technically_sixty_fps)
-                {
-                    if (_frameLoops >= MAX_FRAMESKIP)
-                    {
-                        /*
-                         * Here's possible causes as to why this would be triggered:
-                         *
-                         * The user tabbed in and back out of the game. SFML gets weird when you lose focus.
-                         * The game is taking a frame or two to load something
-                         * An error has occurred
-                         * The user's computer cannot keep up with the game
-                         * 
-                        */
-
-                        Debug.LogWarning($"Resyncing, accumulator is {_accumulator}, and loop count is {_frameLoops}. See comments above this line in GameLoop.cs for more info, Enigma.");
-                        _accumulator = 0.0f;
-                        break;
-                    }
-
-                    Debug.Log("roting");
-
-                    debugPipeline.Draw();
-
-                    frameBuffer.Clear(Color.Black);
-                    //frameBuffer.Draw(thingie);
-                    frameBuffer.Display();
-
-                    window.Clear(SFML.Graphics.Color.Black);
-                    window.Draw(frameBufferVertexArray, frameBufferState);
-                    window.Display();
-
-                    _accumulator -= _sixty_fps;
-
-                    _frameLoops++;
-                }
+                // OpenGL shit, we have to clear our frame buffer before we can draw to it
+                //frameBuffer.Clear(Color.Blue);
+                //Finally, draw our scene.
+                SceneManager.Instance.Draw();
             }
+            // If we catch an empty stack exception, we just quit. This is because there's no next scene to go to, the game is finished!
+            catch (EmptySceneStackException)
+            {
+                //quit = true;
+            }
+            // If the exception is NOT an empty scene stack exception, we'll go to the error scene.
+            catch (Exception ex)
+            {
+                SceneManager.Instance.AbortTransition();
+                SceneManager.Instance.Clear();
+                SceneManager.Instance.Transition = new InstantTransition();
+                //SceneManager.Instance.Push(new ErrorScene(ex));
+            }
+
+            ViewManager.Instance.UseDefault();
+        }
+        public static void Render()
+        {
+
+
+            frameBuffer.Display();
+            window.Clear(SFML.Graphics.Color.Black);
+            window.Draw(frameBufferVertexArray, frameBufferState);
+            window.Display();
+
         }
     }
 }

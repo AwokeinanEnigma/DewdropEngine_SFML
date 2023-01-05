@@ -4,67 +4,112 @@ using DewDrop.Resources;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
+using System;
 
 namespace DewDrop.GUI
 {
     public class GenericText : Renderable
     {
-        private Text textLine;
-        private string textToDraw;
-        private Shader shader;
-
         public override Vector2 Position
         {
             get => this.position;
             set
             {
                 this.position = value;
-                this.textLine.Position = new Vector2f(this.position.x + (float)this.data.XCompensation, this.position.y + (float)this.data.YCompensation);
+                this.drawText.Position = new Vector2f(this.position.x + (float)this.font.XCompensation, this.position.y + (float)this.font.YCompensation);
             }
         }
-        private RenderStates renderStates;
-        private FontData data;
 
-        public GenericText(string text, int depth, Vector2 position, FontData data) 
+        public string Text
         {
+            get => this.text;
 
-            textToDraw = text;
+            set
+            {
+                this.text = value;
+            }
+        }
+
+        public Color Color
+        {
+            get => this.drawText.FillColor;
+            set
+            {
+                this.drawText.FillColor = value;
+            }
+        }
+
+        public FontData FontData
+        {
+            get => this.font;
+
+        }
+
+        private RenderStates renderStates;
+        private Text drawText;
+
+        private FontData font;
+        private string text;
+
+        public GenericText(Vector2 position, int depth, FontData font, string text) : this(position, depth, font, (text != null) ? text : string.Empty, 0, (text != null) ? text.Length : 0) { }
+
+        public GenericText(Vector2 position, int depth, FontData font, string text, int index, int length)
+        {
+            this.position = position;
+            this.text = text;
 
 
-            base.depth = depth;
-            base.position = position;
+            this.depth = depth;
+            this.font = font;
 
-
-            textLine = new Text(textToDraw, data.Font, data.Size);
-            textLine.Position = this.Position.TranslateToV2F();
-
+            this.drawText = new Text(string.Empty, this.font.Font, this.font.Size);
+            this.drawText.Position = new Vector2f(position.x + (float)this.font.XCompensation, position.y + (float)this.font.YCompensation);
+            this.UpdateText();
 
             shader = new Shader(EngineResources.GetResourceStream("text.vert"), null, EngineResources.GetResourceStream("text.frag"));
-
-
+            this.shader.SetUniform("color", new SFML.Graphics.Glsl.Vec4(this.drawText.FillColor));
+            this.shader.SetUniform("threshold", font.AlphaThreshold);
             this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, this.shader);
-            
+        }
+
+        public Vector2f FindCharacterPosition(uint index)
+        {
+            uint num = Math.Max(0U, Math.Min((uint)this.text.Length, index));
+            return this.drawText.FindCharacterPos(num);
+        }
+
+        public void Reset(string text, int index, int length)
+        {
+
+            this.UpdateText();
+        }
+
+        private void UpdateText()
+        {
+            this.drawText.DisplayedString = this.text;
+            FloatRect localBounds = this.drawText.GetLocalBounds();
+            this.size = new Vector2((int)Math.Max(1f, localBounds.Width), (int)Math.Max(1f, localBounds.Height));
         }
 
         public override void Draw(RenderTarget target)
         {
-            this.shader.SetUniform("color", new SFML.Graphics.Glsl.Vec4( Color.Blue ));
-                
-            target.Draw(textLine, renderStates);
+
+            this.shader.SetParameter("color", this.drawText.Color);
+
+            target.Draw(this.drawText, this.renderStates);
         }
 
         protected override void Dispose(bool disposing)
         {
-
-            // only get rid of unmanaged resources if we're actually disposing
-            if (disposing && !disposed)
+            if (!this.disposed && disposing)
             {
-                // cya!
-                textLine.Dispose();
-                data.Dispose();
+                this.drawText.Dispose();
             }
-
-            disposed = true; 
+            this.disposed = true;
         }
+
+        private Shader shader;
+
+
     }
 }

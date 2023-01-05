@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DewDrop.Utilities;
+using SFML.Graphics;
+using System.Runtime.CompilerServices;
 
-namespace DewDrop.Engine
+namespace DewDrop
 {
-    internal class Class1
+    public static partial class Engine
     {
     }
 }

@@ -211,9 +211,9 @@ namespace DewDrop.Utilities
 
         public static void DumpLogs()
         {
-            StreamWriter streamWriter = new StreamWriter("Data/Logs/logs.log");
+            /*StreamWriter streamWriter = new StreamWriter("Data/Logs/logs.log");
             allLogs.ForEach(x => streamWriter.WriteLine(x));
-            streamWriter.Close();
+            streamWriter.Close();*/
         }
         #endregion
     }
