@@ -56,7 +56,7 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         public void Show()
         {
             pipeline = new RenderPipeline(Engine.RenderTexture);
-            SceneManager.Instance.Push(new ErrorScene());
+            SceneManager.Instance.Push(new TestScene());
 
             Clock clock = new Clock();
             float delta = 0f;

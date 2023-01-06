@@ -9,7 +9,7 @@ using SFML.Graphics;
 
 namespace Prototype.Scenes
 {
-    public class ErrorScene : Scene
+    public class TestScene : Scene
     {
         private RenderPipeline pipeline;
 
@@ -19,7 +19,7 @@ namespace Prototype.Scenes
         private GenericText exceptionDetails;
         private GenericText additionalUserDetails;
 
-        public ErrorScene()
+        public TestScene()
         {
 
             //  Engine.ClearColor = Color.Blue;
