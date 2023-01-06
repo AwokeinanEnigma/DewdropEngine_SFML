@@ -1,4 +1,5 @@
-﻿using DewDrop.Utilities;
+﻿using DewDrop.Resources;
+using DewDrop.Utilities;
 using SFML.Graphics;
 using System.Runtime.CompilerServices;
 
@@ -24,12 +25,15 @@ namespace DewDrop
             if (!initialized)
             {
                 Debug.Initialize();
+                EmbeddedResourcesHandler.GetStreams();
 
                 // get em' graphics going!!!
                 // this is located in EngineGraphics.cs
                 InitializeGraphics();
                 CreateDebugPipeline();
                 StartGameLoop();
+
+                initialized = true;
             }
         }
     }

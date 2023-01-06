@@ -1,4 +1,5 @@
-﻿using DewDrop.Utilities;
+﻿using DewDrop.Resources;
+using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -94,7 +95,7 @@ namespace DewDrop
 
             // now make our frame buffer states using the frame buffer's texture
             frameBufferState = new RenderStates(BlendMode.Alpha, Transform.Identity, frameBuffer.Texture, null);
-
+            frameBufferState.Shader.SetUniform("texture", frameBufferState.Texture);
             // make a square
             frameBufferVertexArray = new VertexArray(PrimitiveType.Quads, 4U);
 
@@ -158,7 +159,7 @@ namespace DewDrop
             }
 
 
-            window = new RenderWindow(desktopMode, "Debug", style);
+            window = new RenderWindow(desktopMode, "Dewdrop Engine", style);
             window.Closed += HandleClosingRequest;
 
 

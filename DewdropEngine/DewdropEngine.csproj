@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\crt.frag" />
     <None Remove="Resources\openSansPX.ttf" />
     <None Remove="Resources\pal.frag" />
     <None Remove="Resources\pal.vert" />
@@ -18,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\crt.frag" />
     <EmbeddedResource Include="Resources\openSansPX.ttf" />
     <EmbeddedResource Include="Resources\pal.frag" />
     <EmbeddedResource Include="Resources\pal.vert" />

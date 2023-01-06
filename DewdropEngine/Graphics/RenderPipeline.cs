@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DewDrop.Graphics
 {
     /// <summary>
-    /// A render pipeline sorts renderables by their depth. Renderables with a higher depth are sorted over those with a lower depth. 
+    /// A render pipeline sorts renderables by their depth. Renderables with a higher depth are rendered over those with a lower depth. 
     /// Additionally (and most importantly) it allows renderables to draw onto a render target.
     /// </summary>
     public class RenderPipeline
@@ -35,7 +35,10 @@ namespace DewDrop.Graphics
             //
             // but if they are not
             // then subtract their ids to see which one is greater.
-            public int Compare(Renderable x, Renderable y) => x.Depth != y.Depth ? x.Depth - y.Depth : this.pipeline.renderableIds[y] - this.pipeline.renderableIds[x];
+            public int Compare(Renderable x, Renderable y)
+            {
+                return x.Depth != y.Depth ? x.Depth - y.Depth : this.pipeline.renderableIds[y] - this.pipeline.renderableIds[x];
+            }       
         }
 
         #region Properties
@@ -110,25 +113,31 @@ namespace DewDrop.Graphics
         public void Add(Renderable renderable)
         {
             // if we don't already have this renderable in this pipeline
-            if (!this.renderables.Contains(renderable))
+            if (renderables.Contains(renderable))
             {
-                this.renderablesToAdd.Push(renderable);
+                Debug.LogError("Tried to add renderable that already exists in the RenderPipeline.", null);
                 return;
             }
-            Debug.LogError("Tried to add renderable that already exists in the RenderPipeline.", null);
+            this.renderablesToAdd.Push(renderable);
         }
 
         /// <summary>
         /// Adds a list of renderables.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="renderablesToAdd">Renderables to add</param>
-        public void AddAll<T>(IList<T> renderablesToAdd) where T : Renderable
+        public void AddAll(List<Renderable> renderablesToAdd)
         {
-            int count = renderablesToAdd.Count;
-            for (int i = 0; i < count; i++)
-            {
-                this.Add(renderablesToAdd[i]);
+            renderablesToAdd.ForEach(x => Add(x));
+        }
+
+        /// <summary>
+        /// Adds a list of renderables.
+        /// </summary>
+        /// <param name="renderablesToAdd">Renderables to add</param>
+        public void AddAll(Renderable[] renderablesToAdd)
+        {
+            for (int i = 0; i < renderablesToAdd.Length; i++) {
+                Add(renderablesToAdd[i]);
             }
         }
 
@@ -147,7 +156,7 @@ namespace DewDrop.Graphics
         /// <summary>
         /// Forces the render pipeline to sort again
         /// </summary>
-        public void Update()
+        public void ForceSort()
         {
             this.needToSort = true;
         }
@@ -156,6 +165,7 @@ namespace DewDrop.Graphics
         {
             while (this.renderablesToAdd.Count > 0)
             {
+                // remove the thing from the top of this
                 Renderable key = this.renderablesToAdd.Pop();
 
                 // add it to the list
@@ -190,19 +200,14 @@ namespace DewDrop.Graphics
         /// <param name="forEachFunc">The function to use on each renderable</param>
         public void Each(Action<Renderable> forEachFunc)
         {
-            //int count = this.renderables.Count;
-            
             renderables.ForEach(x => forEachFunc(x));
-            
-            /*for (int i = 0; i < count; i++)
-            {
-                forEachFunc(this.renderables[i]);
-            }*/
         }
+
         public void Clear()
         {
             this.Clear(true);
         }  
+        
         public void Clear(bool dispose)
         {
             this.renderablesToRemove.Clear();

@@ -4,10 +4,12 @@ using DewDrop.Resources;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
-using System;
 
 namespace DewDrop.GUI
 {
+    /// <summary>
+    /// This is a renderable which simply displays text on the screen.
+    /// </summary>
     public class GenericText : Renderable
     {
         public override Vector2 Position
@@ -27,6 +29,7 @@ namespace DewDrop.GUI
             set
             {
                 this.text = value;
+                this.UpdateText();
             }
         }
 
@@ -36,6 +39,7 @@ namespace DewDrop.GUI
             set
             {
                 this.drawText.FillColor = value;
+                _colorDirty = true;
             }
         }
 
@@ -45,11 +49,15 @@ namespace DewDrop.GUI
 
         }
 
+        private bool _colorDirty = false;
+
         private RenderStates renderStates;
         private Text drawText;
+        private Shader shader;
 
         private FontData font;
         private string text;
+
 
         public GenericText(Vector2 position, int depth, FontData font, string text) : this(position, depth, font, (text != null) ? text : string.Empty, 0, (text != null) ? text.Length : 0) { }
 
@@ -66,7 +74,7 @@ namespace DewDrop.GUI
             this.drawText.Position = new Vector2f(position.x + (float)this.font.XCompensation, position.y + (float)this.font.YCompensation);
             this.UpdateText();
 
-            shader = new Shader(EngineResources.GetResourceStream("text.vert"), null, EngineResources.GetResourceStream("text.frag"));
+            shader = new Shader(EmbeddedResourcesHandler.GetResourceStream("text.vert"), null, EmbeddedResourcesHandler.GetResourceStream("text.frag"));
             this.shader.SetUniform("color", new SFML.Graphics.Glsl.Vec4(this.drawText.FillColor));
             this.shader.SetUniform("threshold", font.AlphaThreshold);
             this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, this.shader);
@@ -78,23 +86,23 @@ namespace DewDrop.GUI
             return this.drawText.FindCharacterPos(num);
         }
 
-        public void Reset(string text, int index, int length)
-        {
-
-            this.UpdateText();
-        }
-
         private void UpdateText()
         {
             this.drawText.DisplayedString = this.text;
             FloatRect localBounds = this.drawText.GetLocalBounds();
-            this.size = new Vector2((int)Math.Max(1f, localBounds.Width), (int)Math.Max(1f, localBounds.Height));
+            
+            float width = Math.Max(1f, localBounds.Width);
+            float height = Math.Max(1f, localBounds.Height);
+            this.size = new Vector2(width, height);
         }
 
         public override void Draw(RenderTarget target)
         {
-
-            this.shader.SetParameter("color", this.drawText.Color);
+            if (_colorDirty)
+            {
+                this.shader.SetUniform("color", new SFML.Graphics.Glsl.Vec4(this.drawText.FillColor));
+                _colorDirty = false;
+            }
 
             target.Draw(this.drawText, this.renderStates);
         }
@@ -107,9 +115,5 @@ namespace DewDrop.GUI
             }
             this.disposed = true;
         }
-
-        private Shader shader;
-
-
     }
 }

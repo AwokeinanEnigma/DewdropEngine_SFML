@@ -115,7 +115,7 @@ namespace DewDrop.Utilities
         /// <param name="callerLineNumber">Ignore this.</param>
         public static void LogError(
         object message,
-        Exception exception,
+        Exception? exception,
         [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = 0
         )

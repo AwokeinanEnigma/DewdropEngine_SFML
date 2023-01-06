@@ -5,6 +5,7 @@ using DewDrop;
 using DewDrop.Utilities;
 using DewDrop.GUI.Fonts;
 using SFML.System;
+using SFML.Graphics;
 
 namespace Prototype.Scenes
 {
@@ -24,13 +25,8 @@ namespace Prototype.Scenes
             //  Engine.ClearColor = Color.Blue;
             FontData DefaultFont = new FontData();
 
-            this.title = new GenericText(new Vector2(3f, 8f), 0, DefaultFont, "An unhandled exception has occurred.");
-            this.message = new GenericText(new Vector2(3f, 32f), 0, DefaultFont, "Enigma is obviously an incompetent programmer.");
-            this.pressenter = new GenericText(new Vector2(3f, 48f), 0, DefaultFont, "Press Enter/Start to exit.");
-            this.exceptionDetails = new GenericText(new Vector2(3f, 80f), 0, DefaultFont, string.Format("{0}\nSee error.log for more details.", "a"));
-            this.additionalUserDetails = new GenericText(new Vector2(3f, 110), 0, DefaultFont, "Additionally, files detailing the state of the " +
-                "\nTextureManager and all logs prior to the error have " +
-                "\nbeen dumped.");
+            this.title = new GenericText(new Vector2(3f, 8f), 0, DefaultFont, "John Lemon..");
+            title.Color = Color.Yellow;
 
             //todo - change this to a nonpersistant path
             //IndexedColorGraphic graphic = new IndexedColorGraphic($"C:\\Users\\Tom\\source\\repos\\SunsetRhapsody\\SunsetRhapsody\\bin\\Release\\Resources\\Graphics\\whoops.dat", "whoops", new Vector2(160, 90), 100);
@@ -39,10 +35,6 @@ namespace Prototype.Scenes
 
 
             this.pipeline.Add(this.title);
-            this.pipeline.Add(this.message);
-            this.pipeline.Add(this.pressenter);
-            this.pipeline.Add(this.exceptionDetails);
-            this.pipeline.Add(this.additionalUserDetails);
             Debug.DumpLogs();
         }
 

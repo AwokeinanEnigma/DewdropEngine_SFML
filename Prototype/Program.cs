@@ -9,6 +9,8 @@ using DewDrop.GUI.Fonts;
 using DewDrop.Utilities;
 using DewDrop.Scenes;
 using Prototype.Scenes;
+using DewDrop.Resources;
+using System.Reflection;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 {
@@ -18,7 +20,9 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         static void Main(string[] args)
         {
             Engine.Initialize();
-            GenericText ADA = new GenericText(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
+            Engine.DebugMode = true;
+            EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
+           GenericText ADA = new GenericText(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
             ADA.Color = Color.Blue;
             GenericText ADAA = new GenericText(new Vector2(146, 14), 90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
             ADAA.Color = Color.Red;
@@ -35,6 +39,8 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             MyWindow window = new MyWindow();
             window.Show();
 
+            Engine.frameBufferState.Shader = new Shader(EmbeddedResourcesHandler.GetResourceStream("text.vert"), null, EmbeddedResourcesHandler.GetResourceStream("crt.frag"));
+
             Console.WriteLine("All done");
         }
     }
@@ -49,33 +55,15 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         private int wobbleDamp;
         public void Show()
         {
-            Font font = new Font("C:/Windows/Fonts/arial.ttf");
-            SFML.Graphics.Text text = new SFML.Graphics.Text("Hello World!", font);
-            text.CharacterSize = 40;
-            float textWidth = text.GetLocalBounds().Width;
-            float textHeight = text.GetLocalBounds().Height;
-            float xOffset = text.GetLocalBounds().Left;
-            float yOffset = text.GetLocalBounds().Top;
-            text.Origin = new Vector2f(textWidth / 2f + xOffset, textHeight / 2f + yOffset);
-            text.Position = new Vector2f(Engine.RenderTexture.Size.X / 2f, Engine.RenderTexture.Size.Y / 2f);
-
-            Debug.Log("0");
             pipeline = new RenderPipeline(Engine.RenderTexture);
-            Debug.Log("1");
-
-            Debug.Log("3");
-
             SceneManager.Instance.Push(new ErrorScene());
 
             Clock clock = new Clock();
             float delta = 0f;
-            float angle = 0f;
-            float angleSpeed = 90f;
 
             while (Engine.Window.IsOpen)
             {
                 delta = clock.Restart().AsSeconds();
-                angle += angleSpeed * delta;
 
                 Engine.GameLoop();
 

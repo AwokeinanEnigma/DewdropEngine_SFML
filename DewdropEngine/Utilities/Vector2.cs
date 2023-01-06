@@ -1,4 +1,5 @@
 ﻿using SFML.System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DewDrop.Utilities
 {
@@ -7,8 +8,14 @@ namespace DewDrop.Utilities
     /// </summary>
     public struct Vector2
     {
+        /// <summary>
+        /// Represents a Vector2 at (0,0).
+        /// </summary>
         public static Vector2 Zero = new Vector2(0, 0);
 
+        /// <summary>
+        /// Represents a Vector2f with the point (0,0).
+        /// </summary>
         public static Vector2f Zero_F = new Vector2f(0, 0);
 
         /// <summary>
@@ -31,11 +38,19 @@ namespace DewDrop.Utilities
             this.y = y;
         }
 
+        /// <summary>
+        /// Creates a new Vector2 from a Vector2f
+        /// </summary>
+        /// <param name="a"></param>
         public Vector2(Vector2f a) {
             x = a.X;
             y = a.Y;
         }
 
+        /// <summary>
+        /// Converts a Vector2 to string
+        /// </summary>
+        /// <returns>The Vector2, in string form.</returns>
         public override string ToString()
         {
             return $"Vector2: ({x},{y})";
@@ -44,7 +59,7 @@ namespace DewDrop.Utilities
         /// <summary>
         /// Casts the X and Y values to integer values
         /// </summary>
-        public void ForceInteger() {
+        public void Truncate() {
             x = (int)x;
             x = (int)y;
         }
@@ -105,37 +120,63 @@ namespace DewDrop.Utilities
 
         #endregion
 
+        #region Vector math methods
+        /// <summary>
+        /// Gets the magnitude of a Vector2.
+        /// </summary>
+        /// <param name="v">The Vector2 which magnitude you want to get.</param>
+        /// <returns>The magnitude of the Vector2 as a float.</returns>
         public static float Magnitude(Vector2 v)
         {
             return (float)Math.Sqrt(v.x * v.x + v.y * v.y);
         }
 
-        // vector 2f
+        /// <summary>
+        /// Gets the magnitude of a Vector2f.
+        /// </summary>
+        /// <param name="v">The Vector2f which magnitude you want to get.</param>
+        /// <returns>The magnitude of the Vector2f as a float.</returns>
         public static float Magnitude(Vector2f v)
         {
             return (float)Math.Sqrt(v.X * v.X + v.Y * v.Y);
         }
 
+        /// <summary>
+        /// Gets the left normal of the Vector2
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns>A new Vector2 containing the left normal</returns>
         public static Vector2 LeftNormal(Vector2 v)
         {
             return new Vector2(v.y, -v.x);
         }
 
+        /// <summary>
+        /// Gets the right normal of the Vector2
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns>A new Vector2 containing the right normal</returns>
         public static Vector2 RightNormal(Vector2 v)
         {
             return new Vector2(-v.y, v.x);
         }
-
+        
+        /// <summary>
+        /// Gets the 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static float DotProduct(Vector2 a, Vector2 b)
         {
             return a.x * b.x + a.y * b.y;
         }
 
         /// <summary>
-        /// Normalizes a vector.
+        /// Normalizes a Vector2.
         /// </summary>
         /// <param name="v">The vector to normalize</param>
-        /// <returns></returns>
+        /// <returns>A normalized version of the Vector2</returns>
         public static Vector2 Normalize(Vector2 v)
         {
             float vectorMagnitude = Magnitude(v);
@@ -175,7 +216,7 @@ namespace DewDrop.Utilities
             }
             return zero_VECTOR;
         }
-
+        #endregion
 
         #region Operators
 
@@ -238,10 +279,34 @@ namespace DewDrop.Utilities
 
         public static Vector2 operator *(Vector2 v, float x) => new Vector2(v.x * x, v.y * x);
 
+
+        /// <summary>
+        /// Determines whether or not a Vector2 is equal to another Vector2
+        /// </summary>
+        /// <param name="b">The Vector2 you want to comapre</param>
+        /// <returns></returns>
         public bool Equals(Vector2 b) 
         {
             return (x == b.x) && (y == b.y);
 
+        }
+
+        /// <summary>
+        /// Converts the Vector2 into a hash code
+        /// </summary>
+        /// <returns>The hash code of the Vector2</returns>
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(x, y);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Vector2 && Equals((Vector2)obj))
+            {
+                return true;
+            }
+            return false;
         }
         #endregion
     }

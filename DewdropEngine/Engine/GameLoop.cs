@@ -7,17 +7,11 @@ namespace DewDrop
 {
     public static partial class Engine
     {
-        private static float _sixty_fps = 1.0f / 60.0f;
-        private static float _technically_sixty_fps = 1.0f / 59.0f;
 
         private static Time _deltaTime;
-        private static int _frameLoops = 0;
-        private static float _maxDeltaTime = 0.25f;
-        private static float _accumulator = 0;
-
         private static Clock frameTimer;
-
         private static Clock _deltaTimeClock;
+    
         private static void StartGameLoop()
         {
             _deltaTimeClock = new Clock();
@@ -45,6 +39,10 @@ namespace DewDrop
 
                 // Update cruciel game instances
                 SceneManager.Instance.Update();
+                if (debugMode)
+                {
+                    debugPipeline.Draw();
+                }
                 ViewManager.Instance.Update();
                 ViewManager.Instance.UseView();
 

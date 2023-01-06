@@ -12,7 +12,6 @@ namespace DewDrop.GUI.Fonts
 {
     public class FontData : IDisposable
     {
-        private const uint W_CODE_POINT = 41;
         private bool disposed;
         private Font font;
         private int xComp;
@@ -80,9 +79,8 @@ namespace DewDrop.GUI.Fonts
 
         public FontData()
         {
-            Debug.Log("0");
-            this.font = new Font(EngineResources.GetResourceStream("openSansPX.ttf"));
-            Debug.Log("1");
+            this.font = new Font(EmbeddedResourcesHandler.GetResourceStream("openSansPX.ttf"));
+
             this.fontSize = 16U;
             this.wHeight = (int)font.GetGlyph(41U, fontSize, false, 1).Bounds.Height;
             this.lineHeight = (int)(wHeight * 1.20000004768372);
@@ -109,7 +107,9 @@ namespace DewDrop.GUI.Fonts
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
+            {
                 this.font.Dispose();
+            }
             this.disposed = true;
         }
 
