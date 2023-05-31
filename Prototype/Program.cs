@@ -11,6 +11,8 @@ using DewDrop.Scenes;
 using Prototype.Scenes;
 using DewDrop.Resources;
 using System.Reflection;
+using DewDrop.Scenes.Transitions;
+using ImGuiNET;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 {
@@ -20,6 +22,7 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         static void Main(string[] args)
         {
             Engine.Initialize();
+            SceneManager.Instance.Push(new TestScene());
             Engine.DebugMode = true;
             EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
            GenericText ADA = new GenericText(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
@@ -36,41 +39,10 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             Engine.Window.SetMouseCursorVisible(false);
 
             Console.WriteLine("Press ESC key to close window");
-            MyWindow window = new MyWindow();
-            window.Show();
-
-            Engine.frameBufferState.Shader = new Shader(EmbeddedResourcesHandler.GetResourceStream("text.vert"), null, EmbeddedResourcesHandler.GetResourceStream("crt.frag"));
+            Engine.StartGameLoop();
+            
 
             Console.WriteLine("All done");
         }
-    }
-
-    class MyWindow
-    {
-        public RenderPipeline pipeline;
-        private float wobble;
-
-        private float wobbleSpeed;
-
-        private int wobbleDamp;
-        public void Show()
-        {
-            pipeline = new RenderPipeline(Engine.RenderTexture);
-            SceneManager.Instance.Push(new TestScene());
-
-            Clock clock = new Clock();
-            float delta = 0f;
-
-            while (Engine.Window.IsOpen)
-            {
-                delta = clock.Restart().AsSeconds();
-
-                Engine.GameLoop();
-
-
-            }
-
-        }
-
     }
 }

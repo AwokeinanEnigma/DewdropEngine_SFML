@@ -27,6 +27,18 @@ namespace DewDrop.Utilities
         /// The Y coordinate of the point
         /// </summary>
         public float y;
+        
+        public float X
+        {
+            get => x;
+            set => x = value;
+        }
+        
+        public float Y
+        {
+            get => y;
+            set => y = value;
+        }
 
         /// <summary>
         /// Creates a new Vector2 with given X and Y
@@ -37,6 +49,7 @@ namespace DewDrop.Utilities
             this.x = x;
             this.y = y;
         }
+
 
         /// <summary>
         /// Creates a new Vector2 from a Vector2f
@@ -309,5 +322,13 @@ namespace DewDrop.Utilities
             return false;
         }
         #endregion
+        
+        #region Conversions
+        
+        public static implicit operator Vector2(Vector2f v) => new Vector2(v.X, v.Y);
+        public static implicit operator Vector2(Vector2i v) => new Vector2(v.X, v.Y);
+
+        #endregion
+
     }
 }

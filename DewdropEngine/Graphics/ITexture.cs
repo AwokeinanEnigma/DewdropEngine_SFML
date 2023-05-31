@@ -2,8 +2,8 @@
 
 namespace DewDrop.Graphics
 {
-    public interface ITexture
+    public interface ITexture : IDisposable
     {
-        public Texture texture { get; set; }
+        public Texture Image { get; set; }
     }
 }

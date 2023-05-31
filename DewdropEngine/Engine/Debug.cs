@@ -2,6 +2,7 @@
 using DewDrop.Utilities;
 using SFML.Graphics;
 using System.Runtime.CompilerServices;
+using ImGuiNET;
 
 namespace DewDrop
 {
@@ -17,7 +18,10 @@ namespace DewDrop
             set 
             {
                 debugMode = value;
-                Debug.LogWarning("Enabling debug mode!");
+                if (value) 
+                    Debug.LogWarning("Enabling debug mode!");
+                else 
+                    Debug.LogWarning("Disabling debug mode!");
             }
         }
 
@@ -28,6 +32,8 @@ namespace DewDrop
         public static void CreateDebugPipeline()
         {
             debugPipeline = new RenderPipeline(frameBuffer);
+            ImGuiSfml.Init(window);
+            ImGui.LoadIniSettingsFromDisk("imgui.ini");
         }
     }
 }

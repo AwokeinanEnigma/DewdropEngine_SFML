@@ -4,8 +4,10 @@ using DewDrop.Scenes;
 using DewDrop;
 using DewDrop.Utilities;
 using DewDrop.GUI.Fonts;
+using ImGuiNET;
 using SFML.System;
 using SFML.Graphics;
+using SFML.Window;
 
 namespace Prototype.Scenes
 {
@@ -18,6 +20,7 @@ namespace Prototype.Scenes
         private GenericText pressenter;
         private GenericText exceptionDetails;
         private GenericText additionalUserDetails;
+        public IndexedColorGraphic texture;
 
         public TestScene()
         {
@@ -29,15 +32,76 @@ namespace Prototype.Scenes
             title.Color = Color.Yellow;
 
             //todo - change this to a nonpersistant path
-            //IndexedColorGraphic graphic = new IndexedColorGraphic($"C:\\Users\\Tom\\source\\repos\\SunsetRhapsody\\SunsetRhapsody\\bin\\Release\\Resources\\Graphics\\whoops.dat", "whoops", new Vector2(160, 90), 100);
+            texture = new IndexedColorGraphic($"C:\\Users\\Tom\\Documents\\bear.dat", "walk north", new Vector2(160, 90), 100);
+            ((IndexedTexture)texture.Texture).ToFullColorTexture();
             this.pipeline = new RenderPipeline(Engine.RenderTexture);
             //pipeline.Add(graphic);
+            pipeline.Add(texture);
+            
+            Input.Instance.OnKeyPressed += (key, key2) =>
+            {
+                if (key2 == Keyboard.Key.Escape)
+                {
+                    Input.RecieveInput = false;
+                }
+                Debug.Log(key2);
+            };
 
+            Engine.RenderImGUI += () =>
+            {
+                ImGui.Begin("Dewdrop Debug Utilities");
+                
+                /*ImGui.Text("I'm");
+                ImGui.Text("going");
+                ImGui.Text("to");
+                ImGui.Text("have");
+                ImGui.Text("back");
+                ImGui.Text("breaking");
+                ImGui.Text("sex");
+                ImGui.Text("with");
+                ImGui.Text("your");
+                ImGui.Text("mother");*/
 
+                ImGui.End();
+            };
+
+            
             this.pipeline.Add(this.title);
             Debug.DumpLogs();
         }
 
+        /// <summary>
+        /// Sets the position of the mouse relative to the game window.
+        /// </summary>
+        /// <param name="position">The position to set the mouse to.</param>
+        public static void SetMousePosition(Vector2f position)
+        {
+            // This is stupid, let me explain:
+            // We want a pixel location of where the mouse is relative to the game's window
+            // Here's the problem: The scale of the screen
+            float scaleFactor = Engine.FrameBufferScale;
+            Mouse.SetPosition((Vector2i)(position * scaleFactor));// * scaleFactor;
+        }
+
+        /// <summary>
+        /// Gets the position of the mouse relative to the game window.
+        /// </summary>
+        /// <returns>The position of the mouse relative to the game window.</returns>
+        public static Vector2 GetMousePosition() {
+            // had a really long winded thing written but i'll shorten it
+            // the mouse position is not relative to the game's window
+            // what is (69, 69) in game space is not the same in monitor space
+            // this function is translating monitor space to window space.
+            /*if (Engine.Fullscreen) {
+                VideoMode desktopMode;
+                desktopMode = VideoMode.DesktopMode;
+                float fullScreenMin = Math.Min(desktopMode.Width / Engine.SCREEN_WIDTH, desktopMode.Height / Engine.SCREEN_HEIGHT);
+                return (Vector2f)Mouse.GetPosition(Engine.Window) / fullScreenMin;
+            }*/
+            
+            return (Vector2)Mouse.GetPosition(Engine.Window) / Engine.FrameBufferScale;
+        }
+        
         public override void Focus()
         {
             base.Focus();
@@ -49,6 +113,7 @@ namespace Prototype.Scenes
         public override void Update()
         {
             base.Update();
+            texture.Position = GetMousePosition(); // new Vector2(160, (title.Position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
         }
 
         public override void Draw()

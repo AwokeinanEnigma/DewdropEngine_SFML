@@ -2,21 +2,18 @@
 using DewDrop.Utilities;
 using SFML.Graphics;
 using System.Runtime.CompilerServices;
+using SFML.System;
 
 namespace DewDrop
 {
     public static partial class Engine
     {
-        public static Vector2 Screen_Size
-        {
-
-            // this is in EngineGraphics.cs
-            get => screen_size;
-        }
-
         private static bool initialized = false;
-
-
+        
+        /// <summary>
+        /// Clock that's started when the game starts.
+        /// </summary>
+        public static Clock SessionTimer;
 
         public static void Initialize()
         {
@@ -26,14 +23,17 @@ namespace DewDrop
             {
                 Debug.Initialize();
                 EmbeddedResourcesHandler.GetStreams();
-
+                new Input();
+                
                 // get em' graphics going!!!
                 // this is located in EngineGraphics.cs
                 InitializeGraphics();
                 CreateDebugPipeline();
-                StartGameLoop();
-
                 initialized = true;
+                
+                SessionTimer = new Clock();
+                SessionTimer.Restart();
+                
             }
         }
     }

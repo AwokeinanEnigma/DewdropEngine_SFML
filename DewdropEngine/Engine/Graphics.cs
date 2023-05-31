@@ -11,6 +11,7 @@ namespace DewDrop
     public static partial class Engine
     {
         #region Properties
+        
         /// <summary>
         /// The main Render Window the game is using.
         /// </summary>
@@ -29,9 +30,16 @@ namespace DewDrop
 
         public static int FrameBufferScale {
             get => frameBufferScale;
-            set { 
-            
+            set {
+                frameBufferScale = value;
             }
+        }
+        
+        public static Vector2 Screen_Size
+        {
+
+            // this is in EngineGraphics.cs
+            get => screen_size;
         }
         #endregion
 
@@ -63,7 +71,7 @@ namespace DewDrop
         // TODO: Have games be able to set this
         private static Vector2 screen_size = new Vector2(320, 180);
 
-        private static Vector2 half_screen_size = new Vector2(180, 90);
+        private static Vector2 half_screen_size = new Vector2(screen_size.x / 2, screen_size.y / 2);
 
         private static int frameBufferScale = 5;
         #endregion
@@ -95,7 +103,9 @@ namespace DewDrop
 
             // now make our frame buffer states using the frame buffer's texture
             frameBufferState = new RenderStates(BlendMode.Alpha, Transform.Identity, frameBuffer.Texture, null);
-            frameBufferState.Shader.SetUniform("texture", frameBufferState.Texture);
+            
+            // This throws an error ( for obvious reasons )
+            //frameBufferState.Shader.SetUniform("texture", frameBufferState.Texture);
             // make a square
             frameBufferVertexArray = new VertexArray(PrimitiveType.Quads, 4U);
 
@@ -117,8 +127,8 @@ namespace DewDrop
             {
                 // Dettach everything from the current window
                 window.Closed -= HandleClosingRequest;
-                
-                //InputManager.Instance.DetachFromWindow(window);
+
+                Input.Instance.DetachFromWindow(window);
 
                 // Kill it!
                 window.Close();
@@ -161,7 +171,8 @@ namespace DewDrop
 
             window = new RenderWindow(desktopMode, "Dewdrop Engine", style);
             window.Closed += HandleClosingRequest;
-
+            
+            Input.Instance.AttachToWindow(window);
 
             if (vsync) //|| force_vsync)
             {
