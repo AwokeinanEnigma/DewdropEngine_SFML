@@ -14,11 +14,11 @@ namespace DewDrop.GUI
     {
         public override Vector2 Position
         {
-            get => this.position;
+            get => this._position;
             set
             {
-                this.position = value;
-                this.drawText.Position = new Vector2f(this.position.x + (float)this.font.XCompensation, this.position.y + (float)this.font.YCompensation);
+                this._position = value;
+                this.drawText.Position = new Vector2f(this._position.x + (float)this.font.XCompensation, this._position.y + (float)this.font.YCompensation);
             }
         }
 
@@ -63,11 +63,11 @@ namespace DewDrop.GUI
 
         public GenericText(Vector2 position, int depth, FontData font, string text, int index, int length)
         {
-            this.position = position;
+            this._position = position;
             this.text = text;
 
 
-            this.depth = depth;
+            this._depth = depth;
             this.font = font;
 
             this.drawText = new Text(string.Empty, this.font.Font, this.font.Size);
@@ -93,7 +93,7 @@ namespace DewDrop.GUI
             
             float width = Math.Max(1f, localBounds.Width);
             float height = Math.Max(1f, localBounds.Height);
-            this.size = new Vector2(width, height);
+            this._size = new Vector2(width, height);
         }
 
         public override void Draw(RenderTarget target)
@@ -109,11 +109,11 @@ namespace DewDrop.GUI
 
         protected override void Dispose(bool disposing)
         {
-            if (!this.disposed && disposing)
+            if (!this._disposed && disposing)
             {
                 this.drawText.Dispose();
             }
-            this.disposed = true;
+            this._disposed = true;
         }
     }
 }

@@ -6,10 +6,8 @@ namespace DewDrop.Graphics
 {
     public class Graphic : AnimatedRenderable
     {
-        /// <summary>
-        /// The rotation of this graphic
-        /// </summary>
-        public virtual float Rotation { get; set; }
+        #region Properties
+        
         /// <summary>
         /// The color of this graphic
         /// </summary>
@@ -65,6 +63,19 @@ namespace DewDrop.Graphics
                 return this.texture;
             }
         }
+
+        #endregion
+
+        #region Fields
+
+        protected Sprite sprite;
+        protected ITexture texture;
+        protected IntRect startTextureRect;
+        protected Vector2f scale;
+        protected Vector2f finalScale;
+
+        #endregion
+        
         /// <summary>
         /// Creates a new graphic
         /// </summary>
@@ -79,7 +90,7 @@ namespace DewDrop.Graphics
             this.sprite = new Sprite(this.texture.Image);
             this.sprite.TextureRect = textureRect;
             this.startTextureRect = textureRect;
-            this.Position = position;
+            _position = position;
             this.Origin = origin;
             this.Size = new Vector2(textureRect.Width, textureRect.Height);
             this.Depth = depth;
@@ -87,8 +98,8 @@ namespace DewDrop.Graphics
             this.scale = new Vector2f(1f, 1f);
             this.finalScale = this.scale;
             this.speedModifier = 1f;
-            this.sprite.Position = this.Position.TranslateToV2F();
-            this.sprite.Origin = this.Origin.TranslateToV2F();
+            this.sprite.Position = _position.Vector2f;
+            this.sprite.Origin = this.Origin.Vector2f;
             this.speeds = new float[]
             {
                 1f
@@ -104,10 +115,10 @@ namespace DewDrop.Graphics
         /// </summary>
         protected void UpdateAnimation()
         {
-            int num = this.startTextureRect.Left + (int)this.frame * (int)this.size.X;
+            int num = this.startTextureRect.Left + (int)this.frame * (int)this._size.X;
             int left = num % (int)this.sprite.Texture.Size.X;
-            int top = this.startTextureRect.Top + num / (int)this.sprite.Texture.Size.X * (int)this.size.Y;
-            this.sprite.TextureRect = new IntRect(left, top, (int)this.Size.X, (int)this.Size.Y);
+            int top = this.startTextureRect.Top + num / (int)this.sprite.Texture.Size.X * (int)this._size.Y;
+            this.sprite.TextureRect = new IntRect(left, top, (int)this._size.X, (int)this._size.Y);
             if (this.frame + this.GetFrameSpeed() >= Frames)
             {
                 base.AnimationComplete();
@@ -141,8 +152,8 @@ namespace DewDrop.Graphics
         /// <param name="y">The Y to move forward by</param>
         public virtual void Translate(float x, float y)
         {
-            this.position.X = this.position.X + x;
-            this.position.Y = this.position.Y + y;
+            _position.X = _position.X + x;
+            _position.Y = _position.Y + y;
         }
         /// <summary>
         /// Draws the graphic
@@ -150,14 +161,14 @@ namespace DewDrop.Graphics
         /// <param name="target">The RenderTarget to draw to</param>
         public override void Draw(RenderTarget target)
         {
-            if (this.visible)
+            if (this._visible)
             {
                 if (base.Frames > 0)
                 {
                     this.UpdateAnimation();
                 }
-                this.sprite.Position = this.Position.TranslateToV2F();
-                this.sprite.Origin = this.Origin.TranslateToV2F();
+                this.sprite.Position = _position.Vector2f;
+                this.sprite.Origin = this.Origin.Vector2f;
                 this.sprite.Rotation = this.Rotation;
                 this.finalScale = this.scale;
                 this.sprite.Scale = this.finalScale;
@@ -166,7 +177,7 @@ namespace DewDrop.Graphics
         }
         protected override void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!this._disposed)
             {
                 if (disposing && this.sprite != null)
                 {
@@ -174,12 +185,8 @@ namespace DewDrop.Graphics
                 }
                 TextureManager.Instance.Unuse(this.texture);
             }
-            this.disposed = true;
+            this._disposed = true;
         }
-        protected Sprite sprite;
-        protected ITexture texture;
-        protected IntRect startTextureRect;
-        protected Vector2f scale;
-        protected Vector2f finalScale;
+
     }
 }

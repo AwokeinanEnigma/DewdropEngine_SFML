@@ -48,7 +48,7 @@ namespace DewDrop.Graphics
         /// </summary>
         /// <param name="root">The NBTCompound to load an IndexedTexture from</param>
         /// <returns></returns>
-        private IndexedTexture LoadFromNbtTag(NbtCompound root)
+        private SpritesheetTexture LoadFromNbtTag(NbtCompound root)
         {
             // this code is all dave/carbine code therefore i wil not look at it!
             NbtTag paletteTag = root.Get("pal");
@@ -123,7 +123,7 @@ namespace DewDrop.Graphics
                     }
                 }
             }
-            return new IndexedTexture(intValue, list.ToArray(), byteArrayValue, spriteDefinitions, spriteDefinition);
+            return new SpritesheetTexture(intValue, list.ToArray(), byteArrayValue, spriteDefinitions, spriteDefinition);
         }
 
 
@@ -132,13 +132,13 @@ namespace DewDrop.Graphics
         /// </summary>
         /// <param name="spriteFile">The path to load the IndexedTexture from</param>
         /// <returns></returns>
-        public IndexedTexture Use(string spriteFile)
+        public SpritesheetTexture Use(string spriteFile)
         {
             // Create hash so we can fetch it later
             int num = spriteFile.GetHashCode(); //Hash.Get(spriteFile);
 
             // Create IndexTexture variable so we can initialize it later.
-            IndexedTexture indexedTexture;
+            SpritesheetTexture indexedTexture;
 
             // To save memory, we're not going to load the texture again. Instead, we'll just return an instance from our dictionary of loaded textures.
             if (!this.textures.ContainsKey(num))
@@ -165,76 +165,13 @@ namespace DewDrop.Graphics
             }
             else
             {
-                indexedTexture = (IndexedTexture)this.textures[num];
-                Dictionary<int, int> dictionary;
-                int key;
-                (dictionary = this.instances)[key = num] = dictionary[key] + 1;
+                indexedTexture = (SpritesheetTexture)this.textures[num];
+                instances[num] += 1;
+                Debug.Log("returning cached texture");
             }
             return indexedTexture;
         }
-
-        /// <summary>
-        /// Loads a multipart animation by name
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public IndexedTexture[] UseMultipart(string file)
-        {
-            if (File.Exists(file))
-            {
-                NbtFile nbtFile = new NbtFile(file);
-                NbtCompound rootTag = nbtFile.RootTag;
-                int value = rootTag.Get<NbtInt>("f").Value;
-                IndexedTexture[] array = new IndexedTexture[value];
-                for (int i = 0; i < value; i++)
-                {
-                    string input = string.Format("{0}-{1}", file, i);
-                    int num = input.GetHashCode();//Hash.Get(input);
-                    IndexedTexture indexedTexture;
-                    if (!this.textures.ContainsKey(num))
-                    {
-                        string tagName = string.Format("img{0}", i);
-                        NbtCompound root = rootTag.Get<NbtCompound>(tagName);
-                        indexedTexture = this.LoadFromNbtTag(root);
-                        this.instances.Add(num, 1);
-                        this.textures.Add(num, indexedTexture);
-                    }
-                    else
-                    {
-                        indexedTexture = (IndexedTexture)this.textures[num];
-                        Dictionary<int, int> dictionary;
-                        int key;
-                        (dictionary = this.instances)[key = num] = dictionary[key] + 1;
-                    }
-                    array[i] = indexedTexture;
-                }
-                return array;
-            }
-            string message = string.Format("The multipart sprite file \"{0}\" does not exist.", file);
-            throw new FileNotFoundException(message, file);
-        }
-
-        public void UseUnprocessed(string file)
-        {
-           /* int hashCode = file.GetHashCode();
-            FullColorTexture fullColorTexture;
-            if (!this.textures.ContainsKey(hashCode))
-            {
-                Image image = new Image(file);
-                fullColorTexture = new FullColorTexture(image);
-                this.instances.Add(hashCode, 1);
-                this.textures.Add(hashCode, fullColorTexture);
-            }
-            else
-            {
-                fullColorTexture = (FullColorTexture)this.textures[hashCode];
-                Dictionary<int, int> dictionary;
-                int key;
-                (dictionary = this.instances)[key = hashCode] = dictionary[key] + 1;
-            }*/
-           // return null;
-        }
-
+        
         /*public FullColorTexture UseFramebuffer()
         {
             int hashCode = Engine.Frame.GetHashCode();

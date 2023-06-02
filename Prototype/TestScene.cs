@@ -20,7 +20,7 @@ namespace Prototype.Scenes
         private GenericText pressenter;
         private GenericText exceptionDetails;
         private GenericText additionalUserDetails;
-        public IndexedColorGraphic texture;
+        public SpriteGraphic texture;
 
         public TestScene()
         {
@@ -28,16 +28,21 @@ namespace Prototype.Scenes
             //  Engine.ClearColor = Color.Blue;
             FontData DefaultFont = new FontData();
 
-            this.title = new GenericText(new Vector2(3f, 8f), 0, DefaultFont, "John Lemon..");
+            this.title = new GenericText(new Vector2(3f, 8f), 555, DefaultFont, "John Lemon..");
             title.Color = Color.Yellow;
 
             //todo - change this to a nonpersistant path
-            texture = new IndexedColorGraphic($"C:\\Users\\Tom\\Documents\\bear.dat", "walk north", new Vector2(160, 90), 100);
-            ((IndexedTexture)texture.Texture).ToFullColorTexture();
+            texture = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\bear.dat", "walk north", new Vector2(160, 90), 100);
+            
+
+            ((SpritesheetTexture)texture.Texture).ToFullColorTexture();
             this.pipeline = new RenderPipeline(Engine.RenderTexture);
             //pipeline.Add(graphic);
             pipeline.Add(texture);
-            
+            for (int i = 0; i < 1500    ; i++)
+            {
+                pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\bear.dat", "walk north", new Vector2(new Random().Next(0,320), new Random().Next(0,90)), 100));
+            }
             Input.Instance.OnKeyPressed += (key, key2) =>
             {
                 if (key2 == Keyboard.Key.Escape)
@@ -114,6 +119,12 @@ namespace Prototype.Scenes
         {
             base.Update();
             texture.Position = GetMousePosition(); // new Vector2(160, (title.Position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
+            title.Text =$"MGC: {(GC.GetTotalMemory(true) / 1024L) * 0.001}MB\n";
+            
+            if (Input.Instance[Keyboard.Key.A])
+            {
+                Debug.Log("hit breakpoint");
+            }
         }
 
         public override void Draw()

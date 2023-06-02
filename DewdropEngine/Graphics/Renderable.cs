@@ -14,10 +14,10 @@ namespace DewDrop.Graphics
         /// </summary>
         public virtual Vector2 Position
         {
-            get => this.position;
+            get => this._position;
             set
             {
-                this.position = value;
+                this._position = value;
             }
         }
 
@@ -26,10 +26,10 @@ namespace DewDrop.Graphics
         /// </summary>
 		public virtual Vector2 Origin
         {
-            get => this.origin;
+            get => this._origin;
             set
             {
-                this.origin = value;
+                this._origin = value;
             }
         }
 
@@ -38,10 +38,10 @@ namespace DewDrop.Graphics
         /// </summary>
 		public virtual Vector2 Size
         {
-            get => this.size;
+            get => this._size;
             set
             {
-                this.size = value;
+                this._size = value;
             }
         }
 
@@ -50,10 +50,10 @@ namespace DewDrop.Graphics
         /// </summary>
         public virtual int Depth
         {
-            get => this.depth;
+            get => this._depth;
             set
             {
-                this.depth = value;
+                this._depth = value;
             }
         }
 
@@ -62,26 +62,40 @@ namespace DewDrop.Graphics
         /// </summary>
         public virtual bool Visible
         {
-            get => this.visible;
+            get => this._visible;
             set
             {
-                this.visible = value;
+                this._visible = value;
+            }
+        }
+        
+        /// <summary>
+        /// Rotates the renderable object.
+        /// </summary>
+        public virtual float Rotation
+        {
+            get => this._rotation;
+            set
+            {
+                this._rotation = value;
             }
         }
         #endregion
 
         #region Fields
-        protected Vector2 position;
+        protected Vector2 _position;
 
-        protected Vector2 origin;
+        protected Vector2 _origin;
 
-        protected Vector2 size;
+        protected Vector2 _size;
 
-        protected int depth;
+        protected float _rotation;
+        
+        protected int _depth;
 
-        protected bool visible = true;
+        protected bool _visible = true;
 
-        protected bool disposed;
+        protected bool _disposed;
         #endregion
 
         /// <summary>
@@ -104,7 +118,7 @@ namespace DewDrop.Graphics
         /// <param name="disposing">If true, then we can get rid of managed and unmanaged resources. If false, we can only get rid of unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            this.disposed = true;
+            this._disposed = true;
         }
 
         /// <summary>

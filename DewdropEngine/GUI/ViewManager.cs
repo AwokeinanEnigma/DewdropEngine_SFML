@@ -80,7 +80,7 @@ namespace DewDrop.GUI
             {
                 return 
                     
-                this.viewCenter - (Engine.Screen_Size / 2).TranslateToV2F(); ;
+                this.viewCenter - (Engine.Screen_Size / 2).Vector2f ;
             }
         }
 
@@ -205,7 +205,8 @@ namespace DewDrop.GUI
                     }
                 }
             }
-            this.view.Center = Vector2.Truncate(this.viewCenter + this.offset + this.shakeOffset).TranslateToV2F();
+
+            this.view.Center = Vector2.Truncate(this.viewCenter + this.offset + this.shakeOffset).Vector2f;
             if (this.previousViewCenter != this.viewCenter && this.OnMove != null)
             {
                 this.OnMove(this, new Vector2(this.view.Center));

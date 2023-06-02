@@ -1,4 +1,5 @@
-﻿using SFML.System;
+﻿using System.ComponentModel;
+using SFML.System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace DewDrop.Utilities
@@ -8,6 +9,18 @@ namespace DewDrop.Utilities
     /// </summary>
     public struct Vector2
     {
+        private Vector2f _vector2f;
+        
+        public Vector2f Vector2f
+        {
+            get
+            {
+                _vector2f.X = x;
+                _vector2f.Y = y;
+                return _vector2f;
+            }
+        }
+        
         /// <summary>
         /// Represents a Vector2 at (0,0).
         /// </summary>
@@ -48,6 +61,7 @@ namespace DewDrop.Utilities
         public Vector2(float x, float y) {
             this.x = x;
             this.y = y;
+            _vector2f = new Vector2f(x, y);
         }
 
 
@@ -58,6 +72,7 @@ namespace DewDrop.Utilities
         public Vector2(Vector2f a) {
             x = a.X;
             y = a.Y;
+            _vector2f = new Vector2f(a.X, a.Y);
         }
 
         /// <summary>
@@ -327,6 +342,7 @@ namespace DewDrop.Utilities
         
         public static implicit operator Vector2(Vector2f v) => new Vector2(v.X, v.Y);
         public static implicit operator Vector2(Vector2i v) => new Vector2(v.X, v.Y);
+        public static implicit operator Vector2f(Vector2 v) => v.Vector2f;
 
         #endregion
 

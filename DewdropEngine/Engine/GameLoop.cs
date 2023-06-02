@@ -76,8 +76,8 @@ namespace DewDrop
 
                         Update();
                         Render();          
+                        
                         _accumulator -= _sixty_fps;
-
                         _frameLoops++;
                         
                     }

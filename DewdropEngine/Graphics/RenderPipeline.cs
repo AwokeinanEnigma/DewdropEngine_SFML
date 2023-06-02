@@ -250,6 +250,7 @@ namespace DewDrop.Graphics
             // go through each renderable
             for (int index = 0; index < count; ++index)
             {
+                
                 // get renderable at index
                 Renderable renderable = this.renderables[index];
                 

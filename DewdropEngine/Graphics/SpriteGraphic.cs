@@ -7,29 +7,7 @@ using static Dewdrop.Graphics.SpriteDefinition;
 
 namespace DewDrop.Graphics
 {
-
-        /// <summary>
-        /// Enum for color blending modes
-        /// </summary>
-        public enum ColorBlendMode
-        {
-            Replace,
-            /// <summary>
-            /// A*B
-            /// </summary>
-            Multiply,
-            /// <summary>
-            /// Adds two images together and keeps the brighter pixels
-            /// </summary>
-            Screen,
-            /// <summary>
-            /// 
-            /// </summary>
-            Add
-        }
-    
-
-    public class IndexedColorGraphic : Graphic
+    public class SpriteGraphic : Graphic
     {
         #region Properties
         /// <summary>
@@ -158,21 +136,21 @@ namespace DewDrop.Graphics
         /// <param name="spriteName">The sprite to initialize the IndexedColorGraphic with. This will be the starting sprite it uses.</param>
         /// <param name="position">Where the sprite is located.</param>
         /// <param name="depth">The depth of the sprite.</param>
-        public IndexedColorGraphic(string resource, string spriteName, Vector2 position, int depth)
+        public SpriteGraphic(string resource, string spriteName, Vector2 position, int depth)
         {
             this.texture = TextureManager.Instance.Use(resource);
             this.sprite = new Sprite(this.texture.Image);
             this.Position = position;
-            this.sprite.Position = this.Position.TranslateToV2F();
+            this.sprite.Position = this.Position.Vector2f;
             this.Depth = depth;
             this.Rotation = 0f;
             this.scale = new Vector2f(1f, 1f);
             this.SetSprite(spriteName);
-            ((IndexedTexture)this.texture).CurrentPalette = this.currentPalette;
+            ((SpritesheetTexture)this.texture).CurrentPalette = this.currentPalette;
             this.blend = Color.White;
             //multiply by default
             this.blendMode = ColorBlendMode.Multiply;
-            this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, IndexedColorGraphic.INDEXED_COLOR_SHADER);
+            this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, SpriteGraphic.INDEXED_COLOR_SHADER);
             this.animationEnabled = true;
             this.Visible = true;
         }
@@ -184,21 +162,21 @@ namespace DewDrop.Graphics
         /// <param name="spriteName">The sprite to initialize the IndexedColorGraphic with. This will be the starting sprite it uses.</param>
         /// <param name="position">Where the sprite is located.</param>
         /// <param name="depth">The depth of the sprite.</param>
-        public IndexedColorGraphic(IndexedTexture texture, string spriteName, Vector2 position, int depth)
+        public SpriteGraphic(SpritesheetTexture texture, string spriteName, Vector2 position, int depth)
         {
             this.texture = texture;
             this.sprite = new Sprite(this.texture.Image);
             this.Position = position;
-            this.sprite.Position = this.Position.TranslateToV2F();
+            this.sprite.Position = this.Position.Vector2f;
             this.Depth = depth;
             this.Rotation = 0f;
             this.scale = new Vector2f(1f, 1f);
             this.SetSprite(spriteName);
-            ((IndexedTexture)this.texture).CurrentPalette = this.currentPalette;
+            ((SpritesheetTexture)this.texture).CurrentPalette = this.currentPalette;
             this.blend = Color.White;
             //multiply by default
             this.blendMode = ColorBlendMode.Multiply;
-            this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, IndexedColorGraphic.INDEXED_COLOR_SHADER);
+            this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, SpriteGraphic.INDEXED_COLOR_SHADER);
             this.animationEnabled = true;
             this.Visible = true;
         }
@@ -211,13 +189,13 @@ namespace DewDrop.Graphics
         /// <param name="position">Where the sprite is located.</param>
         /// <param name="depth">The depth of the sprite.</param>
         /// <param name="palette">The palette to initialize the IndexedColorGraphic with. This will be the starting palette it uses.</param>
-        public IndexedColorGraphic(string resource, string spriteName, Vector2 position, int depth, uint palette)
+        public SpriteGraphic(string resource, string spriteName, Vector2 position, int depth, uint palette)
         {
             this.texture = TextureManager.Instance.Use(resource);
             this.sprite = new Sprite(this.texture.Image);
 
             this.Position = position;
-            this.sprite.Position = this.Position.TranslateToV2F();
+            this.sprite.Position = this.Position.Vector2f;
 
             this.Depth = depth;
 
@@ -228,12 +206,12 @@ namespace DewDrop.Graphics
             this.SetSprite(spriteName);
 
             currentPalette = palette;
-            ((IndexedTexture)this.texture).CurrentPalette = palette;
+            ((SpritesheetTexture)this.texture).CurrentPalette = palette;
 
             this.blend = Color.White;
             //multiply by default
             this.blendMode = ColorBlendMode.Multiply;
-            this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, IndexedColorGraphic.INDEXED_COLOR_SHADER);
+            this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, SpriteGraphic.INDEXED_COLOR_SHADER);
             this.animationEnabled = true;
 
             this.Visible = true;
@@ -247,13 +225,13 @@ namespace DewDrop.Graphics
 
         public void SetSprite(string name, bool reset)
         {
-            SpriteDefinition spriteDefinition = ((IndexedTexture)this.texture).GetSpriteDefinition(name);
+            SpriteDefinition spriteDefinition = ((SpritesheetTexture)this.texture).GetSpriteDefinition(name);
             if (!spriteDefinition.IsValid)
             {
-                spriteDefinition = ((IndexedTexture)this.texture).GetDefaultSpriteDefinition();
+                spriteDefinition = ((SpritesheetTexture)this.texture).GetDefaultSpriteDefinition();
             }
-          
-            this.sprite.Origin = spriteDefinition.Offset.TranslateToV2F();
+
+            this.sprite.Origin = spriteDefinition.Offset.Vector2f;
             this.Origin = spriteDefinition.Offset;
           
             this.sprite.TextureRect = new IntRect((int)spriteDefinition.Coords.X, (int)spriteDefinition.Coords.Y, (int)spriteDefinition.Bounds.X, (int)spriteDefinition.Bounds.Y);
@@ -296,7 +274,7 @@ namespace DewDrop.Graphics
 
                 case AnimationMode.ZeroTwoOneThree:
                     this.betaFrame = (this.betaFrame + frameSpeed) % 4f;
-                    this.frame = IndexedColorGraphic.MODE_ONE_FRAMES[(int)this.betaFrame];
+                    this.frame = SpriteGraphic.MODE_ONE_FRAMES[(int)this.betaFrame];
                     break;
             }
 
@@ -305,28 +283,29 @@ namespace DewDrop.Graphics
 
         public override void Draw(RenderTarget target)
         {
-            if (!this.disposed && this.visible)
+            if (!this._disposed && this._visible)
             {
                 if (base.Frames > 1 && this.animationEnabled)
                 {
                     base.UpdateAnimation();
                 }
-                this.sprite.Position = this.Position.TranslateToV2F();
-                this.sprite.Origin = this.Origin.TranslateToV2F();
+
+                this.sprite.Position = this.Position.Vector2f;
+                this.sprite.Origin = this.Origin.Vector2f;
                 this.sprite.Rotation = this.Rotation;
                 this.finalScale.X = (this.flipX ? (-this.scale.X) : this.scale.X);
                 this.finalScale.Y = (this.flipY ? (-this.scale.Y) : this.scale.Y);
                 this.sprite.Scale = this.finalScale;
-                ((IndexedTexture)this.texture).CurrentPalette = this.currentPalette;
-                IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("image", this.texture.Image);
-                IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("palette", ((IndexedTexture)this.texture).Palette);
-                IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("palIndex", ((IndexedTexture)this.texture).CurrentPaletteFloat);
+                ((SpritesheetTexture)this.texture).CurrentPalette = this.currentPalette;
+                SpriteGraphic.INDEXED_COLOR_SHADER.SetUniform("image", this.texture.Image);
+                SpriteGraphic.INDEXED_COLOR_SHADER.SetUniform("palette", ((SpritesheetTexture)this.texture).Palette);
+                SpriteGraphic.INDEXED_COLOR_SHADER.SetUniform("palIndex", ((SpritesheetTexture)this.texture).CurrentPaletteFloat);
                 //Debug.Log($"Current palette is {currentPalette}. Texture's palette is {((IndexedTexture)this.texture).CurrentPalette}. Float palette is {((IndexedTexture)this.texture).CurrentPaletteFloat} & the palette max is {((IndexedTexture)this.texture).PaletteCount}. {(float)CurrentPalette/ (float)((IndexedTexture)this.texture).PaletteCount} ");
-                IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("palSize", ((IndexedTexture)this.texture).PaletteSize);
-                IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("blend", new SFML.Graphics.Glsl.Vec4(this.blend));
-                IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("blendMode", (float)this.blendMode);
+                SpriteGraphic.INDEXED_COLOR_SHADER.SetUniform("palSize", ((SpritesheetTexture)this.texture).PaletteSize);
+                SpriteGraphic.INDEXED_COLOR_SHADER.SetUniform("blend", new SFML.Graphics.Glsl.Vec4(this.blend));
+                SpriteGraphic.INDEXED_COLOR_SHADER.SetUniform("blendMode", (float)this.blendMode);
                 //IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("time", time.ElapsedTime.AsSeconds());
-                if (!this.disposed)
+                if (!this._disposed)
                 {
                     target.Draw(this.sprite, this.renderStates);
                 }
@@ -336,7 +315,7 @@ namespace DewDrop.Graphics
         public SpriteDefinition GetSpriteDefinition(string sprite)
         {
             int hashCode = sprite.GetHashCode();
-            return ((IndexedTexture)this.texture).GetSpriteDefinition(hashCode);
+            return ((SpritesheetTexture)this.texture).GetSpriteDefinition(hashCode);
         }
     }
 }
