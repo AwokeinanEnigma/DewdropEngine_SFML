@@ -13,6 +13,7 @@ using DewDrop.Resources;
 using System.Reflection;
 using DewDrop.Scenes.Transitions;
 using ImGuiNET;
+using Prototype;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 {
@@ -23,13 +24,14 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         {
             Engine.Initialize();
             SceneManager.Instance.Push(new TestScene());
+            //SceneManager.Instance.Push(new TileScene());
             Engine.DebugMode = true;
             EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
-           GenericText ADA = new GenericText(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
+           TextRenderer ADA = new TextRenderer(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
             ADA.Color = Color.Blue;
-            GenericText ADAA = new GenericText(new Vector2(146, 14), 90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
+            TextRenderer ADAA = new TextRenderer(new Vector2(146, 14), 90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
             ADAA.Color = Color.Red;
-            GenericText ADAAA = new GenericText(new Vector2(149, 14), 80, new FontData(), "CCCCCCCCCCCCCCCCCCCCCC");
+            TextRenderer ADAAA = new TextRenderer(new Vector2(149, 14), 80, new FontData(), "CCCCCCCCCCCCCCCCCCCCCC");
             ADAAA.Color = Color.Green;
             //GenericText ADA = new GenericText("BALLS ITCH MY BALLS ITCH ITCHY ITCHY!!!", 10, new Vector2(143, 14), new FontData());
             Debug.Log("2");

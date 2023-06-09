@@ -206,7 +206,7 @@ namespace DewDrop.GUI
                 }
             }
 
-            this.view.Center = Vector2.Truncate(this.viewCenter + this.offset + this.shakeOffset).Vector2f;
+            this.view.Center = Vector2.Truncate(this.viewCenter + this.offset + this.shakeOffset);
             if (this.previousViewCenter != this.viewCenter && this.OnMove != null)
             {
                 this.OnMove(this, new Vector2(this.view.Center));

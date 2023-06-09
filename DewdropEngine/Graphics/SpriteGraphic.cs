@@ -88,11 +88,11 @@ namespace DewDrop.Graphics
         {
             get
             {
-                return this.animationEnabled;
+                return this._animationEnabled;
             }
             set
             {
-                this.animationEnabled = value;
+                this._animationEnabled = value;
             }
         }
         #endregion
@@ -126,7 +126,10 @@ namespace DewDrop.Graphics
         // animation stuff
         private AnimationMode mode;
         private float betaFrame;
-        private bool animationEnabled; 
+        private bool _animationEnabled;
+
+        private string _resourceName;
+        private string _defaultSprite;
         #endregion
 
         /// <summary>
@@ -138,6 +141,9 @@ namespace DewDrop.Graphics
         /// <param name="depth">The depth of the sprite.</param>
         public SpriteGraphic(string resource, string spriteName, Vector2 position, int depth)
         {
+            _resourceName = resource;
+            _defaultSprite = spriteName;
+            
             this.texture = TextureManager.Instance.Use(resource);
             this.sprite = new Sprite(this.texture.Image);
             this.Position = position;
@@ -151,7 +157,7 @@ namespace DewDrop.Graphics
             //multiply by default
             this.blendMode = ColorBlendMode.Multiply;
             this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, SpriteGraphic.INDEXED_COLOR_SHADER);
-            this.animationEnabled = true;
+            this._animationEnabled = true;
             this.Visible = true;
         }
 
@@ -177,7 +183,7 @@ namespace DewDrop.Graphics
             //multiply by default
             this.blendMode = ColorBlendMode.Multiply;
             this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, SpriteGraphic.INDEXED_COLOR_SHADER);
-            this.animationEnabled = true;
+            this._animationEnabled = true;
             this.Visible = true;
         }
 
@@ -191,6 +197,9 @@ namespace DewDrop.Graphics
         /// <param name="palette">The palette to initialize the IndexedColorGraphic with. This will be the starting palette it uses.</param>
         public SpriteGraphic(string resource, string spriteName, Vector2 position, int depth, uint palette)
         {
+            _resourceName = resource;
+            _defaultSprite = spriteName;
+
             this.texture = TextureManager.Instance.Use(resource);
             this.sprite = new Sprite(this.texture.Image);
 
@@ -212,7 +221,7 @@ namespace DewDrop.Graphics
             //multiply by default
             this.blendMode = ColorBlendMode.Multiply;
             this.renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, SpriteGraphic.INDEXED_COLOR_SHADER);
-            this.animationEnabled = true;
+            this._animationEnabled = true;
 
             this.Visible = true;
         }
@@ -285,7 +294,7 @@ namespace DewDrop.Graphics
         {
             if (!this._disposed && this._visible)
             {
-                if (base.Frames > 1 && this.animationEnabled)
+                if (base.Frames > 1 && this._animationEnabled)
                 {
                     base.UpdateAnimation();
                 }
@@ -316,6 +325,15 @@ namespace DewDrop.Graphics
         {
             int hashCode = sprite.GetHashCode();
             return ((SpritesheetTexture)this.texture).GetSpriteDefinition(hashCode);
+        }
+
+        public SpriteGraphic Clone()
+        {
+            if (_resourceName != null)
+            {
+                return new SpriteGraphic(_resourceName, _defaultSprite, this.Position, this.Depth, this.currentPalette);
+            }
+            return null;
         }
     }
 }

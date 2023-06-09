@@ -11,7 +11,7 @@ namespace DewDrop
     /// </summary>
     public class Input
     {
-        #region  Properties
+        #region Properties
 
         public static Input Instance
         {
@@ -28,6 +28,12 @@ namespace DewDrop
             set => Instance._recieveInput = value;
         }
         
+        public static bool MouseDown
+        {
+            get => Instance._leftMousePressed;
+            set => Instance._leftMousePressed = value;
+        }
+        
         #endregion
 
         #region Private
@@ -36,7 +42,8 @@ namespace DewDrop
         private Dictionary<DButtons, bool> _buttonStatuses;
         private bool _recieveInput = true;
         private ControllerType _controllerType = ControllerType.Keyboard;
-
+        private bool _leftMousePressed = false;
+        
         #endregion
 
         #region Events
@@ -60,9 +67,18 @@ namespace DewDrop
         /// Called when a recognized button is released.
         /// </summary>
         public event EventHandler<DButtons> OnButtonReleased;
+        
+        /// <summary>
+        /// Called when the left mouse button is clicked.
+        /// </summary>
+        public event EventHandler<MouseButtonEventArgs> OnMouseClick;
+
+        /// <summary>
+        /// Called when the left mouse button is clicked.
+        /// </summary>
+        public event EventHandler<MouseButtonEventArgs> OnMouseReleased;
 
         #endregion
-    
 
         #region Shorthand 
 
@@ -77,7 +93,7 @@ namespace DewDrop
             get => _buttonStatuses[key];
             set => _buttonStatuses[key] = value;
         }
-
+        
         #endregion
 
         #region Dictionaries
@@ -96,8 +112,6 @@ namespace DewDrop
         };
         
         #endregion
-
-
         
         public Input()
         {
@@ -124,7 +138,9 @@ namespace DewDrop
 
             Instance = this;
         }
-        
+
+        #region Window attachment
+
         /// <summary>
         /// Hooks into the window and allows for input to be read.
         /// </summary>
@@ -138,8 +154,10 @@ namespace DewDrop
             window.JoystickDisconnected += WindowOnJoystickDisconnected;
             window.JoystickButtonPressed += WindowOnJoystickButtonPressed;
             window.JoystickButtonReleased += WindowOnJoystickButtonReleased;
+            window.MouseButtonPressed += WindowOnMouseButtonPressed;
+            window.MouseButtonReleased += WindowOnMouseButtonReleased;
         }
-        
+
         /// <summary>
         /// Detaches from the window and stops reading input.
         /// </summary>
@@ -152,8 +170,66 @@ namespace DewDrop
             window.JoystickDisconnected -= WindowOnJoystickDisconnected;
             window.JoystickButtonPressed -= WindowOnJoystickButtonPressed;
             window.JoystickButtonReleased -= WindowOnJoystickButtonReleased;; 
+            window.MouseButtonPressed -= WindowOnMouseButtonPressed;
+            window.MouseButtonReleased -= WindowOnMouseButtonReleased;
         }
 
+        #endregion
+
+        #region Mouse
+        /// <summary>
+        /// Sets the position of the mouse relative to the game window.
+        /// </summary>
+        /// <param name="position">The position to set the mouse to.</param>
+        public static void SetMousePosition(Vector2f position)
+        {
+            // This is stupid, let me explain:
+            // We want a pixel location of where the mouse is relative to the game's window
+            // Here's the problem: The scale of the screen
+            float scaleFactor = Engine.FrameBufferScale;
+            Mouse.SetPosition((Vector2i)(position * scaleFactor));// * scaleFactor;
+        }
+
+        /// <summary>
+        /// Gets the position of the mouse relative to the game window.
+        /// </summary>
+        /// <returns>The position of the mouse relative to the game window.</returns>
+        public static Vector2 GetMousePosition() {
+            // had a really long winded thing written but i'll shorten it
+            // the mouse position is not relative to the game's window
+            // what is (69, 69) in game space is not the same in monitor space
+            // this function is translating monitor space to window space.
+            /*if (Engine.Fullscreen) {
+                VideoMode desktopMode;
+                desktopMode = VideoMode.DesktopMode;
+                float fullScreenMin = Math.Min(desktopMode.Width / Engine.SCREEN_WIDTH, desktopMode.Height / Engine.SCREEN_HEIGHT);
+                return (Vector2f)Mouse.GetPosition(Engine.Window) / fullScreenMin;
+            }*/
+            
+            return (Vector2)Mouse.GetPosition(Engine.Window) / Engine.FrameBufferScale;
+        }
+        
+        private void WindowOnMouseButtonPressed(object? sender, MouseButtonEventArgs e)
+        {
+            OnMouseClick?.Invoke(this, e);
+            if (e.Button == Mouse.Button.Left)
+            {
+                _leftMousePressed = true;
+            }
+        }
+        
+        private void WindowOnMouseButtonReleased(object? sender, MouseButtonEventArgs e)
+        {
+            OnMouseReleased?.Invoke(this, e);
+            if (e.Button == Mouse.Button.Left)
+            {
+                _leftMousePressed = false;
+            }
+            
+        }
+        #endregion
+        
+        #region Controller
 
         private void WindowOnJoystickButtonReleased(object? sender, JoystickButtonEventArgs e)
         {
@@ -206,7 +282,11 @@ namespace DewDrop
                 _controllerType = ControllerType.Xbox360;
             }
         }
-        
+
+        #endregion
+
+        #region Keyboard
+
         private void WindowOnKeyReleased(object? sender, KeyEventArgs e)
         {
             if (!_recieveInput)
@@ -232,5 +312,7 @@ namespace DewDrop
                 OnButtonPressed?.Invoke(this, SFMLtoDButtonsMap[e.Code]);
             }
         }
+
+        #endregion
     }
 }

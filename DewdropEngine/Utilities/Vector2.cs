@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using SFML.System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace DewDrop.Utilities
 {
@@ -341,8 +342,10 @@ namespace DewDrop.Utilities
         #region Conversions
         
         public static implicit operator Vector2(Vector2f v) => new Vector2(v.X, v.Y);
+        public static implicit operator Vector2i(Vector2 v) => new Vector2i((int)v.X, (int)v.Y);
         public static implicit operator Vector2(Vector2i v) => new Vector2(v.X, v.Y);
         public static implicit operator Vector2f(Vector2 v) => v.Vector2f;
+        public static implicit operator System.Numerics.Vector2(Vector2 v) => new(v.X, v.Y);
 
         #endregion
 

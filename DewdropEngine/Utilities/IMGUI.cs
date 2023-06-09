@@ -252,7 +252,7 @@ public class ImGuiSfml
         [DllImport("RenderDataImpl.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         private static extern void RenderDrawLists(ImDrawDataPtr drawData, ImGuiIOPtr io);
 
-        private static unsafe IntPtr ConvertGlTextureHandleToImTextureId(uint glTextureHandle)
+        public static unsafe IntPtr ConvertGlTextureHandleToImTextureId(uint glTextureHandle)
         {
             var imTexId = 0;
             long size = Unsafe.SizeOf<uint>();
@@ -334,7 +334,7 @@ public class ImGuiSfml
             }
         }
 
-        private static void Image(Texture texture, Color tintColor, Color borderColor)
+        public static void Image(Texture texture, Color tintColor, Color borderColor)
         {
             Image(texture, new Vector2f(texture.Size.X, texture.Size.Y), tintColor, borderColor);
         }

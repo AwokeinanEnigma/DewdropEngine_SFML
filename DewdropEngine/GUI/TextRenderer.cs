@@ -10,7 +10,7 @@ namespace DewDrop.GUI
     /// <summary>
     /// This is a renderable which simply displays text on the screen.
     /// </summary>
-    public class GenericText : Renderable
+    public class TextRenderer : Renderable
     {
         public override Vector2 Position
         {
@@ -59,9 +59,9 @@ namespace DewDrop.GUI
         private string text;
 
 
-        public GenericText(Vector2 position, int depth, FontData font, string text) : this(position, depth, font, (text != null) ? text : string.Empty, 0, (text != null) ? text.Length : 0) { }
+        public TextRenderer(Vector2 position, int depth, FontData font, string text) : this(position, depth, font, (text != null) ? text : string.Empty, 0, (text != null) ? text.Length : 0) { }
 
-        public GenericText(Vector2 position, int depth, FontData font, string text, int index, int length)
+        public TextRenderer(Vector2 position, int depth, FontData font, string text, int index, int length)
         {
             this._position = position;
             this.text = text;
