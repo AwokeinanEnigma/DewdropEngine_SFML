@@ -1,84 +1,58 @@
-﻿using System;
+﻿namespace DewDrop.Graphics;
 
-namespace DewDrop.Graphics
+/// <summary>
+///     An abstract class for animated graphics
+/// </summary>
+public abstract class AnimatedRenderable : Renderable
 {
     /// <summary>
-    /// An abstract class for animated graphics
+    ///     How many frames this animated graphic has
     /// </summary>
-    public abstract class AnimatedRenderable : Renderable
+    public int Frames
     {
-        /// <summary>
-        /// How many frames this animated graphic has
-        /// </summary>
-        public int Frames
-        {
-            get
-            {
-                return this.frames;
-            }
-            protected set
-            {
-                this.frames = value;
-            }
-        }
-        /// <summary>
-        /// The frame this animated graphic is on
-        /// </summary>
-        public float Frame
-        {
-            get
-            {
-                return this.frame;
-            }
-            set
-            {
-                this.frame = Math.Max(0f, Math.Min(frames, value));
-            }
-        }
-        /// <summary>
-		/// Animation speeds
-		/// </summary>
-		public float[] Speeds
-        {
-            get
-            {
-                return this.speeds;
-            }
-            protected set
-            {
-                this.speeds = value;
-            }
-        }
-
-        /// <summary>
-		/// Speed modifier
-		/// </summary>
-		public float SpeedModifier
-        {
-            get
-            {
-                return this.speedModifier;
-            }
-            set
-            {
-                this.speedModifier = value;
-            }
-        }
-        /// <summary>
-        /// When this animated graphic has finished its animation.
-        /// </summary>
-        public event AnimatedRenderable.AnimationCompleteHandler OnAnimationComplete;
-
-        protected void AnimationComplete()
-        {
-            OnAnimationComplete?.Invoke(this);
-        }
-
-        protected int frames;
-        protected float frame;
-        protected float speedIndex;
-        protected float[] speeds;
-        protected float speedModifier;
-        public delegate void AnimationCompleteHandler(AnimatedRenderable renderable);
+        get => frames;
+        protected set => frames = value;
     }
+    /// <summary>
+    ///     The frame this animated graphic is on
+    /// </summary>
+    public float Frame
+    {
+        get => frame;
+        set => frame = Math.Max(0f, Math.Min(frames, value));
+    }
+    /// <summary>
+    ///     The duration of various frames
+    /// </summary>
+    public float[] Speeds
+    {
+        get => speeds;
+        protected set => speeds = value;
+    }
+
+    /// <summary>
+    ///     Speed modifier ( this is multiplied by the current speed )
+    /// </summary>
+    public float SpeedModifier
+    {
+        get => speedModifier;
+        set => speedModifier = value;
+    }
+    /// <summary>
+    ///     Invoked when the renderable has finished an animation.
+    /// </summary>
+    public event AnimationCompleteHandler OnAnimationComplete;
+
+    protected void AnimationComplete()
+    {
+        OnAnimationComplete?.Invoke(this);
+    }
+
+    protected int frames;
+    protected float frame;
+    protected float speedIndex;
+    protected float[] speeds;
+    protected float speedModifier;
+
+    public delegate void AnimationCompleteHandler(AnimatedRenderable renderable);
 }

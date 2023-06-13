@@ -1,18 +1,12 @@
-﻿using DewDrop.Utilities;
-using SFML.System;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region
 
-namespace DewDrop
+using DewDrop.Utilities;
+
+#endregion
+
+namespace DewDrop;
+
+public class Nothing
 {
-    public class Nothing
-    {
-        public Vector2 Position;
-        public Nothing() { 
-        
-        }
-    }
+    public Vector2 Position;
 }

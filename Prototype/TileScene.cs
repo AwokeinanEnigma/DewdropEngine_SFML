@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
 using DewDrop;
-using Dewdrop.Graphics;
+using DewDrop.Graphics;
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.Scenes;
+using DewDrop.UserInput;
 using DewDrop.Utilities;
 using ImGuiNET;
 using Prototype.Scenes;
@@ -14,7 +15,7 @@ using Vector2 = DewDrop.Utilities.Vector2;
 
 namespace Prototype;
 
-public class TileScene : Scene
+public class TileScene : SceneBase
 {
     public bool TileGridInitialized { get; private set; }
     public int TileGridX;

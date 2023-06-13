@@ -1,14 +1,11 @@
-﻿using System;
+﻿namespace DewDrop.Scenes;
 
-namespace DewDrop.Scenes
+/// <summary>
+///     Generic exception used if the scene stack is empty.
+/// </summary>
+internal class EmptySceneStackException : Exception
 {
-    /// <summary>
-    /// Generic exception used if the scene stack is empty.
-    /// </summary>
-    internal class EmptySceneStackException : Exception
+    public EmptySceneStackException() : base("The scene stack is empty!")
     {
-        public EmptySceneStackException() : base("The scene stack is empty!")
-        {
-        }
     }
 }

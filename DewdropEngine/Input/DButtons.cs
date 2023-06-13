@@ -1,7 +1,7 @@
-﻿namespace DewDrop;
+﻿namespace DewDrop.UserInput;
 
 /// <summary>
-/// Enum that contains various buttons used by the Dewdrop Engine
+///     Enum that contains various buttons used by the Dewdrop Engine
 /// </summary>
 public enum DButtons
 {
@@ -10,8 +10,5 @@ public enum DButtons
     Up = 2,
     Down = 3,
     Left = 4,
-    Right = 5,
-    
-    
+    Right = 5
 }
-

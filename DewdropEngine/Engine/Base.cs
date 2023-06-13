@@ -1,40 +1,43 @@
-﻿using DewDrop.Resources;
+﻿#region
+
+using DewDrop.Resources;
+using DewDrop.UserInput;
 using DewDrop.Utilities;
-using SFML.Graphics;
-using System.Runtime.CompilerServices;
 using SFML.System;
 
-namespace DewDrop
+#endregion
+
+namespace DewDrop;
+
+public static partial class Engine
 {
-    public static partial class Engine
+    private static bool initialized;
+
+    /// <summary>
+    ///     Clock that's started when the game starts.
+    /// </summary>
+    public static Clock SessionTimer;
+
+    public static void Initialize()
     {
-        private static bool initialized = false;
-        
-        /// <summary>
-        /// Clock that's started when the game starts.
-        /// </summary>
-        public static Clock SessionTimer;
 
-        public static void Initialize()
+        // if we haven't initialized yet
+        if (!initialized)
         {
+            Debug.Initialize();
+            EmbeddedResourcesHandler.GetStreams();
+            new Input();
 
-            // if we haven't initialized yet
-            if (!initialized)
-            {
-                Debug.Initialize();
-                EmbeddedResourcesHandler.GetStreams();
-                new Input();
-                
-                // get em' graphics going!!!
-                // this is located in EngineGraphics.cs
-                InitializeGraphics();
-                CreateDebugPipeline();
-                initialized = true;
-                
-                SessionTimer = new Clock();
-                SessionTimer.Restart();
-                
-            }
+            // get em' graphics going!!!
+            // this is located in EngineGraphics.cs
+            InitializeGraphics();
+            CreateDebugPipeline();
+            initialized = true;
+
+            SessionTimer = new Clock();
+            SessionTimer.Restart();
+
+            //TODO: Engine should REALLY be calling its own loop
         }
     }
 }

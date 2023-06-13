@@ -1,19 +1,18 @@
 ﻿/// <summary>
-/// Enum for color blending modes
+///     Enum for color blending modes
 /// </summary>
 public enum ColorBlendMode
 {
     Replace,
     /// <summary>
-    /// A*B
+    ///     A*B
     /// </summary>
     Multiply,
     /// <summary>
-    /// Adds two images together and keeps the brighter pixels
+    ///     Adds two images together and keeps the brighter pixels
     /// </summary>
     Screen,
     /// <summary>
-    /// 
     /// </summary>
     Add
 }

@@ -1,14 +1,15 @@
 ﻿#region
 
+using DewDrop;
+using DewDrop.Entity;
+using DewDrop.Graphics;
 using DewDrop.Utilities;
 using SFML.Graphics;
 
 #endregion
 
-namespace DewDrop.Graphics;
-
-public class ShapeGraphic : Renderable
-{
+public class ShapeEntity : RenderableEntity
+{   
     public Shape Shape => _shape;
     //set => _shape = value;
     public Color OutlineColor
@@ -24,8 +25,7 @@ public class ShapeGraphic : Renderable
     }
 
     private Shape _shape;
-
-    public ShapeGraphic(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, Color fillColor = default, Color outlineColor = default)
+    public ShapeEntity(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, Color fillColor = default, Color outlineColor = default)
     {
         Position = position;
         Size = size;
@@ -47,18 +47,23 @@ public class ShapeGraphic : Renderable
         _shape.FillColor = fillColor;
         _shape.OutlineColor = outlineColor;
 
+        _visible = true;
         _shape.Origin = Origin;
         _shape.Position = Position;
         //_shape.Scale = Size;
         //_shape.Rotation = Rotation;
 
     }
-
-    public override void Draw(RenderTarget target)
+    
+    public override void Awake()
     {
-        _shape.Origin = Origin;
-        _shape.Position = Position;
-        target.Draw(_shape);
+        base.Awake();
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        _position = new Vector2(160, (_position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
     }
 
     protected override void Dispose(bool disposing)
@@ -69,9 +74,14 @@ public class ShapeGraphic : Renderable
             {
                 _shape.Dispose();
             }
-
         }
-
         _disposed = true;
+    }
+
+    public override void Draw(RenderTarget target)
+    {
+        _shape.Origin = Origin;
+        _shape.Position = Position;
+        target.Draw(_shape);
     }
 }
