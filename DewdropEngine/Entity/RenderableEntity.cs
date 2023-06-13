@@ -20,6 +20,8 @@ public abstract class RenderableEntity : Entity, IRenderable
         get => _position;
         set => _position = value;
     }
+    
+    //test
 
     /// <summary>
     ///     The origin of the renderable object.
