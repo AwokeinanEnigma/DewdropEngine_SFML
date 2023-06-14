@@ -67,6 +67,7 @@ public abstract class Renderable : IRenderable
         get => _rotation;
         set => _rotation = value;
     }
+    public bool IsBeingDrawn { get; set; }
 
     #endregion
 

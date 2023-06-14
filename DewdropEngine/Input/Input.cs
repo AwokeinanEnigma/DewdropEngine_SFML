@@ -130,8 +130,7 @@ public class Input
                 _keyStatuses.Add(key, false);
 
         foreach (DButtons key in Enum.GetValues(typeof(DButtons)))
-            // for some reason, semicolons throw a duplicate key exception
-            // this is to prevent that
+
             if (!_buttonStatuses.ContainsKey(key))
                 _buttonStatuses.Add(key, false);
 

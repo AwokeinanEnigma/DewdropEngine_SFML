@@ -287,7 +287,16 @@ public class RenderPipeline
                 if (IRenderableRect.Intersects(viewRect))
                 {
                     IRenderable.Draw(target);
+                    IRenderable.IsBeingDrawn = true;
                 }
+                else
+                {
+                    IRenderable.IsBeingDrawn = false;
+                }
+            }
+            else
+            {
+                IRenderable.IsBeingDrawn = false;
             }
         }
     }

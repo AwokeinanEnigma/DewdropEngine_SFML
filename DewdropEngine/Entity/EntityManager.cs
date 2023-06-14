@@ -1,4 +1,4 @@
-﻿namespace DewDrop.Entity;
+﻿namespace DewDrop.Entities;
 
 public class EntityManager
 {

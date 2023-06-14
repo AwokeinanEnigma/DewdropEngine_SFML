@@ -5,3 +5,23 @@ dotnet_diagnostic.CS8618.severity = silent
 
 # CS8622: Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
 dotnet_diagnostic.CS8622.severity = none
+# CS8625: Cannot convert null literal to non-nullable reference type.
+
+# get off my fucking ass
+dotnet_diagnostic.CS8625.severity = none
+
+dotnet_diagnostic.CS8769.severity = none
+
+dotnet_diagnostic.CS8767.severity = none
+
+dotnet_diagnostic.CS8600.severity = none
+
+dotnet_diagnostic.CS8604.severity = none
+
+dotnet_diagnostic.CS8601.severity = none
+
+dotnet_diagnostic.CS8603.severity = none
+
+dotnet_diagnostic.CS8602.severity = none
+
+

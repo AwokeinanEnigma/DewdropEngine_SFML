@@ -42,9 +42,6 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 
             Console.WriteLine("Press ESC key to close window");
             Engine.StartGameLoop();
-            
-
-            Console.WriteLine("All done");
         }
     }
 }

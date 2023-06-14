@@ -2,7 +2,7 @@
 using DewDrop.GUI;
 using DewDrop.Scenes;
 using DewDrop;
-using DewDrop.Entity;
+using DewDrop.Entities;
 using DewDrop.Utilities;
 using DewDrop.GUI.Fonts;
 using DewDrop.Tiles;
@@ -27,20 +27,20 @@ namespace Prototype.Scenes
         public SpriteGraphic texture;
         public SpriteGraphic texture2;
         private ShapeGraphic shape;
-        
+        ShapeEntity swagity;
         public EntityManager EntityManager { get; private set; }
         public TestScene()
         {
             this.pipeline = new RenderPipeline(Engine.RenderTexture);
             EntityManager = new EntityManager();
  
-            ShapeEntity Reddit = new(
+            swagity = new(
                 new RectangleShape(new Vector2f(10,10)), 
                 new Vector2(160, 90), 
-                new Vector2(500,500), 
+                new Vector2(10,10), 
                 new Vector2(5,5), 5000, Color.Green, Color.Green);
-            EntityManager.AddEntity(Reddit);
-            pipeline.Add(Reddit);
+ EntityManager.AddEntity(swagity);
+ pipeline.Add(swagity);
 
             //  Engine.ClearColor = Color.Blue;
             FontData DefaultFont = new FontData();
@@ -143,7 +143,7 @@ namespace Prototype.Scenes
         public override void Focus()
         {
             base.Focus();
-            ViewManager.Instance.FollowActor = null;
+            ViewManager.Instance.EntityFollow = null;
             ViewManager.Instance.Center = new Vector2(160f, 90f);
             //Engine.ClearColor = Color.Black;
         }
@@ -158,6 +158,7 @@ namespace Prototype.Scenes
             base.Update();
             //Engine.DebugMode = false;
            shape.Visible = false;
+           ViewManager.Instance.EntityFollow = swagity;
             // shape.Position =new Vector2(160, (title.Position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
            //; texture.Position =  Input.GetMousePosition(); // new Vector2(160, (title.Position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
             texture.Rotation = /*(int)*/amplitude * (float)Math.Sin(frequency * MathF.PI *  Engine.SessionTimer.ElapsedTime.AsSeconds()/ division);

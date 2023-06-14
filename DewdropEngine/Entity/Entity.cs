@@ -1,6 +1,6 @@
 ﻿using DewDrop.Utilities;
 
-namespace DewDrop.Entity;
+namespace DewDrop.Entities;
 
 /// <summary>
 ///     An entity is a non-static object within the game world that is capable of being updated.

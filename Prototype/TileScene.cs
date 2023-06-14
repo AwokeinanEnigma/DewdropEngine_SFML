@@ -150,7 +150,7 @@ public class TileScene : SceneBase
     public override void Focus()
     {
         base.Focus();
-        ViewManager.Instance.FollowActor = null;
+        ViewManager.Instance.EntityFollow = null;
         //ViewManager.Instance.Center = new Vector2(160f, 90f);    
     }
 

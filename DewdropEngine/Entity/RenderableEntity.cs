@@ -2,7 +2,7 @@
 using DewDrop.Utilities;
 using SFML.Graphics;
 
-namespace DewDrop.Entity;
+namespace DewDrop.Entities;
 
 /// <summary>
 /// A renderable entity is an entity that is updated and drawn as well. 
@@ -21,8 +21,6 @@ public abstract class RenderableEntity : Entity, IRenderable
         set => _position = value;
     }
     
-    //test
-
     /// <summary>
     ///     The origin of the renderable object.
     /// </summary>
@@ -67,6 +65,7 @@ public abstract class RenderableEntity : Entity, IRenderable
         get => _rotation;
         set => _rotation = value;
     }
+    public bool IsBeingDrawn { get; set; }
 
     #endregion
     
@@ -81,8 +80,37 @@ public abstract class RenderableEntity : Entity, IRenderable
     protected int _depth;
 
     protected bool _visible = true;
-    
+
+    protected bool _wasDrawn;
+   
     #endregion
+
+    public override void Update()
+    {
+        base.Update();
+        if (_wasDrawn != IsBeingDrawn)
+        {
+            if (IsBeingDrawn)
+            {
+                BecomeVisible();
+            }
+            else
+            {
+                BecomeInvisible();
+            }
+        }
+        _wasDrawn = IsBeingDrawn;
+    }
+    
+    public virtual void BecomeVisible()
+    {
+        //IsBeingDrawn = true;
+    }
+    
+    public virtual void BecomeInvisible()
+    {
+        //IsBeingDrawn = false;
+    }
 
     public abstract void Draw(RenderTarget target);
 }

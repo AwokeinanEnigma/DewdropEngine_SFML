@@ -1,7 +1,8 @@
 ﻿#region
 
+using System.Runtime.CompilerServices;
 using DewDrop;
-using DewDrop.Entity;
+using DewDrop.Entities;
 using DewDrop.Graphics;
 using DewDrop.Utilities;
 using SFML.Graphics;
@@ -54,11 +55,6 @@ public class ShapeEntity : RenderableEntity
         //_shape.Rotation = Rotation;
 
     }
-    
-    public override void Awake()
-    {
-        base.Awake();
-    }
 
     public override void Update()
     {
@@ -66,6 +62,20 @@ public class ShapeEntity : RenderableEntity
         _position = new Vector2(160, (_position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
     }
 
+    public bool move = true;
+
+    public override void BecomeVisible()
+    {
+        base.BecomeVisible();
+        Debug.Log("We're barack.");
+    }
+    
+    public override void BecomeInvisible()
+    {
+        base.BecomeInvisible();
+        Debug.Log("It's joeover.");
+    }
+    
     protected override void Dispose(bool disposing)
     {
         if (!_disposed)
