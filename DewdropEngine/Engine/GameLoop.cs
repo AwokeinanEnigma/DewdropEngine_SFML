@@ -107,48 +107,31 @@ public static partial class Engine
 
     public static void Update()
     {
-        // This is wrapped in a try catch statement to detect errors and such.
-        try
+
+        // Update our audio as soon as possible
+        //AudioManager.Instance.Update();
+
+        // This makes input and other events from the window work
+        window.DispatchEvents();
+
+        // Update cruciel game instances
+        SceneManager.Instance.Update();
+
+        ViewManager.Instance.Update();
+        ViewManager.Instance.UseView();
+
+        // OpenGL shit, we have to clear our frame buffer before we can draw to it
+        frameBuffer.Clear(Color.Black);
+        //Finally, draw our scene.
+        SceneManager.Instance.Draw();
+        // Draw over our scene.
+        if (debugMode)
         {
-            // Update our audio as soon as possible
-            //AudioManager.Instance.Update();
-
-            // This makes input and other events from the window work
-            window.DispatchEvents();
-
-            // Update cruciel game instances
-            SceneManager.Instance.Update();
-
-            ViewManager.Instance.Update();
-            ViewManager.Instance.UseView();
-
-            // OpenGL shit, we have to clear our frame buffer before we can draw to it
-            frameBuffer.Clear(Color.Black);
-            //Finally, draw our scene.
-            SceneManager.Instance.Draw();
-            // Draw over our scene.
-            if (debugMode)
-            {
-                debugPipeline.Draw();
-            }
-
-            ImGuiSfml.Update(window, _maxDeltaTime);
-        }
-        // If we catch an empty stack exception, we just quit. This is because there's no next scene to go to, the game is finished!
-        catch (EmptySceneStackException)
-        {
-            //quit = true;
-        }
-        // If the exception is NOT an empty scene stack exception, we'll go to the error scene.
-        catch (Exception ex)
-        {
-            SceneManager.Instance.AbortTransition();
-            SceneManager.Instance.Clear();
-            SceneManager.Instance.Transition = new InstantTransition();
-            //SceneManager.Instance.Push(new ErrorScene(ex));
+            debugPipeline.Draw();
         }
 
-
+        ImGuiSfml.Update(window, _deltaTimeFloat);
+        
         ViewManager.Instance.UseDefault();
     }
 
@@ -167,6 +150,7 @@ public static partial class Engine
         ImGuiSfml.Render();
         window.Display();
 
-        Frame += 1;
+        Frame++;
+        // += 1;
     }
 }

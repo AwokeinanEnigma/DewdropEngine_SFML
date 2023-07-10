@@ -17,7 +17,7 @@ public abstract class Renderable : IRenderable
     /// <summary>
     ///     The position of the renderable object.
     /// </summary>
-    public virtual Vector2 Position
+    public virtual Vector2 RenderPosition
     {
         get => _position;
         set => _position = value;

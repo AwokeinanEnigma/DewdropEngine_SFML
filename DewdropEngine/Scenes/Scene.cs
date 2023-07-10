@@ -13,12 +13,19 @@ public abstract class SceneBase : IDisposable
         set => drawBehind = value;
     }
 
+    public bool HasLoaded
+    {
+        get => hasLoaded;
+        set => hasLoaded = value;
+    }
+
     #endregion
 
     #region Booleans
 
     protected bool disposed;
     private bool drawBehind;
+    private bool hasLoaded;
 
     #endregion
 
@@ -43,7 +50,8 @@ public abstract class SceneBase : IDisposable
     public virtual void Unfocus()
     {
     }
-
+    
+    
     /// <summary>
     ///     Called when the scene is being unloaded and the game is transitioning to another scene.
     /// </summary>
@@ -65,6 +73,14 @@ public abstract class SceneBase : IDisposable
     {
     }
 
+    /// <summary>
+    /// This is called when the scene is being completely unloaded during a scene transition. This is the place to dispose of resources.
+    /// </summary>
+    public virtual void CompletelyUnload()
+    {
+        Dispose();
+    }
+    
     public void Dispose()
     {
         Dispose(true);

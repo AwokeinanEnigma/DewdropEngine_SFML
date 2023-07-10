@@ -1,10 +1,18 @@
-﻿using DewDrop.Utilities;
+﻿using DewDrop.Utilities; 
 using SFML.Window;
 
 namespace DewDrop.UserInput;
 
+/// <summary>
+/// Defines a class that manages the axis input of the player.
+/// </summary>
 public class AxisManager
 {
+    public static AxisManager Instance { get; private set; }
+    
+    /// <summary>
+    /// Contains various directions.
+    /// </summary>
     public enum InputDirection
     {
         Up,
@@ -13,38 +21,64 @@ public class AxisManager
         Right
     }
 
-    private Dictionary<Keyboard.Key, InputDirection> _axisMap;
-    private Dictionary<InputDirection, bool> _axisState;
+    // contains the mapping of keys to directions
+    private readonly Dictionary<Keyboard.Key, InputDirection> _axisMap;
+    // contains the state of each direction, if it's pressed or not
+    private readonly Dictionary<InputDirection, bool> _axisState;
 
     private int _horizontalAxis;
     private int _verticalAxis;
     
+    /// <summary>
+    /// The axis the player is trying to move into.
+    /// </summary>
     public Vector2 Axis => _axis;
     
     private Vector2 _axis;
+    
+    /// <summary>
+    /// This event is invoked before the axis is updated with the previous axis value.
+    /// </summary>
+    public static event Action<Vector2> PreAxisChanged;
+    
+    /// <summary>
+    /// This event is invoked after the axis is updated with the new axis value.
+    /// </summary>
+    public static event Action PostAxisChanged;
 
+    
+    /// <summary>
+    /// Creates a new AxisManager with the given axis map.
+    /// </summary>
+    /// <param name="axisMap">A dictionary containing keys that correspond to a specific direction.</param>
+    /// <exception cref="ArgumentNullException">Thrown if you ( for any reason ) pass a null axisMap</exception>
     public AxisManager(Dictionary<Keyboard.Key, InputDirection> axisMap)
     {
-        if (axisMap == null)
-        {
-            throw new ArgumentNullException(nameof(axisMap));
-        } 
-        _axisMap = axisMap;
+        Instance = this;
         
+        _axisMap = axisMap ?? throw new ArgumentNullException(nameof(axisMap));
         _axisState = new Dictionary<InputDirection, bool>();
             
+        // map all directions to dict
         foreach (InputDirection direction in Enum.GetValues(typeof(InputDirection)))
             if (!_axisState.ContainsKey(direction))
                 _axisState.Add(direction, false);
 
+        // create axis
         _axis = new Vector2(0,0);
         
+        // hook into input events
         Input.Instance.OnKeyPressed += InstanceOnOnButtonPressed;
         Input.Instance.OnKeyReleased += InstanceOnOnButtonReleased;
     }
     
+    /// <summary>
+    /// Creates a new AxisManager with the default axis map.
+    /// </summary>
     public AxisManager()
     {
+        Instance = this;
+
         _axisMap = new Dictionary<Keyboard.Key, InputDirection>();
             
         _axisMap.Add(Keyboard.Key.W, InputDirection.Up);
@@ -70,6 +104,8 @@ public class AxisManager
         {
             _axisState[_axisMap[e]] = false;
         }
+
+        RemapAxis();
     }
 
     private void InstanceOnOnButtonPressed(object? sender, Keyboard.Key e)
@@ -78,10 +114,21 @@ public class AxisManager
         {
             _axisState[_axisMap[e]] = true;
         }
+
+        RemapAxis();
+    }
+
+    // update our axis
+    private void RemapAxis()
+    {
+        PreAxisChanged?.Invoke(_axis);
+
         _horizontalAxis = ( _axisState[InputDirection.Left] ? -1 : 0) + (_axisState[InputDirection.Right] ? 1 : 0);
         _verticalAxis = (_axisState[InputDirection.Up] ? -1 : 0) + (_axisState[InputDirection.Down] ? 1 : 0);
         
         _axis.X = _horizontalAxis;
         _axis.Y = _verticalAxis;
+        
+        PostAxisChanged?.Invoke();
     }
 }

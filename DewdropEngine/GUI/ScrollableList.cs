@@ -40,15 +40,15 @@ public class ScrollableList : Renderable
     private TextRenderer[] _texts;
     private string[] _options;
 
-    public ScrollableList(Vector2 position, int depthToRenderAt, string[] options, int displayableOptions, FontData data)
+    public ScrollableList(Vector2 position, int depthToRenderAt, string[] options, int displayableOptions, float lineHeight, FontData data)
     {
         _options = options;
 
-        int num = Math.Min(_options.Length, displayableOptions);
-        _texts = new TextRenderer[num];
-        for (int j = 0; j < num; j++)
+        int renderers = Math.Min(_options.Length, displayableOptions);
+        _texts = new TextRenderer[renderers];
+        for (int i = 0; i < renderers; i++)
         {
-            //    _texts[j] = new TextRenderer(new Vector2(position.X, position.Y + lineHeight * j), depthToRenderAt, new FontData(), _options[j]);
+            _texts[i] = new TextRenderer(new Vector2(position.X, position.Y + lineHeight * i), depthToRenderAt, new FontData(), _options[i]);
         }
     }
 
@@ -59,5 +59,36 @@ public class ScrollableList : Renderable
             if (_texts[i].Visible)
                 _texts[i].Draw(target);
         }
+    }
+    
+    public void UpdateText(int index, string newText)
+    {
+        if (index < 0 || index >= _texts.Length)
+        {
+            Debug.LogError("Index out of range!", new IndexOutOfRangeException("You can't update a text that doesn't exist!"));
+            return;
+        }
+        _texts[index].Text = newText;
+    }
+    
+    public void UpdateVisibility(bool visible)
+    {
+        for (int i = 0; i < _texts.Length; i++)
+        {
+            _texts[i].Visible = visible;
+        }
+    }
+    
+    public void SelectItem(int index)
+    {
+        if (index < 0 || index >= _texts.Length)
+        {
+            Debug.LogError("Index out of range!", new IndexOutOfRangeException("You can't select a text that doesn't exist!"));
+            return;
+        }
+        
+        // make sure we don't go out of bounds with the min
+        // and make sure we don't go below 0 with the max
+        _selectedIndex = Math.Min(_options.Length - 1, Math.Max(0, index)); 
     }
 }

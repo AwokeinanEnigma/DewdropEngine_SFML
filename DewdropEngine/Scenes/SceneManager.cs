@@ -93,7 +93,7 @@ public class SceneManager
         }
     }
 
-    private enum State
+    private enum SceneManagerState
     {
         Scene,
         Transition
@@ -129,7 +129,7 @@ public class SceneManager
     /// <summary>
     ///     If true, the scene manager is currently transitioning between scenes
     /// </summary>
-    public bool IsTransitioning => state == State.Transition;
+    public bool IsTransitioning => state == SceneManagerState.Transition;
 
     /// <summary>
     ///     Are we not displaying a scene?
@@ -151,7 +151,7 @@ public class SceneManager
 
     private static SceneManager instance;
 
-    private State state;
+    private SceneManagerState state;
 
     private SceneStack scenes;
 
@@ -193,7 +193,7 @@ public class SceneManager
         // no transition so just use the empty one
         transition = new InstantTransition();
         // even though we have no scenes, still set the scene state to Scene
-        state = State.Scene;
+        state = SceneManagerState.Scene;
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ public class SceneManager
         // reset transition
         transition.Reset();
         // set our state
-        state = State.Transition;
+        state = SceneManagerState.Transition;
 
         // disable input
         // InputManager.Instance.Enabled = false;
@@ -296,7 +296,7 @@ public class SceneManager
     public void Update()
     {
         UpdateScene();
-        if (state == State.Transition)
+        if (state == SceneManagerState.Transition)
         {
             UpdateTransition();
         }
@@ -326,9 +326,7 @@ public class SceneManager
                 // then we completely dispose of the previous scene
                 if (popped)
                 {
-                    previousScene.Unfocus();
-                    previousScene.Unload();
-                    previousScene.Dispose();
+                    previousScene.CompletelyUnload();
                     popped = false;
                 }
                 // if it isn't
@@ -383,7 +381,7 @@ public class SceneManager
         // and we can set the state of the Scene Manager to scene
         else
         {
-            state = State.Scene;
+            state = SceneManagerState.Scene;
             newSceneShown = false;
 
             //InputManager.Instance.Enabled = true;
@@ -395,13 +393,11 @@ public class SceneManager
 
     public void AbortTransition()
     {
-        if (state == State.Transition)
+        if (state == SceneManagerState.Transition)
         {
             if (previousScene != null)
             {
-                previousScene.Unfocus();
-                previousScene.Unload();
-                previousScene.Dispose();
+                previousScene.CompletelyUnload();
                 previousScene = null;
             }
 
@@ -411,7 +407,8 @@ public class SceneManager
                 scene.Focus();
             }
 
-            state = State.Scene;
+            state = SceneManagerState.Scene;
+            newSceneShown = false;
             newSceneShown = false;
 
             //InputManager.Instance.Enabled = true;

@@ -255,12 +255,16 @@ public class ViewManager
 
     public void UseView()
     {
+        // TODO, FOR ANYONE WHO'S WONDERING ABOUT THE VIEW GENERATED JUNK
+        // this generates so much fucking garbage
+        // but there's literally nothing i can do
+        // ugh
         window.SetView(view);
     }
 
     public void UseDefault()
     {
-        window.SetView(window.DefaultView);
+        //window.SetView(window.DefaultView);
     }
 
     public void Reset()

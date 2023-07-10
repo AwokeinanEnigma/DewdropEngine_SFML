@@ -215,7 +215,7 @@ public class RenderPipeline
     /// <param name="forEachFunc">The function to use on each IRenderable</param>
     public void Each(Action<IRenderable> forEachFunc)
     {
-        IRenderables.ForEach(x => forEachFunc(x));
+        IRenderables.ForEach(forEachFunc);
     }
 
     public void Clear()
@@ -271,32 +271,34 @@ public class RenderPipeline
         {
 
             // get IRenderable at index
-            IRenderable IRenderable = IRenderables[index];
+            IRenderable iRenderable = IRenderables[index];
 
             // if the IRenderable is visible, allow it to draw
-            if (IRenderable.Visible)
+            if (iRenderable.Visible)
             {
 
                 // fancy code to determine if a IRenderable is in the view of the game
-                IRenderableRect.Left = IRenderable.Position.x - IRenderable.Origin.x;
-                IRenderableRect.Top = IRenderable.Position.y - IRenderable.Origin.y;
-                IRenderableRect.Width = IRenderable.Size.x;
-                IRenderableRect.Height = IRenderable.Size.y;
+                
+                // basically, you can think of the origin as an offset from renderable's position
+                IRenderableRect.Left = iRenderable.RenderPosition.x - iRenderable.Origin.x;
+                IRenderableRect.Top = iRenderable.RenderPosition.y - iRenderable.Origin.y;
+                IRenderableRect.Width = iRenderable.Size.x;
+                IRenderableRect.Height = iRenderable.Size.y;
 
                 // if it's in the view of the game, allow that shit to draw baby!
                 if (IRenderableRect.Intersects(viewRect))
                 {
-                    IRenderable.Draw(target);
-                    IRenderable.IsBeingDrawn = true;
+                    iRenderable.Draw(target);
+                    iRenderable.IsBeingDrawn = true;
                 }
                 else
                 {
-                    IRenderable.IsBeingDrawn = false;
+                    iRenderable.IsBeingDrawn = false;
                 }
             }
             else
             {
-                IRenderable.IsBeingDrawn = false;
+                iRenderable.IsBeingDrawn = false;
             }
         }
     }

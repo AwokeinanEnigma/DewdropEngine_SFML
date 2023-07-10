@@ -7,7 +7,7 @@ namespace DewDrop.Entities;
 /// </summary>
 public abstract class Entity : IDisposable
 {
-    public Vector2 Position
+    public virtual Vector2 Position
     {
         get => _position;
         set => _position = value;

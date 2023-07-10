@@ -37,7 +37,11 @@ public class SpriteGraphic : Graphic
     public override Color Color
     {
         get => blend;
-        set => blend = value;
+        set
+        {
+            blend = value;
+            _realBlend = new Vec4(blend);
+        }
     }
 
     /// <summary>
@@ -108,6 +112,7 @@ public class SpriteGraphic : Graphic
 
     private SpritesheetTexture _spritesheet;
 
+    private Vec4 _realBlend;
     #endregion
 
     /// <summary>
@@ -138,6 +143,7 @@ public class SpriteGraphic : Graphic
         SetSprite(spriteName);
         _spritesheet.CurrentPalette = currentPalette;
         blend = Color.White;
+        _realBlend = new Vec4(blend);
         //multiply by default
         blendMode = ColorBlendMode.Multiply;
         renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, PaletteShader);
@@ -168,6 +174,7 @@ public class SpriteGraphic : Graphic
         SetSprite(spriteName);
         _spritesheet.CurrentPalette = currentPalette;
         blend = Color.White;
+        _realBlend = new Vec4(blend);
         //multiply by default
         blendMode = ColorBlendMode.Multiply;
         renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, PaletteShader);
@@ -213,6 +220,8 @@ public class SpriteGraphic : Graphic
         _spritesheet.CurrentPalette = palette;
 
         blend = Color.White;
+        _realBlend = new Vec4(blend);
+        
         //multiply by default
         blendMode = ColorBlendMode.Multiply;
         renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, PaletteShader);
@@ -299,12 +308,13 @@ public class SpriteGraphic : Graphic
             finalScale.Y = flipY ? -scale.Y : scale.Y;
             sprite.Scale = finalScale;
             _spritesheet.CurrentPalette = currentPalette;
+            
             PaletteShader.SetUniform("image", texture.Image);
             PaletteShader.SetUniform("palette", _spritesheet.Palette);
             PaletteShader.SetUniform("palIndex", _spritesheet.CurrentPaletteFloat);
             //Debug.Log($"Current palette is {currentPalette}. Texture's palette is {((IndexedTexture)this.texture).CurrentPalette}. Float palette is {((IndexedTexture)this.texture).CurrentPaletteFloat} & the palette max is {((IndexedTexture)this.texture).PaletteCount}. {(float)CurrentPalette/ (float)((IndexedTexture)this.texture).PaletteCount} ");
             PaletteShader.SetUniform("palSize", _spritesheet.PaletteSize);
-            PaletteShader.SetUniform("blend", new Vec4(blend));
+            PaletteShader.SetUniform("blend", _realBlend);
             PaletteShader.SetUniform("blendMode", (float)blendMode);
             //IndexedColorGraphic.INDEXED_COLOR_SHADER.SetUniform("time", time.ElapsedTime.AsSeconds());
             if (!_disposed)

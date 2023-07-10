@@ -70,7 +70,7 @@ public static partial class Engine
 
     private static Vector2 half_screen_size = new(screen_size.x / 2, screen_size.y / 2);
 
-    private static int frameBufferScale = 5;
+    private static int frameBufferScale = 3;
 
     #endregion
 
@@ -169,7 +169,7 @@ public static partial class Engine
         }
 
 
-        window = new RenderWindow(desktopMode, "Mother 4.5 You Will (Not) Release a Game", style);
+        window = new RenderWindow(desktopMode, "Dewdrop Engine", style);
         window.Closed += HandleClosingRequest;
 
         Input.Instance.AttachToWindow(window);

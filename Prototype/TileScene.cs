@@ -171,7 +171,7 @@ public class TileScene : SceneBase
         //texture.Visible = false;
 
         Vector2 pos = Engine.Window.MapPixelToCoords( Mouse.GetPosition());
-        texture.Position = pos;            //ViewManager.Instance.Center = new Vector2( 160,(ViewManager.Instance.Center.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
+        texture.RenderPosition = pos;            //ViewManager.Instance.Center = new Vector2( 160,(ViewManager.Instance.Center.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
         if (Input.MouseDown )// && TileGridInitialized)
         {
             Vector2 newPosition = Input.GetMousePosition() - ViewManager.Instance.Center /2;

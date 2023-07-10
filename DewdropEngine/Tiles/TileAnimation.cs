@@ -1,6 +1,6 @@
 ﻿namespace DewDrop.Tiles;
 
-public struct TileAnimation
+public struct AnimatedTile
 {
     public int[] Tiles;
 

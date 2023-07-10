@@ -9,6 +9,9 @@ using SFML.System;
 
 namespace DewDrop;
 
+/// <summary>
+/// "You must be ahead to quit. Too many people quit when they’re behind instead of attempting to get ahead. Failure!"
+/// </summary>
 public static partial class Engine
 {
     private static bool initialized;

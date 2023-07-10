@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using DewDrop;
 using DewDrop.Entities;
 using DewDrop.Graphics;
@@ -11,7 +10,7 @@ using SFML.Graphics;
 
 #endregion
 
-public class ShapeEntity : RenderableEntity
+public class ShapeEntity2 : RenderableEntity
 {   
     public Shape Shape => _shape;
     //set => _shape = value;
@@ -29,7 +28,7 @@ public class ShapeEntity : RenderableEntity
 
     private Shape _shape;
     private RenderPipeline _pipeline;
-    public ShapeEntity(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, RenderPipeline pipeline, Color fillColor = default, Color outlineColor = default)
+    public ShapeEntity2(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, RenderPipeline pipeline, Color fillColor = default, Color outlineColor = default)
     {
         RenderPosition = position;
         Size = size;
@@ -65,7 +64,7 @@ public class ShapeEntity : RenderableEntity
     {
         base.Update();
         _position += AxisManager.Instance.Axis * 2;
-        Depth = (int)_position.y;
+        Depth = int.MaxValue;
         _pipeline.ForceSort();
         ///Depth = Int32.MaxValue;
         //Console.WriteLine(_depth);
@@ -100,11 +99,9 @@ public class ShapeEntity : RenderableEntity
     public override void Draw(RenderTarget target)
     {
         _shape.Origin = Origin;
-        Vector2 positionCopy = _position;
-        positionCopy.y -= Size.y;
-        positionCopy.x -= Size.x / 2;
-        _shape.Position = positionCopy;
-        //_shape.Position = _position - Size;
+        Vector2 position = _position; 
+        position.y -= _shape.TextureRect.Height;
+        _shape.Position = position;
         target.Draw(_shape);
     }
 }

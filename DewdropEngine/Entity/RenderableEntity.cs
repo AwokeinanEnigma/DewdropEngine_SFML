@@ -12,15 +12,21 @@ public abstract class RenderableEntity : Entity, IRenderable
     public override string Name { get; }
     
     #region Properties
+    public virtual Vector2 RenderPosition { get; set; }
+
     /// <summary>
     ///     The position of the renderable object.
     /// </summary>
     public virtual Vector2 Position
     {
         get => _position;
-        set => _position = value;
+        set
+        {
+            _position = value;
+            RenderPosition = value;
+        }
     }
-    
+
     /// <summary>
     ///     The origin of the renderable object.
     /// </summary>
@@ -49,7 +55,7 @@ public abstract class RenderableEntity : Entity, IRenderable
     }
 
     /// <summary>
-    ///     Determines whether or not the renderable is visible. Handled by the RenderPipeline
+    ///     Determines whether or not the renderable is visible.
     /// </summary>
     public virtual bool Visible
     {
@@ -100,6 +106,9 @@ public abstract class RenderableEntity : Entity, IRenderable
             }
         }
         _wasDrawn = IsBeingDrawn;
+        
+        // sync the render position with the entity position
+        RenderPosition = _position;
     }
     
     public virtual void BecomeVisible()

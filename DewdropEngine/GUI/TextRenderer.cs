@@ -17,7 +17,7 @@ namespace DewDrop.GUI;
 /// </summary>
 public class TextRenderer : Renderable
 {
-    public override Vector2 Position
+    public override Vector2 RenderPosition
     {
         get => _position;
         set

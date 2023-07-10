@@ -27,7 +27,7 @@ public class ShapeGraphic : Renderable
 
     public ShapeGraphic(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, Color fillColor = default, Color outlineColor = default)
     {
-        Position = position;
+        RenderPosition = position;
         Size = size;
         Origin = origin;
         Depth = depth;
@@ -48,7 +48,7 @@ public class ShapeGraphic : Renderable
         _shape.OutlineColor = outlineColor;
 
         _shape.Origin = Origin;
-        _shape.Position = Position;
+        _shape.Position = RenderPosition;
         //_shape.Scale = Size;
         //_shape.Rotation = Rotation;
 
@@ -57,7 +57,7 @@ public class ShapeGraphic : Renderable
     public override void Draw(RenderTarget target)
     {
         _shape.Origin = Origin;
-        _shape.Position = Position;
+        _shape.Position = RenderPosition;
         target.Draw(_shape);
     }
 

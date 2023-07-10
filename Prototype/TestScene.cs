@@ -29,18 +29,31 @@ namespace Prototype.Scenes
         private ShapeGraphic shape;
         ShapeEntity swagity;
         public EntityManager EntityManager { get; private set; }
+        
+        public Text text;
+        
         public TestScene()
         {
             this.pipeline = new RenderPipeline(Engine.RenderTexture);
             EntityManager = new EntityManager();
- 
+ text = new Text("swag", new FontData().Font);
+ text.FillColor = Color.Red;
             swagity = new(
-                new RectangleShape(new Vector2f(10,10)), 
+                new RectangleShape(new Vector2f(11,20)), 
                 new Vector2(160, 90), 
-                new Vector2(10,10), 
-                new Vector2(5,5), 5000, Color.Green, Color.Green);
- EntityManager.AddEntity(swagity);
- pipeline.Add(swagity);
+                new Vector2(11,20), 
+                new Vector2(0,0), 90000, pipeline , Color.Green, Color.Green);
+            EntityManager.AddEntity(swagity);
+            pipeline.Add(swagity);
+
+            var aaa = new ShapeEntity2(
+                new RectangleShape(new Vector2f(1,1)), 
+                new Vector2(160, 90), 
+                new Vector2(20,20), 
+                new Vector2(0,0), 90000, pipeline , Color.Blue, Color.Blue);
+
+            EntityManager.AddEntity(aaa);
+            pipeline.Add(aaa);
 
             //  Engine.ClearColor = Color.Blue;
             FontData DefaultFont = new FontData();
@@ -57,8 +70,8 @@ namespace Prototype.Scenes
             {
                 Debug.Log($"Click button: {position.Button} at position: {Input.GetMousePosition() }");
             };
-            
-            NbtCompound rootTag = new NbtFile("C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Maps\\AAA.dat").RootTag;
+
+              NbtCompound rootTag = new NbtFile("C:\\Users\\Tom\\Documents\\elurbanodesperadoworkbin\\Resources\\Maps\\testmap.dat").RootTag; //"C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Maps\\railwaycave2.dat").RootTag;
             ((SpritesheetTexture)texture.Texture).ToFullColorTexture();
             pipeline.AddAll(MakeTileChunks(0, LoadTileChunks(rootTag)));
             //pipeline.Add(graphic);
@@ -69,48 +82,36 @@ namespace Prototype.Scenes
              new Vector2(160, 90), 
              new Vector2(1,1), 
              new Vector2(5,5), 500, Color.Green, Color.Green);//);
-         pipeline.Add(shape);   
+         /*pipeline.Add(shape);   
          pipeline.Add(texture);
          pipeline.Add(texture2);
          pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\travis_oddity.dat", "idle", new Vector2(190, 90), 90));
          pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\stump.dat", "default", new Vector2(65, 95 + (82/2)), 90));
-            pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\stump2.dat", "default", new Vector2(160, 115 + (28/2)), 90));
+            pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\stump2.dat", "default", new Vector2(160, 115 + (28/2)), 90));*/
 
             Input.Instance.OnKeyPressed += (key, key2) =>
             {
-                Debug.Log(key2);
             };
             Engine.RenderImGUI += () =>
             {
                 ImGui.Begin("Dewdrop Debug Utilities");
-                
-                if (ImGui.Button("down"))
-                {
-                    ViewManager.Instance.Center += new Vector2(0,50);
-                }
-                
-                if (ImGui.Button("right"))
-                {
-                    ViewManager.Instance.Center += new Vector2(50,0
-                    );
-                }
-                if (ImGui.Button("left"))
-                {
-                    ViewManager.Instance.Center += new Vector2(-50,0);
-                }
-                
-                if (ImGui.Button("up"))
-                {
-                    ViewManager.Instance.Center += new Vector2(0,-50);
-                }
+                ImGui.Text($"Garbage Allocated: {GC.GetTotalMemory(false) / 1024L}");
                 
                // ImGui.SliderFloat("Amplitude", ref amplitude, 0, 500);
                // ImGui.SliderFloat("Frequency", ref frequency, 0, 500);
+               ImGui.Separator();
+                
+               
+               //ImGui.SetClipboardText("faggot");
+               
+               if (ImGui.Button("Force GC Collection"))
+               {
+                   GC.Collect();
+               }
 
-      
-                ImGui.InputFloat("Amplitude", ref amplitude);
-                ImGui.InputFloat("Frequency", ref frequency);
-                ImGui.InputFloat("Division", ref division);
+               /*ImGui.InputFloat("Amplitude", ref amplitude);
+               ImGui.InputFloat("Frequency", ref frequency);
+               ImGui.InputFloat("Division", ref division);*/
                 
                 /*ImGui.Text("I'm");
                 ImGui.Text("going");
@@ -128,7 +129,6 @@ namespace Prototype.Scenes
             
             Input.Instance.OnKeyPressed += (key, key2) =>
             {
-                Debug.Log(key2);
                 if (key2 == Keyboard.Key.F1)
                 {
                     EntityManager.ClearEntities();
@@ -166,11 +166,11 @@ namespace Prototype.Scenes
             texture2.Rotation = amplitude - 1 * (float)Math.Sin(frequency - 1* MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds() + 1 /* for random offset!! */ / division);
             //texture.Rotation = -955 * Engine.SessionTimer.ElapsedTime.AsSeconds();
             //title.Text =$"MGC: {(GC.GetTotalMemory(false) / 1024L) * 0.001}MB\n";
-                
             if (Input.Instance[Keyboard.Key.A])
             {
-                Debug.Log("hit breakpoint");
+             //   Debug.Log("breakpoint");
             }
+            ViewManager.Instance.Shake(new Vector2(1,1), 1);
             EntityManager.Update();
         }
  
@@ -179,110 +179,91 @@ namespace Prototype.Scenes
         {
             string arg = "default";
 
-            string resource = "C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Graphics\\echogulch.dat";// string.Format("{0}{1}.mtdat", graphicDirectory, arg);
-            IList<TileChunk> list = new List<TileChunk>(groups.Count);
+            //string resource = "C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Graphics\\cave2.dat";// string.Format("{0}{1}.mtdat", graphicDirectory, arg);
+            string resource = "C:\\Users\\Tom\\Documents\\elurbanodesperadoworkbin\\Resources\\Graphics\\testmap.dat";
+            List<TileChunk> list = new(groups.Count);
             long ticks = DateTime.Now.Ticks;
             for (int i = 0; i < groups.Count; i++)
             {
-                Group mapGroups = groups[i];
-                IList<Tile> tileList = new List<Tile>(mapGroups.Tiles.Length / 2);
-                int o = 0;
-                int index = 0;
-                bool Tree = false;
-                while (o < mapGroups.Tiles.Length)
+                Group group = groups[i];
+                
+                List<Tile> tiles = new(group.Tiles.Length / 2);
+                int tileIndex = 0;
+                int tileX = 0;
+                while (tileIndex < group.Tiles.Length)
                 {
-
-                    int intTile = mapGroups.Tiles[o] - 1;
-
-                    if (intTile >= 0)
+                    int tileID = group.Tiles[tileIndex] - 1;
+                    if (tileID >= 0)
                     {
-                        ushort tileData;
-                        if (o + 1 < mapGroups.Tiles.Length)
+                        ushort tileModifier;
+                        if (tileIndex + 1 < group.Tiles.Length)
                         {
-                            tileData = mapGroups.Tiles[o + 1];
+                            tileModifier = group.Tiles[tileIndex + 1];
                         }
                         else
                         {
-                            tileData = 0;
+                            tileModifier = 0;
                         }
-                        int width = mapGroups.Width * 8;
-                        Vector2f position = new Vector2f(index * 8L % width, index * 8L / width * 8L);
-                        bool flipHoriz = (tileData & 1) > 0;
-                        bool flipVert = (tileData & 2) > 0;
-                        bool flipDiag = (tileData & 4) > 0;
-                        ushort animId = (ushort)(tileData >> 3);
-                        
-                        Tile item = new Tile((uint)intTile, position, flipHoriz, flipVert, flipDiag, animId);
-                        tileList.Add(item);
+                        int tileY = group.Width * 8;
+                        Vector2f position = new(tileX * 8L % tileY, tileX * 8L / tileY * 8L);
+                        bool flipHoriz = (tileModifier & 1) > 0;
+                        bool flipVert = (tileModifier & 2) > 0;
+                        bool flipDiag = (tileModifier & 4) > 0;
+                        ushort animId = (ushort)(tileModifier >> 3);
+                        Tile item = new((uint)tileID, position, flipHoriz, flipVert, flipDiag, animId);
+                        tiles.Add(item);
                     }
-                    o += 2;
-                    index++;
+                    tileIndex += 2;
+                    tileX++;
                 }
-                
-                TileChunk item2 = new TileChunk(tileList.ToArray(), resource, mapGroups.Depth, new Vector2f(mapGroups.X, mapGroups.Y), palette);
+                // converting to array allocates extra memory, and it's just not needed
+                TileChunk item2 = new(tiles, resource, (int)group.Depth, new Vector2f(group.X, group.Y), palette, true, Color.White);
                 list.Add(item2);
             }
-            Debug.LogInfo($"Created tile groups in {(DateTime.Now.Ticks - ticks) / 10000L}ms");
-            return list;
+            Console.WriteLine("Created tile groups in {0}ms", (DateTime.Now.Ticks - ticks) / 10000L);
+            return list; 
         }
 
         private List<Group> LoadTileChunks(NbtCompound mapTag)
         {
-            // Check if the mapTag has a "tiles" property
-            NbtTag tilesTag = mapTag.Get("tiles");
-
-            // Return if the tilesTag is not a collection
-            if (!(tilesTag is ICollection<NbtTag>))
-            {
-                return null;
-            }
+            NbtTag tileTag = mapTag.Get("tiles");
 
             List<Group> Groups = new();
 
-            // Iterate through each tile compound in the tilesTag collection
-            foreach (NbtTag tileTag in (IEnumerable<NbtTag>)tilesTag)
+            // i fucking love pattern matching!
+            if (tileTag is ICollection<NbtTag> tileGroupCollection)
             {
-                // Check if the tileTag is a compound
-                if (tileTag is NbtCompound tileCompound)
+                foreach (NbtTag tileGroupTag in tileGroupCollection)
                 {
-                    // Get the values from the tile compound
-                    uint depth = (uint)tileCompound.Get<NbtInt>("depth").Value;
-                    int x = tileCompound.Get<NbtInt>("x").Value;
-                    int y = tileCompound.Get<NbtInt>("y").Value;
-                    int width = tileCompound.Get<NbtInt>("w").Value;
-                    int tree = tileCompound.Get<NbtInt>("tree").Value;
-
-                    Debug.Log($"WE MIGHT HAVE A TREE GROUP: {tree}");
-                    if (tree > 0)
+                    if (tileGroupTag is NbtCompound tileGroup)
                     {
-                        Debug.Log("WE GOT A TREE GROUP");
+                        int depth = tileGroup.Get<NbtInt>("depth").Value;
+                        int xPosition = tileGroup.Get<NbtInt>("x").Value;
+                        int yPosition = tileGroup.Get<NbtInt>("y").Value;
+                        int width = tileGroup.Get<NbtInt>("w").Value;
+
+                        byte[] tileByteArray = tileGroup.Get<NbtByteArray>("tiles").Value;
+                        ushort[] tiles = new ushort[tileByteArray.Length / 2];
+                        Buffer.BlockCopy(tileByteArray, 0, tiles, 0, tileByteArray.Length);
+
+                        Group newTileGroup = new()
+                        {
+                            Depth = (uint)depth,
+                            X = xPosition,
+                            Y = yPosition,
+                            Width = width,
+                            Height = tiles.Length / 2 / width,
+                            Tiles = tiles
+                        };
+                        Groups.Add(newTileGroup);
                     }
-
-                    // Get the tiles as a byte array and convert it to a ushort array
-                    byte[] src = tileCompound.Get<NbtByteArray>("tiles").Value;
-                    ushort[] dst = new ushort[src.Length / 2];
-                    Buffer.BlockCopy(src, 0, dst, 0, src.Length);
-
-                    // Create a new Group object with the values
-                    Group group = new Group()
-                    {
-                        Depth = depth,
-                        X = x,
-                        Y = y,
-                        Width = width,
-                        Height = dst.Length / 2 / width,
-                        Tiles = dst,
-                        Tree = tree == 1 ? true : false,
-                    };
-
-                    // Add the Group object to the map's Groups list
-                    Groups.Add(group);
                 }
             }
 
             return Groups;
         }
-                public struct Group
+
+        public struct Group
                 {
                     public ushort[] Tiles;
 
@@ -302,6 +283,7 @@ namespace Prototype.Scenes
         public override void Draw()
         {
             this.pipeline.Draw();
+            Engine.RenderTexture.Draw(text);
             base.Draw();
         }
 

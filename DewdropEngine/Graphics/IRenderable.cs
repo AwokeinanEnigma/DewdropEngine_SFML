@@ -9,7 +9,7 @@ namespace DewDrop.Graphics;
 
 public interface IRenderable : IDisposable
 {
-    public Vector2 Position { get; set; }
+    public Vector2 RenderPosition { get; set; }
     
     /// <summary>
     ///     The origin of the renderable object.
@@ -29,13 +29,8 @@ public interface IRenderable : IDisposable
     /// <summary>
     ///     Determines whether or not the renderable is visible. Handled by the RenderPipeline
     /// </summary>
-    public bool Visible { get; set; }
+     public bool Visible { get; set; }
 
-    /// <summary>
-    ///     Rotates the renderable object.
-    /// </summary>
-    public float Rotation { get; set; }
-    
     /// <summary>
     /// Is this graphic being drawn by a renderpipeline?
     /// </summary>
