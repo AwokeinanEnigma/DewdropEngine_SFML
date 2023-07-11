@@ -39,7 +39,7 @@ public static class EmbeddedResourcesHandler
             }
             else
             {
-                Debug.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
+                DDDebug.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
             }
         }
     }
@@ -68,7 +68,7 @@ public static class EmbeddedResourcesHandler
             }
             else
             {
-                Debug.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
+                DDDebug.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
             }
         }
     }
@@ -86,7 +86,7 @@ public static class EmbeddedResourcesHandler
             return stream;
         }
 
-        Debug.LogError($"Couldn't find stream '{name}'!", null);
+        DDDebug.LogError($"Couldn't find stream '{name}'!", null);
         return null;
     }
 }

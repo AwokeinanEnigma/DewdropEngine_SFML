@@ -381,4 +381,52 @@ public struct Vector2
     }
 
     #endregion
+
+    #region Directions
+
+    /// <summary>
+    /// Converts a direction to a vector
+    /// </summary>
+    /// <param name="direction">The direction to convert into a vector</param>
+    /// <returns></returns>
+    public static Vector2 DirectionToVector(int direction)
+    {
+        return DIR_TO_VECTOR[direction % DIR_TO_VECTOR.Length];
+    }
+
+    /// <summary>
+    /// Converts a vector a direction.
+    /// </summary>
+    /// <param name="v"></param>
+    /// <returns></returns>
+    public static int VectorToDirection(Vector2 v)
+    {
+        double num = Math.Atan2(-v.Y, v.X) + PI_OVER_EIGHT;
+        int num2 = (int)Math.Floor(num / PI_OVER_FOUR);
+        if (num2 < 0)
+        {
+            num2 += 8;
+        }
+        return num2;
+    }
+    public const double PI_OVER_FOUR = 0.7853981633974483;
+
+    public const double PI_OVER_EIGHT = 0.39269908169872414;
+
+    public static readonly Vector2 ZERO_VECTOR = new Vector2(0f, 0f);
+
+    // used for VectorToDirection
+    private static Vector2[] DIR_TO_VECTOR = new Vector2[]
+    {
+        new(1f, 0f),
+        new(1f, -1f),
+        new(0f, -1f),
+        new(-1f, -1f),
+        new(-1f, 0f),
+        new(-1f, 1f),
+        new(0f, 1f),
+        new(1f, 1f)
+    };
+    
+    #endregion
 }

@@ -27,7 +27,7 @@ public static partial class Engine
         // if we haven't initialized yet
         if (!initialized)
         {
-            Debug.Initialize();
+            DDDebug.Initialize();
             EmbeddedResourcesHandler.GetStreams();
             new Input();
 

@@ -114,7 +114,7 @@ public class RenderPipeline
         // if we don't already have this IRenderable in this pipeline
         if (IRenderables.Contains(IRenderable))
         {
-            Debug.LogError("Tried to add IRenderable that already exists in the RenderPipeline.", null);
+            DDDebug.LogError("Tried to add IRenderable that already exists in the RenderPipeline.", null);
             return;
         }
 

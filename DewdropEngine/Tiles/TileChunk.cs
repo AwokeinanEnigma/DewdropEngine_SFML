@@ -126,7 +126,7 @@ public class TileChunk : Renderable
                 }
                 else
                 {
-                    Debug.LogError($"Tried creating tile animation data for animation {tileId}, but there was no tile data.", null);
+                    DDDebug.LogError($"Tried creating tile animation data for animation {tileId}, but there was no tile data.", null);
                     //Console.WriteLine("Tried to load tile animation data for animation {0}, but there was no tile data.", tileId);
                 }
             }

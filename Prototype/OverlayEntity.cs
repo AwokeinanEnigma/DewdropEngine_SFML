@@ -75,13 +75,13 @@ public class ShapeEntity2 : RenderableEntity
     public override void BecomeVisible()
     {
         base.BecomeVisible();
-        Debug.Log("We're barack.");
+        DDDebug.Log("We're barack.");
     }
     
     public override void BecomeInvisible()
     {
         base.BecomeInvisible();
-        Debug.Log("It's joeover.");
+        DDDebug.Log("It's joeover.");
     }
     
     protected override void Dispose(bool disposing)

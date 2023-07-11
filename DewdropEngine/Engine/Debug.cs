@@ -19,9 +19,9 @@ public static partial class Engine
         {
             debugMode = value;
             if (value)
-                Debug.LogWarning("Enabling debug mode!");
+                DDDebug.LogWarning("Enabling debug mode!");
             else
-                Debug.LogWarning("Disabling debug mode!");
+                DDDebug.LogWarning("Disabling debug mode!");
         }
     }
 

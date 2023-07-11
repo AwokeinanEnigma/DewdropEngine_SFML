@@ -47,7 +47,7 @@ public static partial class Engine
 
                 if (_deltaTimeFloat > _maxDeltaTime)
                 {
-                    Debug.LogWarning($"Passed the threshold for max deltaTime, deltaTime is {_deltaTime}, lastTime is {lastTime}");
+                    DDDebug.LogWarning($"Passed the threshold for max deltaTime, deltaTime is {_deltaTime}, lastTime is {lastTime}");
                     _deltaTimeFloat = _maxDeltaTime;
                 }
 
@@ -71,7 +71,7 @@ public static partial class Engine
                          * 
                         */
 
-                        Debug.LogWarning($"Resyncing, accumulator is {_accumulator}, and loop count is {_frameLoops}. See comments above this line in Program.cs for more info.");
+                        DDDebug.LogWarning($"Resyncing, accumulator is {_accumulator}, and loop count is {_frameLoops}. See comments above this line in Program.cs for more info.");
                         _accumulator = 0.0f;
                         break;
                     }

@@ -65,7 +65,7 @@ public class ScrollableList : Renderable
     {
         if (index < 0 || index >= _texts.Length)
         {
-            Debug.LogError("Index out of range!", new IndexOutOfRangeException("You can't update a text that doesn't exist!"));
+            DDDebug.LogError("Index out of range!", new IndexOutOfRangeException("You can't update a text that doesn't exist!"));
             return;
         }
         _texts[index].Text = newText;
@@ -83,7 +83,7 @@ public class ScrollableList : Renderable
     {
         if (index < 0 || index >= _texts.Length)
         {
-            Debug.LogError("Index out of range!", new IndexOutOfRangeException("You can't select a text that doesn't exist!"));
+            DDDebug.LogError("Index out of range!", new IndexOutOfRangeException("You can't select a text that doesn't exist!"));
             return;
         }
         

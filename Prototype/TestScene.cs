@@ -2,9 +2,11 @@
 using DewDrop.GUI;
 using DewDrop.Scenes;
 using DewDrop;
+using DewDrop.Collision;
 using DewDrop.Entities;
 using DewDrop.Utilities;
 using DewDrop.GUI.Fonts;
+using DewDrop.Maps;
 using DewDrop.Tiles;
 using DewDrop.UserInput;
 using fNbt;
@@ -27,24 +29,31 @@ namespace Prototype.Scenes
         public SpriteGraphic texture;
         public SpriteGraphic texture2;
         private ShapeGraphic shape;
-        ShapeEntity swagity;
+        Player swagity;
         public EntityManager EntityManager { get; private set; }
         
         public Text text;
+        public CollisionManager manager;
         
         public TestScene()
         {
             this.pipeline = new RenderPipeline(Engine.RenderTexture);
+            Map loader = new MapLoader("C:\\Users\\Tom\\Documents\\elurbanodesperadoworkbin\\Resources\\Maps\\testmap.dat").Load();
+            pipeline.AddAll(MakeTileChunks(0, loader.TileChunkData));
+            manager = new CollisionManager(loader.Width, loader.Height);
+            
             EntityManager = new EntityManager();
  text = new Text("swag", new FontData().Font);
  text.FillColor = Color.Red;
-            swagity = new(
+ loader.Collisions.ForEach(x => manager.Add(new StaticCollider(x)));// manager.Add();
+ swagity = new(
                 new RectangleShape(new Vector2f(11,20)), 
                 new Vector2(160, 90), 
                 new Vector2(11,20), 
-                new Vector2(0,0), 90000, pipeline , Color.Green, Color.Green);
+                new Vector2(0,0), 90000, pipeline , manager, Color.Green, Color.Green);
             EntityManager.AddEntity(swagity);
             pipeline.Add(swagity);
+            manager.Add(swagity);
 
             var aaa = new ShapeEntity2(
                 new RectangleShape(new Vector2f(1,1)), 
@@ -68,12 +77,10 @@ namespace Prototype.Scenes
            texture = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\belringtreehead.dat", "default", new Vector2(160, 90), 100);
               Input.Instance.OnMouseClick += (button, position) =>
             {
-                Debug.Log($"Click button: {position.Button} at position: {Input.GetMousePosition() }");
+                DDDebug.Log($"Click button: {position.Button} at position: {Input.GetMousePosition() }");
             };
+              
 
-              NbtCompound rootTag = new NbtFile("C:\\Users\\Tom\\Documents\\elurbanodesperadoworkbin\\Resources\\Maps\\testmap.dat").RootTag; //"C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Maps\\railwaycave2.dat").RootTag;
-            ((SpritesheetTexture)texture.Texture).ToFullColorTexture();
-            pipeline.AddAll(MakeTileChunks(0, LoadTileChunks(rootTag)));
             //pipeline.Add(graphic);
          //
             //ViewManager.  Instance.View.Zoom(10);
@@ -88,9 +95,15 @@ namespace Prototype.Scenes
          pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\travis_oddity.dat", "idle", new Vector2(190, 90), 90));
          pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\stump.dat", "default", new Vector2(65, 95 + (82/2)), 90));
             pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\stump2.dat", "default", new Vector2(160, 115 + (28/2)), 90));*/
-
-            Input.Instance.OnKeyPressed += (key, key2) =>
+         
+         Input.Instance.OnKeyPressed += (key, key2) =>
             {
+                if (key2 == Keyboard.Key.F1)
+                {
+                    pipeline.Remove(swagity);
+                    pipeline.Remove(aaa);
+                    EntityManager.ClearEntities();
+                }
             };
             Engine.RenderImGUI += () =>
             {
@@ -137,7 +150,7 @@ namespace Prototype.Scenes
             };
             
             //this.pipeline.Add(this.title);
-            Debug.DumpLogs();
+            DDDebug.DumpLogs();
         }
 
         public override void Focus()
@@ -175,7 +188,7 @@ namespace Prototype.Scenes
         }
  
         
-        public IList<TileChunk>  MakeTileChunks(uint palette, List<Group> groups)
+        public IList<TileChunk>  MakeTileChunks(uint palette, List<TileChunkData> groups)
         {
             string arg = "default";
 
@@ -185,7 +198,7 @@ namespace Prototype.Scenes
             long ticks = DateTime.Now.Ticks;
             for (int i = 0; i < groups.Count; i++)
             {
-                Group group = groups[i];
+                TileChunkData group = groups[i];
                 
                 List<Tile> tiles = new(group.Tiles.Length / 2);
                 int tileIndex = 0;
@@ -224,66 +237,15 @@ namespace Prototype.Scenes
             return list; 
         }
 
-        private List<Group> LoadTileChunks(NbtCompound mapTag)
-        {
-            NbtTag tileTag = mapTag.Get("tiles");
-
-            List<Group> Groups = new();
-
-            // i fucking love pattern matching!
-            if (tileTag is ICollection<NbtTag> tileGroupCollection)
-            {
-                foreach (NbtTag tileGroupTag in tileGroupCollection)
-                {
-                    if (tileGroupTag is NbtCompound tileGroup)
-                    {
-                        int depth = tileGroup.Get<NbtInt>("depth").Value;
-                        int xPosition = tileGroup.Get<NbtInt>("x").Value;
-                        int yPosition = tileGroup.Get<NbtInt>("y").Value;
-                        int width = tileGroup.Get<NbtInt>("w").Value;
-
-                        byte[] tileByteArray = tileGroup.Get<NbtByteArray>("tiles").Value;
-                        ushort[] tiles = new ushort[tileByteArray.Length / 2];
-                        Buffer.BlockCopy(tileByteArray, 0, tiles, 0, tileByteArray.Length);
-
-                        Group newTileGroup = new()
-                        {
-                            Depth = (uint)depth,
-                            X = xPosition,
-                            Y = yPosition,
-                            Width = width,
-                            Height = tiles.Length / 2 / width,
-                            Tiles = tiles
-                        };
-                        Groups.Add(newTileGroup);
-                    }
-                }
-            }
-
-            return Groups;
-        }
-
-        public struct Group
-                {
-                    public ushort[] Tiles;
-
-                    public uint Depth;
-
-                    public int X;
-
-                    public int Y;
-
-                    public int Width;
-
-                    public int Height;
-
-                    public bool Tree;
-                }
         
         public override void Draw()
         {
             this.pipeline.Draw();
             Engine.RenderTexture.Draw(text);
+            if (Engine.DebugMode)
+            {
+                manager.Draw(pipeline.Target);
+            }
             base.Draw();
         }
 

@@ -11,7 +11,7 @@ namespace DewDrop.Utilities;
 /// <summary>
 ///     Contains useful methods for debugging.
 /// </summary>
-public static class Debug
+public static class DDDebug
 {
     /// <summary>
     ///     Initializes the Debug class

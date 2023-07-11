@@ -85,6 +85,11 @@ public class AxisManager
         _axisMap.Add(Keyboard.Key.S, InputDirection.Down);
         _axisMap.Add(Keyboard.Key.A, InputDirection.Left);
         _axisMap.Add(Keyboard.Key.D, InputDirection.Right);
+        
+        _axisMap.Add(Keyboard.Key.Up, InputDirection.Up);
+        _axisMap.Add(Keyboard.Key.Down, InputDirection.Down);
+        _axisMap.Add(Keyboard.Key.Left, InputDirection.Left);
+        _axisMap.Add(Keyboard.Key.Right, InputDirection.Right);
 
         _axisState = new Dictionary<InputDirection, bool>();
             

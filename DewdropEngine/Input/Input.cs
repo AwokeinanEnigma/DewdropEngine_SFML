@@ -238,12 +238,12 @@ public class Input
         if (!_recieveInput)
             return;
 
-        Debug.Log("button released");
+        DDDebug.Log("button released");
         if (_controllerType == ControllerType.Xbox360)
         {
             if (ControllertoDButtonsMap.ContainsKey(e.Button))
             {
-                Debug.Log(ControllertoDButtonsMap[e.Button]);
+                DDDebug.Log(ControllertoDButtonsMap[e.Button]);
                 OnButtonReleased?.Invoke(this, ControllertoDButtonsMap[e.Button]);
 
             }
@@ -256,12 +256,12 @@ public class Input
         if (!_recieveInput)
             return;
 
-        Debug.Log("button pressed");
+        DDDebug.Log("button pressed");
         if (_controllerType == ControllerType.Xbox360)
         {
             if (ControllertoDButtonsMap.ContainsKey(e.Button))
             {
-                Debug.Log(ControllertoDButtonsMap[e.Button]);
+                DDDebug.Log(ControllertoDButtonsMap[e.Button]);
                 OnButtonPressed?.Invoke(this, ControllertoDButtonsMap[e.Button]);
             }
         }
@@ -270,15 +270,15 @@ public class Input
     private void WindowOnJoystickDisconnected(object? sender, JoystickConnectEventArgs e)
     {
         _controllerType = ControllerType.Keyboard;
-        Debug.Log("disconnected");
+        DDDebug.Log("disconnected");
     }
 
     private void WindowOnJoystickConnected(object? sender, JoystickConnectEventArgs e)
     {
         Joystick.Update();
-        Debug.Log(e);
+        DDDebug.Log(e);
         Joystick.Identification identification = Joystick.GetIdentification(e.JoystickId);
-        Debug.Log(identification.Name);
+        DDDebug.Log(identification.Name);
         if (identification.Name.Contains("XBOX"))
         {
             _controllerType = ControllerType.Xbox360;

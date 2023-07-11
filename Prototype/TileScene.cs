@@ -123,7 +123,7 @@ public class TileScene : SceneBase
                         && TileGridX > 0 && TileGridY > 0)
                     {
                         TileGridInitialized = true;
-                        Debug.Log("Tilegrid successfully initialized!");
+                        DDDebug.Log("Tilegrid successfully initialized!");
                         TileGrid = new Tile[TileGridX, TileGridY];
                         // loop through every tile and add an sprite graphic to the render pipeline
                     }
@@ -131,12 +131,12 @@ public class TileScene : SceneBase
                     {
                         if (TileGridInitialized)
                         {
-                            Debug.Log("Tile Grid already initialized!");
+                            DDDebug.Log("Tile Grid already initialized!");
                         }
 
                         if (TileGridX <= 0 || TileGridY <= 0)
                         {
-                            Debug.Log("Tile Grid X and Y must be greater than 0!");
+                            DDDebug.Log("Tile Grid X and Y must be greater than 0!");
                         }
                     }
                 }
@@ -177,7 +177,7 @@ public class TileScene : SceneBase
             Vector2 newPosition = Input.GetMousePosition() - ViewManager.Instance.Center /2;
             int tileX = (int)newPosition.X / 8 ;
             int tileY = (int)newPosition.Y / 8;
-            Debug.Log($"tileX: {tileX}, tileY: {tileY}");
+            DDDebug.Log($"tileX: {tileX}, tileY: {tileY}");
             //if (tileX >= 0 && tileX < TileGridX && tileY >= 0 && tileY < TileGridY)
             {
                 pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\block.dat", "base", new Vector2(tileX* 8, tileY * 8), 100));
