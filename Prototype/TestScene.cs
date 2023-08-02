@@ -40,7 +40,7 @@ namespace Prototype.Scenes
             this.pipeline = new RenderPipeline(Engine.RenderTexture);
             Map loader = new MapLoader("C:\\Users\\Tom\\Documents\\elurbanodesperadoworkbin\\Resources\\Maps\\testmap.dat").Load();
             pipeline.AddAll(MakeTileChunks(0, loader.TileChunkData));
-            manager = new CollisionManager(loader.Width, loader.Height);
+            manager = new CollisionManager(900, 900);
             
             EntityManager = new EntityManager();
  text = new Text("swag", new FontData().Font);
@@ -72,9 +72,9 @@ namespace Prototype.Scenes
 
             //todo - change this to a nonpersistant path
             //texture = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\bear.dat", "walk north", new Vector2(160, 90), 100);
-            texture2 = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\tree2.dat", "default", new Vector2(65, 90), 100);
+            //texture2 = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\tree2.dat", "default", new Vector2(65, 90), 100);
            //belringtreehead
-           texture = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\belringtreehead.dat", "default", new Vector2(160, 90), 100);
+           //texture = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\belringtreehead.dat", "default", new Vector2(160, 90), 100);
               Input.Instance.OnMouseClick += (button, position) =>
             {
                 DDDebug.Log($"Click button: {position.Button} at position: {Input.GetMousePosition() }");
@@ -174,9 +174,9 @@ namespace Prototype.Scenes
            ViewManager.Instance.EntityFollow = swagity;
             // shape.Position =new Vector2(160, (title.Position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
            //; texture.Position =  Input.GetMousePosition(); // new Vector2(160, (title.Position.y + 90) * (float)MathF.Sin((2 * MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds()) / 2));
-            texture.Rotation = /*(int)*/amplitude * (float)Math.Sin(frequency * MathF.PI *  Engine.SessionTimer.ElapsedTime.AsSeconds()/ division);
+            //texture.Rotation = /*(int)*/amplitude * (float)Math.Sin(frequency * MathF.PI *  Engine.SessionTimer.ElapsedTime.AsSeconds()/ division);
 
-            texture2.Rotation = amplitude - 1 * (float)Math.Sin(frequency - 1* MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds() + 1 /* for random offset!! */ / division);
+            //texture2.Rotation = amplitude - 1 * (float)Math.Sin(frequency - 1* MathF.PI * Engine.SessionTimer.ElapsedTime.AsSeconds() + 1 /* for random offset!! */ / division);
             //texture.Rotation = -955 * Engine.SessionTimer.ElapsedTime.AsSeconds();
             //title.Text =$"MGC: {(GC.GetTotalMemory(false) / 1024L) * 0.001}MB\n";
             if (Input.Instance[Keyboard.Key.A])

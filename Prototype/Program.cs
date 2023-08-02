@@ -25,9 +25,10 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         {
             Engine.Initialize();
             SceneManager.Instance.Push(new TestScene());
+            DDDebug.Log("1");
             //SceneManager.Instance.Push(new TileScene());
             Engine.DebugMode = true;
-            EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
+           // EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
            TextRenderer ADA = new TextRenderer(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
             ADA.Color = Color.Blue;
             TextRenderer ADAA = new TextRenderer(new Vector2(146, 14), 90, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
@@ -42,11 +43,15 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             Engine.Window.SetMouseCursorVisible(false);
 
             
-            
+            DDDebug.Log("3");
+      
             new AxisManager();
-            
+            DDDebug.Log("5");
+ 
             Console.WriteLine("Press ESC key to close window");
+            DDDebug.Log("7");
             Engine.StartGameLoop();
+            DDDebug.Log("9");
         }
     }
 }

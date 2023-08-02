@@ -264,7 +264,7 @@ public class ViewManager
 
     public void UseDefault()
     {
-        //window.SetView(window.DefaultView);
+        window.SetView(window.DefaultView);
     }
 
     public void Reset()
