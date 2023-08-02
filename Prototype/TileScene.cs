@@ -1,15 +1,11 @@
-﻿using System.Numerics;
-using DewDrop;
-using DewDrop.Graphics;
+﻿using DewDrop;
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.Scenes;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using ImGuiNET;
-using Prototype.Scenes;
 using SFML.Graphics;
-using SFML.System;
 using SFML.Window;
 using Vector2 = DewDrop.Utilities.Vector2;
 

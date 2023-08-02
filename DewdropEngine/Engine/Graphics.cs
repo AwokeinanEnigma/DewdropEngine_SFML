@@ -200,7 +200,7 @@ public static partial class Engine
     public static void TakeScreenshot()
     {
         Image snapshot = frameBuffer.Texture.CopyToImage();
-        
+
         string fileName = string.Format("screenshot{0}.png", Directory.GetFiles("./", "screenshot*.png").Length);
 
         snapshot.SaveToFile(fileName);

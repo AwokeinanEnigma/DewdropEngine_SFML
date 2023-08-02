@@ -94,8 +94,6 @@ public static partial class Engine
             streamWriter.WriteLine();
             streamWriter.Close();
 
-            DDDebug.LogError($"Exception thrown: {value}", null);
-            
             SceneManager.Instance.AbortTransition();
             SceneManager.Instance.Clear();
         }
@@ -132,7 +130,7 @@ public static partial class Engine
             debugPipeline.Draw();
         }
 
-        ImGuiSfml.Update(window, _deltaTimeFloat);  
+        ImGuiSfml.Update(window, _deltaTimeFloat);
         
         ViewManager.Instance.UseDefault();
     }
@@ -142,7 +140,7 @@ public static partial class Engine
 
 
         frameBuffer.Display();
-        window.Clear(Color.White);
+        window.Clear(Color.Black);
         if (debugMode)
         {
             RenderImGUI?.Invoke();
