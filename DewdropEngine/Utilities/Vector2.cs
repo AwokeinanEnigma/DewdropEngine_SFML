@@ -338,7 +338,7 @@ public struct Vector2
     /// <returns>The hash code of the Vector2</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(x, y);
+        return 0;  //HashCode.Combine(x, y);
     }
 
     public override bool Equals(object? obj)

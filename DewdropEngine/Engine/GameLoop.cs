@@ -114,7 +114,7 @@ public static partial class Engine
         // This makes input and other events from the window work
         window.DispatchEvents();
 
-        // Update cruciel game instances
+        // Update crucial game instances
         SceneManager.Instance.Update();
 
         ViewManager.Instance.Update();
@@ -130,8 +130,11 @@ public static partial class Engine
             debugPipeline.Draw();
         }
 
-        ImGuiSfml.Update(window, _deltaTimeFloat);
-        
+        if (debugMode)
+        {
+            ImGuiSfml.Update(window, _deltaTimeFloat);
+        }
+
         ViewManager.Instance.UseDefault();
     }
 
@@ -147,7 +150,12 @@ public static partial class Engine
         }
 
         window.Draw(frameBufferVertexArray, frameBufferState);
-        ImGuiSfml.Render();
+        
+        if (debugMode)
+        {
+            ImGuiSfml.Render();
+        }
+
         window.Display();
 
         Frame++;

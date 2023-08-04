@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Diagnostics;
 using DewDrop.Utilities;
 using SFML.Graphics;
 
@@ -286,7 +287,7 @@ public class RenderPipeline
                 IRenderableRect.Height = iRenderable.Size.y;
 
                 // if it's in the view of the game, allow that shit to draw baby!
-                if (IRenderableRect.Intersects(viewRect))
+                if (true)//IRenderableRect.Intersects(viewRect))
                 {
                     iRenderable.Draw(target);
                     iRenderable.IsBeingDrawn = true;

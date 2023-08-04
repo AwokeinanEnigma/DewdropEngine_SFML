@@ -24,10 +24,10 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         static void Main(string[] args)
         {
             Engine.Initialize();
-            SceneManager.Instance.Push(new TestScene());
+            SceneManager.Instance.Push(new GUIText());
             DDDebug.Log("1");
             //SceneManager.Instance.Push(new TileScene());
-            Engine.DebugMode = true;
+            Engine.DebugMode = false;
            // EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
            TextRenderer ADA = new TextRenderer(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
             ADA.Color = Color.Blue;

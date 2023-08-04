@@ -10,585 +10,278 @@ using SFML.Graphics;
 namespace DewDrop.Tiles;
 
 public class TileChunk : Renderable
-{
-    #region Properties
-
-        public bool AnimationEnabled
+{        public bool AnimationEnabled
         {
-            get => _animationEnabled;
-            set => _animationEnabled = value;
+            get
+            {
+                return this.animationEnabled;
+            }
+            set
+            {
+                this.animationEnabled = value;
+            }
         }
-    
-        public override Vector2 RenderPosition
+
+        public Vector2 Position
         {
-            get => _position;
+            get
+            {
+                return _position;
+            }
             set
             {
                 _position = value;
-                ResetTransform();
+                this.ResetTransform();
             }
         }
-    
+
         public override Vector2 Origin
         {
-            get => _origin;
+            get
+            {
+                return _origin;
+            }
             set
             {
                 _origin = value;
-                ResetTransform();
+                this.ResetTransform();
             }
         }
-        public SpritesheetTexture TilesetSpritesheet => _tileset;
-        
-    #endregion
-    
-    #region Fields
-    
-    private static readonly Shader TileGroupShader = new(EmbeddedResourcesHandler.GetResourceStream("pal.vert"), null, EmbeddedResourcesHandler.GetResourceStream("pal.frag"));
 
-    private Vertex[] _vertices;
-    private AnimatedTile[] _tileAnimations;
-
-    private SpritesheetTexture _tileset;
-    private RenderStates _renderState;
-    
-    private bool _animationEnabled;
-    private SFML.Graphics.Glsl.Vec4 _blendColor;
-    #endregion
-    
-    public TileChunk(List<Tile> tiles, string resource, int depth, Vector2 position, uint palette, bool enableAnimations = true, Color blendColor = default)
-    {
-        _tileset = TextureManager.Instance.Use(resource);
-        _tileset.CurrentPalette = palette;
-       
-        _position = position;
-        _depth = depth;
-        
-        _renderState = new RenderStates(BlendMode.Alpha, Transform.Identity, _tileset.Image, TileGroupShader);
-        _animationEnabled = enableAnimations;
-
-        if (blendColor != default)
+        public SpritesheetTexture Tileset
         {
-            _blendColor = new SFML.Graphics.Glsl.Vec4(blendColor);
-        }
-        else
-        {
-            _blendColor = new SFML.Graphics.Glsl.Vec4(Color.White);
-        }
-
-        CreateAnimations(_tileset.GetSpriteDefinitions());
-        CreateVertexArray(tiles);
-        ResetTransform();
-        //tiles = null;
-        //tiles.Clear();
-    }
-
-    private void ResetTransform()
-    {
-        Transform identity = Transform.Identity;
-        identity.Translate(_position - _origin);
-        _renderState.Transform = identity;
-    }
-
-    public int GetTileId(Vector2 location)
-    {
-        Vector2 Vector2 = location - _position + _origin;
-        uint num = (uint)(Vector2.X / 8f + Vector2.Y / 8f * (_size.X / 8f));
-        Vertex vertex = _vertices[(int)(UIntPtr)(num * 4U)];
-        Vector2 texCoords = vertex.TexCoords;
-        return (int)(texCoords.X / 8f + texCoords.Y / 8f * (_tileset.Image.Size.X / 8U));
-    }
-
-    // you have an IDE, use it 
-    private void TileIDToTextureCoords(uint id, out uint tx, out uint ty)
-    {
-        tx = id * 8U % _tileset.Image.Size.X;
-        ty = id * 8U / _tileset.Image.Size.X * 8U;
-    }
-
-    private void CreateAnimations(ICollection<SpriteDefinition> definitions)
-    {
-        _tileAnimations = new AnimatedTile[definitions.Count];
-        foreach (SpriteDefinition spriteDefinition in definitions)
-        {
-            
-            int.TryParse(spriteDefinition.Name, out int tileId);
-            
-            if (tileId >= 0)
+            get
             {
-                if (spriteDefinition.Data != null && spriteDefinition.Data.Length > 0)
-                {
-                    int[] data = spriteDefinition.Data;
-                    float speed = spriteDefinition.Speeds[0];
-                    _tileAnimations[tileId].Tiles = data;
-                    _tileAnimations[tileId].VertexIndexes = new List<int>();
-                    _tileAnimations[tileId].AnimationSpeed = speed;
-                }
-                else
-                {
-                    DDDebug.LogError($"Tried creating tile animation data for animation {tileId}, but there was no tile data.", null);
-                    //Console.WriteLine("Tried to load tile animation data for animation {0}, but there was no tile data.", tileId);
-                }
+                return this.tileset;
             }
         }
-    }
 
-    private void AddVertexIndex(Tile tile, int index)
-    {
-        if (tile.AnimationId > 0)
+        public TileChunk(IList<Tile> tiles, string resource, int depth, Vector2 position, uint palette)
         {
-            int num = tile.AnimationId - 1;
-            _tileAnimations[num].VertexIndexes.Add(index);
+            this.tileset = TextureManager.Instance.Use(resource);
+            this.tileset.CurrentPalette = palette;
+            _position = position;
+            this._depth = depth;
+            this.renderState = new RenderStates(BlendMode.Alpha, Transform.Identity, this.tileset.Image, TILE_GROUP_SHADER);
+            this.animationEnabled = true;
+            this.CreateAnimations(this.tileset.GetSpriteDefinitions());
+            this.CreateVertexArray(tiles);
+            this.ResetTransform();
         }
-    }
 
-    private unsafe void CreateVertexArray(List<Tile> tiles)
-    {
-        _vertices = new Vertex[tiles.Count * 4];
-        
-        // these are declared OUTSIDE of the loop to avoid allocating extra memory 
-        uint textureX = 0U;
-        uint textureY = 0U;
-        
-        Vector2 v = default;
-        Vector2 v2 = default;
-        
-        fixed (Vertex* ptr = _vertices)
+        private void ResetTransform()
         {
-            for (int i = 0; i < tiles.Count; i++)
+            Transform identity = Transform.Identity;
+            identity.Translate(_position - _origin);
+            this.renderState.Transform = identity;
+        }
+
+        public int GetTileId(Vector2 location)
+        {
+            Vector2 Vector2 = location - _position + _origin;
+            uint num = (uint)(Vector2.X / 8f + Vector2.Y / 8f * (_size.X / 8f));
+            Vertex vertex = this.vertices[(int)((UIntPtr)(num * 4U))];
+            Vector2 texCoords = vertex.TexCoords;
+            return (int)(texCoords.X / 8f + texCoords.Y / 8f * (this.tileset.Image.Size.X / 8U));
+        }
+
+        private void IDToTexCoords(uint id, out uint tx, out uint ty)
+        {
+            tx = id * 8U % this.tileset.Image.Size.X;
+            ty = id * 8U / this.tileset.Image.Size.X * 8U;
+        }
+
+        private void CreateAnimations(ICollection<SpriteDefinition> definitions)
+        {
+            this.animations = new TileAnimation[definitions.Count];
+            foreach (SpriteDefinition spriteDefinition in definitions)
             {
-                Vertex* ptr2 = ptr + i * 4;
-                Tile tile = tiles[i];
-                float x = tile.Position.X;
-                float y = tile.Position.Y;
-                
-                ptr2->Position.X = x;
-                ptr2->Position.Y = y;
-                
-                ptr2[1].Position.X = x + 8f;
-                ptr2[1].Position.Y = y;
-                
-                ptr2[2].Position.X = x + 8f;
-                ptr2[2].Position.Y = y + 8f;
-                
-                ptr2[3].Position.X = x;
-                ptr2[3].Position.Y = y + 8f;
-                
-                TileIDToTextureCoords(tile.ID, out textureX, out textureY);
-                
-                // normal tile
-                if (!tile.FlipHorizontal && !tile.FlipVertical)
+                int num = -1;
+                int.TryParse(spriteDefinition.Name, out num);
+                if (num >= 0)
                 {
-                    ptr2->TexCoords.X = textureX;
-                    ptr2->TexCoords.Y = textureY;
-                    
-                    ptr2[1].TexCoords.X = textureX + 8U;
-                    ptr2[1].TexCoords.Y = textureY;
-                    
-                    ptr2[2].TexCoords.X = textureX + 8U;
-                    ptr2[2].TexCoords.Y = textureY + 8U;
-                    
-                    ptr2[3].TexCoords.X = textureX;
-                    ptr2[3].TexCoords.Y = textureY + 8U;
+                    if (spriteDefinition.Data != null && spriteDefinition.Data.Length > 0)
+                    {
+                        int[] data = spriteDefinition.Data;
+                        float speed = spriteDefinition.Speeds[0];
+                        this.animations[num].Tiles = data;
+                        this.animations[num].VertIndexes = new List<int>();
+                        this.animations[num].Speed = speed;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Tried to load tile animation data for animation {0}, but there was no tile data.", num);
+                    }
                 }
-                // horizontally flipped tile
-                else if (tile.FlipHorizontal && !tile.FlipVertical)
-                {
-                    ptr2->TexCoords.X = textureX + 8U;
-                    ptr2->TexCoords.Y = textureY;
-                    
-                    ptr2[1].TexCoords.X = textureX;
-                    ptr2[1].TexCoords.Y = textureY;
-                    
-                    ptr2[2].TexCoords.X = textureX;
-                    ptr2[2].TexCoords.Y = textureY + 8U;
-                    
-                    ptr2[3].TexCoords.X = textureX + 8U;
-                    ptr2[3].TexCoords.Y = textureY + 8U;
-                }
-                // vertically flipped tile
-                else if (!tile.FlipHorizontal && tile.FlipVertical)
-                {
-                    ptr2->TexCoords.X = textureX;
-                    ptr2->TexCoords.Y = textureY + 8U;
-                    
-                    ptr2[1].TexCoords.X = textureX + 8U;
-                    ptr2[1].TexCoords.Y = textureY + 8U;
-                    
-                    ptr2[2].TexCoords.X = textureX + 8U;
-                    ptr2[2].TexCoords.Y = textureY;
-                    
-                    ptr2[3].TexCoords.X = textureX;
-                    ptr2[3].TexCoords.Y = textureY;
-                }
-                // horizontally and vertically flipped tile!
-                else
-                {
-                    ptr2->TexCoords.X = textureX + 8U;
-                    ptr2->TexCoords.Y = textureY + 8U;
-                    
-                    ptr2[1].TexCoords.X = textureX;
-                    ptr2[1].TexCoords.Y = textureY + 8U;
-                    
-                    ptr2[2].TexCoords.X = textureX;
-                    ptr2[2].TexCoords.Y = textureY;
-                    
-                    ptr2[3].TexCoords.X = textureX + 8U;
-                    ptr2[3].TexCoords.Y = textureY;
-                }
-
-                v.X = Math.Min(v.X, ptr2->Position.X);
-                v.Y = Math.Min(v.Y, ptr2->Position.Y);
-                
-                v2.X = Math.Max(v2.X, ptr2[2].Position.X - v.X);
-                v2.Y = Math.Max(v2.Y, ptr2[2].Position.Y - v.Y);
-                
-                AddVertexIndex(tile, i * 4);
             }
         }
 
-        _size = v2 - v;
-    }
-
-    private unsafe void UpdateAnimations()
-    {
-        if (!_animationEnabled)
+        private void AddVertIndex(Tile tile, int index)
         {
-            return;
-        }
-
-        for (int i = 0; i < _tileAnimations.Length; i++)
-        {
-            AnimatedTile tileAnimation = _tileAnimations[i];
-            float num = Engine.Frame * tileAnimation.AnimationSpeed;
-            uint num2 = (uint)tileAnimation.Tiles[(int)num % tileAnimation.Tiles.Length];
-            TileIDToTextureCoords(num2 - 1U, out uint tileX, out uint tileY);
-            fixed (Vertex* ptr = _vertices)
+            if (tile.AnimationId > 0)
             {
-                for (int j = 0; j < tileAnimation.VertexIndexes.Count; j++)
+                try
                 {
-                    int num5 = tileAnimation.VertexIndexes[j];
-                    Vertex* ptr2 = ptr + num5;
-                    
-                    ptr2->TexCoords.X = tileX;
-                    ptr2->TexCoords.Y = tileY;
-                    
-                    ptr2[1].TexCoords.X = tileX + 8U;
-                    ptr2[1].TexCoords.Y = tileY;
-                    
-                    ptr2[2].TexCoords.X = tileX + 8U;
-                    ptr2[2].TexCoords.Y = tileY + 8U;
-                    
-                    ptr2[3].TexCoords.X = tileX;
-                    ptr2[3].TexCoords.Y = tileY + 8U;
+                    int num = tile.AnimationId - 1;
+                    this.animations[num].VertIndexes.Add(index);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{ index } was outside range of the array! Error: {ex}");
+                    int num = tile.AnimationId;
+                    this.animations[num].VertIndexes.Add(index);
                 }
             }
         }
-    }
 
-    public override void Draw(RenderTarget target)
-    {
-        TileGroupShader.SetUniform("image", _tileset.Image);
-        TileGroupShader.SetUniform("palette", _tileset.Palette);
-        TileGroupShader.SetUniform("palIndex", _tileset.CurrentPaletteFloat);
-        TileGroupShader.SetUniform("palSize", _tileset.PaletteSize);
-        TileGroupShader.SetUniform("blend", _blendColor);
-        TileGroupShader.SetUniform("blendMode", 1f);
-
-        UpdateAnimations();
-        target.Draw(_vertices, PrimitiveType.Quads, _renderState);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (!_disposed)
+        private unsafe void CreateVertexArray(IList<Tile> tiles)
         {
-            TextureManager.Instance.Unuse(_tileset);
-        }
-
-        _disposed = true;
-    }
-}
-
-
-/*#region
-
-using DewDrop.Graphics;
-using DewDrop.Resources;
-using DewDrop.Utilities;
-using SFML.Graphics;
-using SFML.Graphics.Glsl;
-
-#endregion
-
-namespace DewDrop.Tiles;
-
-public class TileChunk : Renderable
-{
-    public bool AnimateTiles
-    {
-        get => _animateTiles;
-        set => _animateTiles = value;
-    }
-
-    #region Fields
-
-    private bool _animateTiles;
-    private SpritesheetTexture _tilesetTexture;
-    private Vertex[] _tileVertices;
-    private TileAnimation[] _tileAnimations;
-    private RenderStates _renderStates;
-    private static readonly Shader PaletteShader = new(EmbeddedResourcesHandler.GetResourceStream("pal.vert"), null, EmbeddedResourcesHandler.GetResourceStream("pal.frag"));
-
-    #endregion
-
-    public TileChunk(Tile[] tiles, string tilesetImage, uint palette, Vector2 position, uint depth)
-    {
-        _tilesetTexture = TextureManager.Instance.Use(tilesetImage);
-        _tilesetTexture.CurrentPalette = palette;
-
-        _position = position;
-        _depth = (int)depth;
-        _animateTiles = true;
-
-        _renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, _tilesetTexture.Image, PaletteShader);
-
-        MakeAnimations(_tilesetTexture.GetSpriteDefinitions());
-        CreateVertexArray(tiles);
-        SetTransform();
-    }
-
-    private void SetTransform()
-    {
-        Transform identity = Transform.Identity;
-        identity.Translate(_position - _origin);
-
-        _renderStates.Transform = identity;
-    }
-
-    #region Animations
-
-    private void MakeAnimations(ICollection<SpriteDefinition> definitions)
-    {
-        _tileAnimations = new TileAnimation[definitions.Count];
-        foreach (SpriteDefinition spriteDefinition in definitions)
-        {
-            if (int.TryParse(spriteDefinition.Name, out int animationIndex) && animationIndex >= 0)
+            this.vertices = new Vertex[tiles.Count * 4];
+            uint num = 0U;
+            uint num2 = 0U;
+            Vector2 v = default(Vector2);
+            Vector2 v2 = default(Vector2);
+            fixed (Vertex* ptr = this.vertices)
             {
-                if (spriteDefinition.Data != null && spriteDefinition.Data.Length > 0)
+                for (int i = 0; i < tiles.Count; i++)
                 {
-                    int[] data = spriteDefinition.Data;
-                    float speed = spriteDefinition.Speeds[0];
-
-                    _tileAnimations[animationIndex].Tiles = data;
-                    _tileAnimations[animationIndex].VertexIndexes = new List<int>();
-                    _tileAnimations[animationIndex].AnimationSpeed = speed;
-                }
-                else
-                {
-                    Debug.LogWarning($"Failed to load sprite definition for animation index '{animationIndex}'");
+                    Vertex* ptr2 = ptr + i * 4;
+                    Tile tile = tiles[i];
+                    float x = tile.Position.X;
+                    float y = tile.Position.Y;
+                    ptr2->Position.X = x;
+                    ptr2->Position.Y = y;
+                    ptr2[1].Position.X = x + 8f;
+                    ptr2[1].Position.Y = y;
+                    ptr2[2].Position.X = x + 8f;
+                    ptr2[2].Position.Y = y + 8f;
+                    ptr2[3].Position.X = x;
+                    ptr2[3].Position.Y = y + 8f;
+                    this.IDToTexCoords(tile.ID, out num, out num2);
+                    if (!tile.FlipHorizontal && !tile.FlipVertical)
+                    {
+                        ptr2->TexCoords.X = num;
+                        ptr2->TexCoords.Y = num2;
+                        ptr2[1].TexCoords.X = num + 8U;
+                        ptr2[1].TexCoords.Y = num2;
+                        ptr2[2].TexCoords.X = num + 8U;
+                        ptr2[2].TexCoords.Y = num2 + 8U;
+                        ptr2[3].TexCoords.X = num;
+                        ptr2[3].TexCoords.Y = num2 + 8U;
+                    }
+                    else if (tile.FlipHorizontal && !tile.FlipVertical)
+                    {
+                        ptr2->TexCoords.X = num + 8U;
+                        ptr2->TexCoords.Y = num2;
+                        ptr2[1].TexCoords.X = num;
+                        ptr2[1].TexCoords.Y = num2;
+                        ptr2[2].TexCoords.X = num;
+                        ptr2[2].TexCoords.Y = num2 + 8U;
+                        ptr2[3].TexCoords.X = num + 8U;
+                        ptr2[3].TexCoords.Y = num2 + 8U;
+                    }
+                    else if (!tile.FlipHorizontal && tile.FlipVertical)
+                    {
+                        ptr2->TexCoords.X = num;
+                        ptr2->TexCoords.Y = num2 + 8U;
+                        ptr2[1].TexCoords.X = num + 8U;
+                        ptr2[1].TexCoords.Y = num2 + 8U;
+                        ptr2[2].TexCoords.X = num + 8U;
+                        ptr2[2].TexCoords.Y = num2;
+                        ptr2[3].TexCoords.X = num;
+                        ptr2[3].TexCoords.Y = num2;
+                    }
+                    else
+                    {
+                        ptr2->TexCoords.X = num + 8U;
+                        ptr2->TexCoords.Y = num2 + 8U;
+                        ptr2[1].TexCoords.X = num;
+                        ptr2[1].TexCoords.Y = num2 + 8U;
+                        ptr2[2].TexCoords.X = num;
+                        ptr2[2].TexCoords.Y = num2;
+                        ptr2[3].TexCoords.X = num + 8U;
+                        ptr2[3].TexCoords.Y = num2;
+                    }
+                    v.X = Math.Min(v.X, ptr2->Position.X);
+                    v.Y = Math.Min(v.Y, ptr2->Position.Y);
+                    v2.X = Math.Max(v2.X, ptr2[2].Position.X - v.X);
+                    v2.Y = Math.Max(v2.Y, ptr2[2].Position.Y - v.Y);
+                    this.AddVertIndex(tile, i * 4);
                 }
             }
+            _size = v2 - v;
         }
-    }
 
-    private unsafe void UpdateAnimations()
-    {
-        for (int i = 0; i < _tileAnimations.Length; i++)
+        private unsafe void UpdateAnimations()
         {
-            TileAnimation tileAnimation = _tileAnimations[i];
-
-            float speed = Engine.Frame * tileAnimation.AnimationSpeed;
-            uint tileID = (uint)tileAnimation.Tiles[(int)speed % tileAnimation.Tiles.Length];
-            TileIDToTextureCoordinates(tileID - 1U, out uint tileX, out uint tileY);
-
-            fixed (Vertex* ptr = _tileVertices)
+            if (!this.animationEnabled)
             {
-                for (int j = 0; j < tileAnimation.VertexIndexes.Count; j++)
-                {
-                    int vertexIndex = tileAnimation.VertexIndexes[j];
-                    Vertex* ptr2 = ptr + vertexIndex;
-
-                    ptr2->TexCoords.X = tileX;
-                    ptr2->TexCoords.Y = tileY;
-
-                    ptr2[1].TexCoords.X = tileX + 8U;
-                    ptr2[1].TexCoords.Y = tileY;
-
-                    ptr2[2].TexCoords.X = tileX + 8U;
-                    ptr2[2].TexCoords.Y = tileY + 8U;
-
-                    ptr2[3].TexCoords.X = tileX;
-                    ptr2[3].TexCoords.Y = tileY + 8U;
-                }
+                return;
             }
-        }
-    }
-
-    #endregion
-
-    #region Vertices
-
-    private unsafe void CreateVertexArray(Tile[] tiles)
-    {
-        _tileVertices = new Vertex[tiles.Length * 4];
-
-        uint tileX = 0U;
-        uint tileY = 0U;
-
-        Vector2 v = default;
-        Vector2 v2 = default;
-
-        fixed (Vertex* ptr = _tileVertices)
-        {
-            for (int i = 0; i < tiles.Length; i++)
+            for (int i = 0; i < this.animations.Length; i++)
             {
-                Vertex* ptr2 = ptr + i * 4;
-                Tile tile = tiles[i];
-                float x = tile.Position.X;
-                float y = tile.Position.Y;
-
-                ptr2->Position.X = x;
-                ptr2->Position.Y = y;
-
-                ptr2[1].Position.X = x + 8f;
-                ptr2[1].Position.Y = y;
-
-                ptr2[2].Position.X = x + 8f;
-                ptr2[2].Position.Y = y + 8f;
-
-                ptr2[3].Position.X = x;
-                ptr2[3].Position.Y = y + 8f;
-
-                TileIDToTextureCoordinates(tile.ID, out tileX, out tileY);
-
-                if (!tile.FlipHorizontal && !tile.FlipVertical)
+                TileAnimation tileAnimation = this.animations[i];
+                float num = Engine.Frame * tileAnimation.Speed;
+                uint num2 = (uint)tileAnimation.Tiles[(int)num % tileAnimation.Tiles.Length];
+                this.IDToTexCoords(num2 - 1U, out uint num3, out uint num4);
+                fixed (Vertex* ptr = this.vertices)
                 {
-
-                    ptr2->TexCoords.X = tileX;
-                    ptr2->TexCoords.Y = tileY;
-
-                    ptr2[1].TexCoords.X = tileX + 8U;
-                    ptr2[1].TexCoords.Y = tileY;
-
-                    ptr2[2].TexCoords.X = tileX + 8U;
-                    ptr2[2].TexCoords.Y = tileY + 8U;
-
-                    ptr2[3].TexCoords.X = tileX;
-                    ptr2[3].TexCoords.Y = tileY + 8U;
-
+                    for (int j = 0; j < tileAnimation.VertIndexes.Count; j++)
+                    {
+                        int num5 = tileAnimation.VertIndexes[j];
+                        Vertex* ptr2 = ptr + num5;
+                        ptr2->TexCoords.X = num3;
+                        ptr2->TexCoords.Y = num4;
+                        ptr2[1].TexCoords.X = num3 + 8U;
+                        ptr2[1].TexCoords.Y = num4;
+                        ptr2[2].TexCoords.X = num3 + 8U;
+                        ptr2[2].TexCoords.Y = num4 + 8U;
+                        ptr2[3].TexCoords.X = num3;
+                        ptr2[3].TexCoords.Y = num4 + 8U;
+                    }
                 }
-                else if (tile.FlipHorizontal && !tile.FlipVertical)
-                {
-                    ptr2->TexCoords.X = tileX + 8U;
-                    ptr2->TexCoords.Y = tileY;
-
-                    ptr2[1].TexCoords.X = tileX;
-                    ptr2[1].TexCoords.Y = tileY;
-
-                    ptr2[2].TexCoords.X = tileX;
-                    ptr2[2].TexCoords.Y = tileY + 8U;
-
-                    ptr2[3].TexCoords.X = tileX + 8U;
-                    ptr2[3].TexCoords.Y = tileY + 8U;
-
-                }
-                else if (!tile.FlipHorizontal && tile.FlipVertical)
-                {
-                    ptr2->TexCoords.X = tileX;
-                    ptr2->TexCoords.Y = tileY + 8U;
-
-                    ptr2[1].TexCoords.X = tileX + 8U;
-                    ptr2[1].TexCoords.Y = tileY + 8U;
-
-                    ptr2[2].TexCoords.X = tileX + 8U;
-                    ptr2[2].TexCoords.Y = tileY;
-
-                    ptr2[3].TexCoords.X = tileX;
-                    ptr2[3].TexCoords.Y = tileY;
-                }
-                else
-                {
-                    ptr2->TexCoords.X = tileX + 8U;
-                    ptr2->TexCoords.Y = tileY + 8U;
-
-                    ptr2[1].TexCoords.X = tileX;
-                    ptr2[1].TexCoords.Y = tileY + 8U;
-
-                    ptr2[2].TexCoords.X = tileX;
-                    ptr2[2].TexCoords.Y = tileY;
-
-                    ptr2[3].TexCoords.X = tileX + 8U;
-                    ptr2[3].TexCoords.Y = tileY;
-                }
-
-                v.X = Math.Min(v.X, ptr2->Position.X);
-                v.Y = Math.Min(v.Y, ptr2->Position.Y);
-
-                v2.X = Math.Max(v2.X, ptr2[2].Position.X - v.X);
-                v2.Y = Math.Max(v2.Y, ptr2[2].Position.Y - v.Y);
-
-                AddVertIndex(tile, i * 4);
             }
         }
 
-        _size = v2 - v;
-    }
-
-    private void AddVertIndex(Tile tile, int index)
-    {
-        if (tile.AnimationId > 0)
+        public override void Draw(RenderTarget target)
         {
-            int animationId = tile.AnimationId - 1;
-            _tileAnimations[animationId].VertexIndexes.Add(index);
-        }
-    }
-
-    #endregion
-
-    private void TileIDToTextureCoordinates(uint id, out uint tx, out uint ty)
-    {
-        tx = id * 8U % _tilesetTexture.Image.Size.X;
-        ty = id * 8U / _tilesetTexture.Image.Size.X * 8U;
-    }
-
-    public override void Draw(RenderTarget target)
-    {
-        PaletteShader.SetUniform("image", _tilesetTexture.Image);
-        PaletteShader.SetUniform("palette", _tilesetTexture.Palette);
-        PaletteShader.SetUniform("palIndex", _tilesetTexture.CurrentPaletteFloat);
-        PaletteShader.SetUniform("palSize", _tilesetTexture.PaletteSize);
-        PaletteShader.SetUniform("blend", new Vec4(Color.White));
-        PaletteShader.SetUniform("blendMode", 1f);
-
-        if (AnimateTiles)
-            UpdateAnimations();
-
-        target.Draw(_tileVertices, PrimitiveType.Quads, _renderStates);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-
-            // Unuse tileset
-            TextureManager.Instance.Unuse(_tilesetTexture);
-
-            // Additionally, dispose of the tileset and set it to null.
-            // Just for safety :^)
-            _tilesetTexture.Dispose();
-            _tilesetTexture = null;
-
-            // These would stay in memory and just shit up MEMORY AND SHIT UP PERFORMANCE
-            Array.Clear(_tileVertices, 0, _tileVertices.Length);
-            _tileVertices = null;
-
-            // For safety, we're going to clear the animations array.
-            Array.Clear(_tileAnimations, 0, _tileAnimations.Length);
-            _tileAnimations = null;
+            TILE_GROUP_SHADER.SetParameter("image", this.tileset.Image);
+            TILE_GROUP_SHADER.SetParameter("palette", this.tileset.Palette);
+            TILE_GROUP_SHADER.SetParameter("palIndex", this.tileset.CurrentPaletteFloat);
+            TILE_GROUP_SHADER.SetParameter("palSize", this.tileset.PaletteSize);
+            TILE_GROUP_SHADER.SetParameter("blend", Color.White);
+            TILE_GROUP_SHADER.SetParameter("blendMode", 1f);
+            this.UpdateAnimations();
+            target.Draw(this.vertices, PrimitiveType.Quads, this.renderState);
         }
 
-        _disposed = true;
+        protected override void Dispose(bool disposing)
+        {
+            if (!this._disposed)
+            {
+                TextureManager.Instance.Unuse(this.tileset);
+            }
+            this._disposed = true;
+        }
+
+        private static readonly Shader TILE_GROUP_SHADER = new(EmbeddedResourcesHandler.GetResourceStream("pal.vert"), null, EmbeddedResourcesHandler.GetResourceStream("pal.frag"));
+
+        private Vertex[] vertices;
+
+        private SpritesheetTexture tileset;
+
+        private RenderStates renderState;
+
+        private TileAnimation[] animations;
+
+        private bool animationEnabled;
+
+        private struct TileAnimation
+        {
+            public int[] Tiles;
+
+            public IList<int> VertIndexes;
+
+            public float Speed;
+        }
     }
-}*/

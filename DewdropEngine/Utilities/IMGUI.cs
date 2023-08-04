@@ -455,7 +455,7 @@ public class ImGuiSfml
     private static uint ColorConvertFloat4ToU32(Vector4 c)
     {
         var src = new[] { (byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W };
-        return BitConverter.ToUInt32(src);
+        return BitConverter.ToUInt32(src, 0);
     }
 
     private static Vector2 GetTopLeftAbsolute(FloatRect rect)

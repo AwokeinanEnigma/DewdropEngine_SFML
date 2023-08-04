@@ -78,12 +78,14 @@ public class Player : RenderableEntity, ICollidable
     {
         base.Update();
         Velocity = AxisManager.Instance.Axis * 2;
-        lastPosition = _position;  
-        
-        /*
+        lastPosition = _position;
+
         if (Velocity!=Vector2.Zero)
         {
             this.direction = Vector2.VectorToDirection(Velocity);
+            Depth = (int)_position.y;
+            _pipeline.ForceSort();
+ 
             //DDDebug.Log("Velocity: " + Velocity);
         }
         if (
@@ -135,10 +137,7 @@ public class Player : RenderableEntity, ICollidable
             }
         }
 
-        _manager.Update(this,  lastPosition,_position);*/
-                _position += Velocity;
-        Depth = (int)_position.y;
-        _pipeline.ForceSort();
+        _manager.Update(this,  lastPosition,_position);
         
         ///Depth = Int32.MaxValue;
         //Console.WriteLine(_depth);

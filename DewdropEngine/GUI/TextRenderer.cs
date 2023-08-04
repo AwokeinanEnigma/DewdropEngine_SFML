@@ -59,12 +59,8 @@ public class TextRenderer : Renderable
     private FontData font;
     private string text;
 
-
-    public TextRenderer(Vector2 position, int depth, FontData font, string text) : this(position, depth, font, text != null ? text : string.Empty, 0, text != null ? text.Length : 0)
-    {
-    }
-
-    public TextRenderer(Vector2 position, int depth, FontData font, string text, int index, int length)
+    
+    public TextRenderer(Vector2 position, int depth, FontData font, string text)
     {
         _position = position;
         this.text = text;
