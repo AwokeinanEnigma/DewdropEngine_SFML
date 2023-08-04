@@ -77,14 +77,20 @@ namespace Prototype.Scenes
             #endregion
 
             Engine.RenderImGUI += EngineOnRenderImGUI;
+            Input.Instance.OnKeyPressed += InstanceOnOnKeyPressed;
 
-            Input.Instance.OnKeyPressed += (sender, key) =>
+        }
+
+        private void InstanceOnOnKeyPressed(object? sender, Keyboard.Key key)
+        {
+            if (key == Keyboard.Key.Tilde) 
+                Engine.DebugMode = !Engine.DebugMode;
+            if (key == Keyboard.Key.F1)
             {
-                if (key == Keyboard.Key.Tilde) 
-                    Engine.DebugMode = !Engine.DebugMode;
-            };
-            //DDDebug.DumpLogs();
+                SceneManager.Instance.Push(new GUIText(), true);
+            }
 
+            //SceneManager.Instance.Pop();
         }
 
 
@@ -176,9 +182,18 @@ namespace Prototype.Scenes
         {
             if (!disposed && disposing)
             {
+                CollisionManager.Clear();
+                EntityManager.ClearEntities();
+                pipeline.Clear(true);
+                
+                ViewManager.Instance.EntityFollow = null;
+                disposed = true;
                 // dispose here
             }
-
+            Engine.RenderImGUI -= EngineOnRenderImGUI;
+            Input.Instance.OnKeyPressed -= InstanceOnOnKeyPressed;
+            DDDebug.Log("hey!");
+            ViewManager.Instance.Center = new Vector2(0, 0);
             base.Dispose(disposing);
         }
     }

@@ -45,35 +45,47 @@ public class GUIText : SceneBase
                 new FontData());
 
             pipeline.Add(List);
-            AxisManager.PostAxisChanged += () =>
-            {
-
-                if (AxisManager.Instance.Axis.Y > 0.5f)
-                {
-                    List.SelectNext();
-                }
-                else if (AxisManager.Instance.Axis.Y < -0.5f)
-                {
-                    List.SelectPrevious();
-                }
-            };
-
-            Input.Instance.OnButtonPressed += (sender, button) =>
-            {
-                if (button == DButtons.Select)
-                {
-                    if (List.SelectedItem == "Skin")
-                    {
-                        SceneManager.Instance.Transition = new ColorFadeTransition(0.5f, Color.Black);
-                        SceneManager.Instance.Push(new TestScene());
-                        DDDebug.Log("Skin");
-                    }
-                }
-            };
-
             #endregion
         }
+        
 
+
+        private void InstanceOnOnButtonPressed(object? sender, DButtons button)
+        {
+            if (button == DButtons.Select)
+            {
+                if (List.SelectedItem == "Skin")
+                {
+                    SceneManager.Instance.Transition = new ColorFadeTransition(0.5f, Color.Black);
+                    SceneManager.Instance.Push(new TestScene(), true);
+                    DDDebug.Log("Skin");
+                }
+            }
+            
+        }
+
+        private void AxisManagerOnPostAxisChanged()
+        {
+            if (AxisManager.Instance.Axis.Y > 0.5f)
+            {
+                List.SelectNext();
+            }
+            else if (AxisManager.Instance.Axis.Y < -0.5f)
+            {
+                List.SelectPrevious();
+            }        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed && disposing)
+            {
+                // dispose here
+            }
+            AxisManager.PostAxisChanged -= AxisManagerOnPostAxisChanged;
+            Input.Instance.OnButtonPressed -= InstanceOnOnButtonPressed;
+
+            base.Dispose(disposing);
+        }
 
         private void EngineOnRenderImGUI()
         {
@@ -88,6 +100,15 @@ public class GUIText : SceneBase
         public override void Focus()
         {
             base.Focus();
+
+        }
+
+        public override void TransitionIn()
+        {
+            base.TransitionIn();
+            AxisManager.PostAxisChanged += AxisManagerOnPostAxisChanged;
+            Input.Instance.OnButtonPressed += InstanceOnOnButtonPressed;
+                
         }
 
 
@@ -103,13 +124,5 @@ public class GUIText : SceneBase
             base.Draw();
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (!disposed && disposing)
-            {
-                // dispose here
-            }
 
-            base.Dispose(disposing);
-        }
     }

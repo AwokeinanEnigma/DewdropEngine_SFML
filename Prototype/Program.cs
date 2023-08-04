@@ -28,18 +28,6 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             DDDebug.Log("1");
             //SceneManager.Instance.Push(new TileScene());
             Engine.DebugMode = false;
-           // EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
-           TextRenderer ADA = new TextRenderer(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
-            ADA.Color = Color.Blue;
-            TextRenderer ADAA = new TextRenderer(new Vector2(146, 14), 90, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
-            ADAA.Color = Color.Red;
-            TextRenderer ADAAA = new TextRenderer(new Vector2(149, 14), 80, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
-            ADAAA.Color = Color.Cyan;
-            //GenericText ADA = new GenericText("BALLS ITCH MY BALLS ITCH ITCHY ITCHY!!!", 10, new Vector2(143, 14), new FontData());
-            DDDebug.Log("2");
-            Engine.DebugPipeline.Add(ADA);
-            Engine.DebugPipeline.Add(ADAA);
-            Engine.DebugPipeline.Add(ADAAA);
             Engine.Window.SetMouseCursorVisible(false);
 
             

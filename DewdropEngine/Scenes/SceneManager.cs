@@ -207,19 +207,22 @@ public class SceneManager
 
     public void Push(SceneBase newScene, bool swap)
     {
-        // if we have other scenes
-        if (scenes.Count > 0)
+        if (state != SceneManagerState.Transition)
         {
-            previousScene = swap ? scenes.Pop() : scenes.Peek();
-            popped = swap;
-        }
+            // if we have other scenes
+            if (scenes.Count > 0)
+            {
+                previousScene = swap ? scenes.Pop() : scenes.Peek();
+                popped = swap;
+            }
 
-        // push this scene to the top
-        scenes.Push(newScene);
-        // transition
-        SetupTransition();
-        // we're not empty
-        isEmpty = false;
+            // push this scene to the top
+            scenes.Push(newScene);
+            // transition
+            SetupTransition();
+            // we're not empty
+            isEmpty = false;
+        }
     }
 
     /// <summary>
@@ -384,6 +387,7 @@ public class SceneManager
             state = SceneManagerState.Scene;
             newSceneShown = false;
 
+            Peek().TransitionIn();
             //InputManager.Instance.Enabled = true;
 
             // make sure upon a new transition we can clean up our shit again

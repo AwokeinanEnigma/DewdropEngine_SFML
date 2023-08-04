@@ -42,6 +42,10 @@ public abstract class SceneBase : IDisposable
     public virtual void Focus()
     {
     }
+    
+    public virtual void TransitionIn()
+    {
+    }
 
     /// <summary>
     ///     Called when the scene manager is composite mode and this is the scene that's being drawed over. Don't use this as
