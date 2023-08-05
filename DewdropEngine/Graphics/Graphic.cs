@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop.Utilities;
 using SFML.Graphics;
@@ -142,8 +142,8 @@ public class Graphic : AnimatedRenderable
     /// <param name="y">The Y to move forward by</param>
     public virtual void Translate(float x, float y)
     {
-        _position.X = _position.X + x;
-        _position.Y = _position.Y + y;
+        _position.X += x;
+        _position.Y += y;
     }
 
     /// <summary>
