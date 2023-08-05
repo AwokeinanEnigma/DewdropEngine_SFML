@@ -140,7 +140,7 @@ public class TileScene : SceneBase
             ImGui.End();
         };
         pipeline = new RenderPipeline(Engine.RenderTexture);
-        this.texture = new SpriteGraphic($"C:\\Users\\Tom\\Documents\\bear.dat", "walk north", new Vector2(160, 90), 100);
+        this.texture = new SpriteGraphic("C:\\\\Users\\\\Tom\\\\Documents\\\\bear.dat", "walk north", new Vector2(160, 90), 100);
         pipeline.Add(this.texture);
     }
     public override void Focus()
@@ -176,7 +176,7 @@ public class TileScene : SceneBase
             DDDebug.Log($"tileX: {tileX}, tileY: {tileY}");
             //if (tileX >= 0 && tileX < TileGridX && tileY >= 0 && tileY < TileGridY)
             {
-                pipeline.Add(new SpriteGraphic($"C:\\Users\\Tom\\Documents\\block.dat", "base", new Vector2(tileX* 8, tileY * 8), 100));
+                pipeline.Add(new SpriteGraphic("C:\\\\Users\\\\Tom\\\\Documents\\\\block.dat", "base", new Vector2(tileX* 8, tileY * 8), 100));
                 // Place tile at tileX, tileY
                 // Example: tileGrid[tileX, tileY] = tileID;
             }
