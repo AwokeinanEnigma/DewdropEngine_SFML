@@ -413,7 +413,6 @@ public class SceneManager
 
             state = SceneManagerState.Scene;
             newSceneShown = false;
-            newSceneShown = false;
 
             //InputManager.Instance.Enabled = true;
 
