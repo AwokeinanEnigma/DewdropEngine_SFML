@@ -1,16 +1,8 @@
-﻿using System;
-using SFML.Window;
-using SFML.Graphics;
-using SFML.System;
-using DewDrop;
-using DewDrop.Graphics;
-using DewDrop.GUI;
-using DewDrop.GUI.Fonts;
+﻿using DewDrop;
 using DewDrop.Utilities;
 using DewDrop.Scenes;
-using Prototype.Scenes;
-using DewDrop.Resources;
-using System.Reflection;
+using DewDrop.UserInput;
+using Prototype;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 {
@@ -20,57 +12,14 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         static void Main(string[] args)
         {
             Engine.Initialize();
+            SceneManager.Instance.Push(new GUIText());
             Engine.DebugMode = true;
-            EmbeddedResourcesHandler.AddEmbeddedResources(Assembly.GetExecutingAssembly(), "Prototype");
-           GenericText ADA = new GenericText(new Vector2(143, 14), 100, new FontData(), "AAAAAAAAAAAAAAAAAAAAA");
-            ADA.Color = Color.Blue;
-            GenericText ADAA = new GenericText(new Vector2(146, 14), 90, new FontData(), "BBBBBBBBBBBBBBBBBBBB");
-            ADAA.Color = Color.Red;
-            GenericText ADAAA = new GenericText(new Vector2(149, 14), 80, new FontData(), "CCCCCCCCCCCCCCCCCCCCCC");
-            ADAAA.Color = Color.Green;
-            //GenericText ADA = new GenericText("BALLS ITCH MY BALLS ITCH ITCHY ITCHY!!!", 10, new Vector2(143, 14), new FontData());
-            Debug.Log("2");
-            Engine.DebugPipeline.Add(ADA);
-            Engine.DebugPipeline.Add(ADAA);
-            Engine.DebugPipeline.Add(ADAAA);
             Engine.Window.SetMouseCursorVisible(false);
-
+            
+            new AxisManager();
+ 
             Console.WriteLine("Press ESC key to close window");
-            MyWindow window = new MyWindow();
-            window.Show();
-
-            Engine.frameBufferState.Shader = new Shader(EmbeddedResourcesHandler.GetResourceStream("text.vert"), null, EmbeddedResourcesHandler.GetResourceStream("crt.frag"));
-
-            Console.WriteLine("All done");
+            Engine.StartGameLoop();
         }
-    }
-
-    class MyWindow
-    {
-        public RenderPipeline pipeline;
-        private float wobble;
-
-        private float wobbleSpeed;
-
-        private int wobbleDamp;
-        public void Show()
-        {
-            pipeline = new RenderPipeline(Engine.RenderTexture);
-            SceneManager.Instance.Push(new TestScene());
-
-            Clock clock = new Clock();
-            float delta = 0f;
-
-            while (Engine.Window.IsOpen)
-            {
-                delta = clock.Restart().AsSeconds();
-
-                Engine.GameLoop();
-
-
-            }
-
-        }
-
     }
 }

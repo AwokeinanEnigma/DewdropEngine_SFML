@@ -1,40 +1,46 @@
-﻿using DewDrop.Resources;
+﻿#region
+
+using DewDrop.Resources;
+using DewDrop.UserInput;
 using DewDrop.Utilities;
-using SFML.Graphics;
-using System.Runtime.CompilerServices;
+using SFML.System;
 
-namespace DewDrop
+#endregion
+
+namespace DewDrop;
+
+/// <summary>
+/// "You must be ahead to quit. Too many people quit when they’re behind instead of attempting to get ahead. Failure!"
+/// </summary>
+public static partial class Engine
 {
-    public static partial class Engine
+    private static bool initialized;
+
+    /// <summary>
+    ///     Clock that's started when the game starts.
+    /// </summary>
+    public static Clock SessionTimer;
+
+    public static void Initialize()
     {
-        public static Vector2 Screen_Size
+
+        // if we haven't initialized yet
+        if (!initialized)
         {
+            DDDebug.Initialize();
+            EmbeddedResourcesHandler.GetStreams();
+            new Input();
 
-            // this is in EngineGraphics.cs
-            get => screen_size;
-        }
+            // get em' graphics going!!!
+            // this is located in EngineGraphics.cs
+            InitializeGraphics();
+            CreateDebugPipeline();
+            initialized = true;
 
-        private static bool initialized = false;
+            SessionTimer = new Clock();
+            SessionTimer.Restart();
 
-
-
-        public static void Initialize()
-        {
-
-            // if we haven't initialized yet
-            if (!initialized)
-            {
-                Debug.Initialize();
-                EmbeddedResourcesHandler.GetStreams();
-
-                // get em' graphics going!!!
-                // this is located in EngineGraphics.cs
-                InitializeGraphics();
-                CreateDebugPipeline();
-                StartGameLoop();
-
-                initialized = true;
-            }
+            //TODO: Engine should REALLY be calling its own loop
         }
     }
 }

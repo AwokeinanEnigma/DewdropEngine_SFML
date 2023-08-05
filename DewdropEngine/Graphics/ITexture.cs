@@ -1,9 +1,12 @@
-﻿using SFML.Graphics;
+﻿#region
 
-namespace DewDrop.Graphics
+using SFML.Graphics;
+
+#endregion
+
+namespace DewDrop.Graphics;
+
+public interface ITexture : IDisposable
 {
-    public interface ITexture
-    {
-        public Texture texture { get; set; }
-    }
+    public Texture Image { get; set; }
 }

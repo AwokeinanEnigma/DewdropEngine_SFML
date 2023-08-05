@@ -1,33 +1,53 @@
-﻿using DewDrop.Graphics;
+﻿#region
+
+using DewDrop.Graphics;
 using DewDrop.Utilities;
-using SFML.Graphics;
-using System.Runtime.CompilerServices;
+using ImGuiNET;
 
-namespace DewDrop
+#endregion
+
+namespace DewDrop;
+
+public static partial class Engine
 {
-    public static partial class Engine
+    public static RenderPipeline DebugPipeline => _debugPipeline;
+
+    public static bool DebugMode
     {
-        public static RenderPipeline DebugPipeline
+        get => _debugMode;
+        set
         {
-            get => debugPipeline;
+            _debugMode = value;
+            if (value)
+                DDDebug.LogWarning("Enabling debug mode!");
+            else
+                DDDebug.LogWarning("Disabling debug mode!");
         }
-
-        public static bool DebugMode {
-            get => debugMode;
-            set 
-            {
-                debugMode = value;
-                Debug.LogWarning("Enabling debug mode!");
-            }
-        }
+    }
 
 
-        private static RenderPipeline debugPipeline;
-        private static bool debugMode = false;
+    private static RenderPipeline _debugPipeline;
+    private static bool _debugMode;
 
-        public static void CreateDebugPipeline()
-        {
-            debugPipeline = new RenderPipeline(frameBuffer);
-        }
+    public static void CreateDebugPipeline()
+    {
+        _debugPipeline = new RenderPipeline(frameBuffer);
+        ImGuiSfml.Init(window);
+        ImGui.LoadIniSettingsFromDisk("imgui.ini");
+        
+        RenderImGUI += OnRenderImGUI;
+        //Rendersc
+    }
+
+    private static void OnRenderImGUI()
+    {
+        ImGui.Begin("Dewdrop Debug Utilities");
+        ImGui.Text($"Garbage Allocated: {GC.GetTotalMemory(false) / 1024L}KB");
+        ImGui.Separator();
+
+        if (ImGui.Button("Force GC Collection")) GC.Collect();
+        ImGui.End();
+        
+        //throw new NotImplementedException();
     }
 }
