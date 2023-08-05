@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Collections;
 using System.Diagnostics;
@@ -125,7 +125,7 @@ public sealed class NbtByte : NbtTag
 /// <summary> A tag containing an array of bytes. </summary>
 public sealed class NbtByteArray : NbtTag
 {
-    private static readonly byte[] ZeroArray = new byte[0];
+    private static readonly byte[] ZeroArray = System.Array.Empty<byte>();
 
     /// <summary> Type of this tag (ByteArray). </summary>
     public override NbtTagType TagType => NbtTagType.ByteArray;
@@ -1280,7 +1280,7 @@ public sealed class NbtInt : NbtTag
 /// <summary> A tag containing an array of signed 32-bit integers. </summary>
 public sealed class NbtIntArray : NbtTag
 {
-    private static readonly int[] ZeroArray = new int[0];
+    private static readonly int[] ZeroArray = System.Array.Empty<int>();
 
     /// <summary> Type of this tag (ByteArray). </summary>
     public override NbtTagType TagType => NbtTagType.IntArray;
