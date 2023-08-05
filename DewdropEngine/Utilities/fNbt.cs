@@ -778,7 +778,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     {
         if (newTag == null)
         {
-            throw new ArgumentNullException("newTag");
+            throw new ArgumentNullException(nameof(newTag));
         }
 
         if (newTag == this)
@@ -1940,7 +1940,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     {
         if (newTag == null)
         {
-            throw new ArgumentNullException("newTag");
+            throw new ArgumentNullException(nameof(newTag));
         }
 
         if (listType != NbtTagType.Unknown && newTag.TagType != listType)
@@ -1982,7 +1982,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     {
         if (newTag == null)
         {
-            throw new ArgumentNullException("newTag");
+            throw new ArgumentNullException(nameof(newTag));
         }
 
         if (newTag.Parent != null)
@@ -3528,7 +3528,7 @@ internal sealed unsafe class NbtBinaryWriter
     {
         if (value == null)
         {
-            throw new ArgumentNullException("value");
+            throw new ArgumentNullException(nameof(value));
         }
 
         // Write out string length (as number of bytes)
@@ -4310,7 +4310,7 @@ public sealed class NbtFile
     {
         if (fileName == null)
         {
-            throw new ArgumentNullException("fileName");
+            throw new ArgumentNullException(nameof(fileName));
         }
 
         if (!File.Exists(fileName))
@@ -6484,7 +6484,7 @@ public sealed class NbtWriter
     {
         if (data == null)
         {
-            throw new ArgumentNullException("data");
+            throw new ArgumentNullException(nameof(data));
         }
 
         if (offset < 0)
