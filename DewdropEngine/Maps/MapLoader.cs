@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop.Collision;
 using DewDrop.Utilities;
@@ -29,7 +29,7 @@ public class MapLoader
         NbtFile file = new(_mapName);
         NbtCompound root = file.RootTag;
 
-        Map map = new Map();
+        Map map = new();
         // we pass as ref so we can add to the list
         LoadCoreInformation(root, ref map);
 
@@ -48,7 +48,7 @@ public class MapLoader
         NbtFile file = new(mapName);
         NbtCompound root = file.RootTag;
 
-        Map map = new Map();
+        Map map = new();
         LoadCoreInformation(root, ref map);
 
         return map;

@@ -1,4 +1,4 @@
-﻿using SFML.Graphics;
+using SFML.Graphics;
 using SFML.System;
 using System;
 using DewDrop.GUI;
@@ -71,7 +71,7 @@ namespace DewDrop.Scenes.Transitions;
             this.verts[1] = new Vertex(new Vector2f(num2, -num3), givenColor);
             this.verts[2] = new Vertex(new Vector2f(num2, num3), givenColor);
             this.verts[3] = new Vertex(new Vector2f(-num2, num3), givenColor);
-            Transform transform = new Transform(1f, 0f, ViewManager.Instance.FinalCenter.X, 0f, 1f, ViewManager.Instance.FinalCenter.Y, 0f, 0f, 1f);
+            Transform transform = new(1f, 0f, ViewManager.Instance.FinalCenter.X, 0f, 1f, ViewManager.Instance.FinalCenter.Y, 0f, 0f, 1f);
             this.renderStates = new RenderStates(transform);
         }
 

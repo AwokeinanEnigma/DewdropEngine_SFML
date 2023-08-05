@@ -1,4 +1,4 @@
-﻿using DewDrop;
+using DewDrop;
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.Scenes;
@@ -49,11 +49,11 @@ public class TileScene : SceneBase
                 // SceneManager.Instance.Push(new TestScene());
             }
         };
-        Texture texture = new Texture("C:\\Users\\Tom\\Documents\\Mother 4\\Maple Knob\\MapleKnob.png");
+        Texture texture = new("C:\\Users\\Tom\\Documents\\Mother 4\\Maple Knob\\MapleKnob.png");
         texture.GenerateMipmap();
         uint ySize = texture.Size.Y;
         uint xSize = texture.Size.X;
-        Sprite sprite = new Sprite(texture);
+        Sprite sprite = new(texture);
         bool[,] selectedTiles = new bool[xSize, ySize];  
         Engine.RenderImGUI += () =>
         {

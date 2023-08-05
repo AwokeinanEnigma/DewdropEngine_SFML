@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using SFML.System;
 
@@ -413,7 +413,7 @@ public struct Vector2
 
     public const double PI_OVER_EIGHT = 0.39269908169872414;
 
-    public static readonly Vector2 ZERO_VECTOR = new Vector2(0f, 0f);
+    public static readonly Vector2 ZERO_VECTOR = new(0f, 0f);
 
     // used for VectorToDirection
     private static Vector2[] DIR_TO_VECTOR = new Vector2[]
