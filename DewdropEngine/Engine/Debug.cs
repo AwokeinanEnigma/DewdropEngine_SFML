@@ -10,14 +10,14 @@ namespace DewDrop;
 
 public static partial class Engine
 {
-    public static RenderPipeline DebugPipeline => debugPipeline;
+    public static RenderPipeline DebugPipeline => _debugPipeline;
 
     public static bool DebugMode
     {
-        get => debugMode;
+        get => _debugMode;
         set
         {
-            debugMode = value;
+            _debugMode = value;
             if (value)
                 DDDebug.LogWarning("Enabling debug mode!");
             else
@@ -26,13 +26,28 @@ public static partial class Engine
     }
 
 
-    private static RenderPipeline debugPipeline;
-    private static bool debugMode;
+    private static RenderPipeline _debugPipeline;
+    private static bool _debugMode;
 
     public static void CreateDebugPipeline()
     {
-        debugPipeline = new RenderPipeline(frameBuffer);
+        _debugPipeline = new RenderPipeline(frameBuffer);
         ImGuiSfml.Init(window);
         ImGui.LoadIniSettingsFromDisk("imgui.ini");
+        
+        RenderImGUI += OnRenderImGUI;
+        //Rendersc
+    }
+
+    private static void OnRenderImGUI()
+    {
+        ImGui.Begin("Dewdrop Debug Utilities");
+        ImGui.Text($"Garbage Allocated: {GC.GetTotalMemory(false) / 1024L}KB");
+        ImGui.Separator();
+
+        if (ImGui.Button("Force GC Collection")) GC.Collect();
+        ImGui.End();
+        
+        //throw new NotImplementedException();
     }
 }

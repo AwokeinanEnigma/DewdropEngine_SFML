@@ -1,19 +1,7 @@
-﻿using System;
-using SFML.Window;
-using SFML.Graphics;
-using SFML.System;
-using DewDrop;
-using DewDrop.Graphics;
-using DewDrop.GUI;
-using DewDrop.GUI.Fonts;
+﻿using DewDrop;
 using DewDrop.Utilities;
 using DewDrop.Scenes;
-using Prototype.Scenes;
-using DewDrop.Resources;
-using System.Reflection;
-using DewDrop.Scenes.Transitions;
 using DewDrop.UserInput;
-using ImGuiNET;
 using Prototype;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp
@@ -27,7 +15,7 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
             SceneManager.Instance.Push(new GUIText());
             DDDebug.Log("1");
             //SceneManager.Instance.Push(new TileScene());
-            Engine.DebugMode = false;
+            Engine.DebugMode = true;
             Engine.Window.SetMouseCursorVisible(false);
 
             

@@ -125,12 +125,12 @@ public static partial class Engine
         //Finally, draw our scene.
         SceneManager.Instance.Draw();
         // Draw over our scene.
-        if (debugMode)
+        if (_debugMode)
         {
-            debugPipeline.Draw();
+            _debugPipeline.Draw();
         }
 
-        if (debugMode)
+        if (_debugMode)
         {
             ImGuiSfml.Update(window, _deltaTimeFloat);
         }
@@ -144,14 +144,14 @@ public static partial class Engine
 
         frameBuffer.Display();
         window.Clear(Color.Black);
-        if (debugMode)
+        if (_debugMode)
         {
             RenderImGUI?.Invoke();
         }
 
         window.Draw(frameBufferVertexArray, frameBufferState);
         
-        if (debugMode)
+        if (_debugMode)
         {
             ImGuiSfml.Render();
         }

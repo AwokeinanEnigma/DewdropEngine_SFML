@@ -96,12 +96,7 @@ namespace Prototype.Scenes
 
         private void EngineOnRenderImGUI()
         {
-            ImGui.Begin("Dewdrop Debug Utilities");
-            ImGui.Text($"Garbage Allocated: {GC.GetTotalMemory(false) / 1024L}KB");
-            ImGui.Separator();
 
-            if (ImGui.Button("Force GC Collection")) GC.Collect();
-            ImGui.End();
         }
         
         public IList<TileChunk>  MakeTileChunks(uint palette, List<TileChunkData> groups)
@@ -192,8 +187,8 @@ namespace Prototype.Scenes
             }
             Engine.RenderImGUI -= EngineOnRenderImGUI;
             Input.Instance.OnKeyPressed -= InstanceOnOnKeyPressed;
-            DDDebug.Log("hey!");
             ViewManager.Instance.Center = new Vector2(0, 0);
+
             base.Dispose(disposing);
         }
     }

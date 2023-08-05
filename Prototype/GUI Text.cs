@@ -45,7 +45,8 @@ public class GUIText : SceneBase
                 new FontData());
 
             pipeline.Add(List);
-            #endregion
+            clock = new Clock();
+            #endregion   
         }
         
 
@@ -54,11 +55,12 @@ public class GUIText : SceneBase
         {
             if (button == DButtons.Select)
             {
-                if (List.SelectedItem == "Skin")
+                if (List.SelectedItem == "Under")
                 {
                     SceneManager.Instance.Transition = new ColorFadeTransition(0.5f, Color.Black);
                     SceneManager.Instance.Push(new TestScene(), true);
                     DDDebug.Log("Skin");
+                    Input.Instance.OnButtonPressed -= InstanceOnOnButtonPressed;
                 }
             }
             
@@ -66,14 +68,9 @@ public class GUIText : SceneBase
 
         private void AxisManagerOnPostAxisChanged()
         {
-            if (AxisManager.Instance.Axis.Y > 0.5f)
-            {
-                List.SelectNext();
-            }
-            else if (AxisManager.Instance.Axis.Y < -0.5f)
-            {
-                List.SelectPrevious();
-            }        }
+
+            
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -111,10 +108,21 @@ public class GUIText : SceneBase
                 
         }
 
+        public Clock clock;
 
         public override void Update()
         {
             base.Update();
+            if (AxisManager.Instance.Axis.Y > 0.5f && clock.ElapsedTime.AsSeconds() > 0.2f)
+            {
+                List.SelectNext();
+                clock.Restart();
+            }
+            else if (AxisManager.Instance.Axis.Y < -0.5f && clock.ElapsedTime.AsSeconds() > 0.2f) 
+            {
+                List.SelectPrevious();
+                clock.Restart();
+            }
         }
 
         public override void Draw()
