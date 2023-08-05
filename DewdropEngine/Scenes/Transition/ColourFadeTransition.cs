@@ -10,26 +10,17 @@ namespace DewDrop.Scenes.Transitions;
     {
         public bool IsComplete
         {
-            get
-            {
-                return this.isComplete;
-            }
+            get => this.isComplete;
         }
 
         public float Progress
         {
-            get
-            {
-                return this.progress;
-            }
+            get => this.progress;
         }
 
         public bool ShowNewScene
         {
-            get
-            {
-                return this.progress > 0.5f;
-            }
+            get => this.progress > 0.5f;
         }
 
         public bool Blocking { get; set; }
