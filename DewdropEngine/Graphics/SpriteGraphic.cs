@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop.Resources;
 using DewDrop.Utilities;
@@ -330,7 +330,7 @@ public class SpriteGraphic : Graphic
         return _spritesheet.GetSpriteDefinition(hashCode);
     }
 
-    public SpriteGraphic Clone()
+    public SpriteGraphic? Clone()
     {
         if (_resourceName != null)
         {

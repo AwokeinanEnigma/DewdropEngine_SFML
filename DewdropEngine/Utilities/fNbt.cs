@@ -417,7 +417,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <returns> The tag with the specified key. Null if tag with the given name was not found. </returns>
     /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
     /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
-    public T Get<T>(string tagName) where T : NbtTag
+    public T? Get<T>(string tagName) where T : NbtTag
     {
         if (tagName == null) throw new ArgumentNullException("tagName");
         NbtTag result;
@@ -435,7 +435,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <returns> The tag with the specified key. Null if tag with the given name was not found. </returns>
     /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
     /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
-    public NbtTag Get(string tagName)
+    public NbtTag? Get(string tagName)
     {
         if (tagName == null) throw new ArgumentNullException("tagName");
         NbtTag result;
@@ -2913,7 +2913,7 @@ public abstract class NbtTag : ICloneable
     ///     String representing the canonical name of a tag,
     ///     or null of given TagType does not have a canonical name (e.g. Unknown).
     /// </returns>
-    public static string GetCanonicalTagName(NbtTagType type)
+    public static string? GetCanonicalTagName(NbtTagType type)
     {
         switch (type)
         {

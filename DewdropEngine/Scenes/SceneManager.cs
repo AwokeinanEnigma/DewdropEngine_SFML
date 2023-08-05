@@ -59,7 +59,7 @@ public class SceneManager
             return Peek(0);
         }
 
-        public SceneBase Peek(int i)
+        public SceneBase? Peek(int i)
         {
             //if we're outside of the list of scenes
             if (i < 0 || i >= list.Count)
