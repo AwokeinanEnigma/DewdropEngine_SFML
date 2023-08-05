@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop.Utilities;
 using fNbt;
@@ -101,7 +101,7 @@ public class TextureManager
                     bool flipY = optionsArray[1] == 1;
                     int mode = optionsArray[2];
 
-                    float[] speeds = speedSet != null ? new float[speedSet.Count] : new float[0];
+                    float[] speeds = speedSet != null ? new float[speedSet.Count] : System.Array.Empty<float>();
                     for (int i = 0; i < speeds.Length; i++)
                     {
                         NbtTag speedValue = speedSet[i];
