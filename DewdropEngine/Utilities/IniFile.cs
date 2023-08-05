@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Collections;
 using System.Globalization;
@@ -48,8 +48,7 @@ public struct IniValue
 
     public IniValue(object value)
     {
-        var formattable = value as IFormattable;
-        if (formattable != null)
+        if (value is IFormattable formattable)
         {
             Value = formattable.ToString(null, CultureInfo.InvariantCulture);
         }
