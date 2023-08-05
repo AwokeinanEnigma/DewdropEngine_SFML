@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop.Scenes.Transitions;
 
@@ -78,7 +78,7 @@ public class SceneManager
         public SceneBase Pop()
         {
             // create result
-            SceneBase result = null;
+            SceneBase? result = null;
 
             if (list.Count > 0)
             {
