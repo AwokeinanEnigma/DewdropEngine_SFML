@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -60,7 +60,7 @@ public class Player : RenderableEntity, ICollidable
         
         Mesh = new Mesh(new FloatRect(-8f, -3f, 15f, 6f));
         AABB = Mesh.AABB;
-        VertexArray vertexArray = new VertexArray(PrimitiveType.LineStrip, (uint)(Mesh.Vertices.Count + 1));
+        VertexArray vertexArray = new(PrimitiveType.LineStrip, (uint)(Mesh.Vertices.Count + 1));
         for (int i = 0; i < Mesh.Vertices.Count; i++)
         {
             vertexArray[(uint)i] = new Vertex(Mesh.Vertices[i], Color.Green);

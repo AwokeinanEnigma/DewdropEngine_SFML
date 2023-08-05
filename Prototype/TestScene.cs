@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop;
 using DewDrop.Collision;
@@ -45,7 +45,7 @@ namespace Prototype.Scenes
 
             #region  Tiles
             
-            MapLoader loader = new MapLoader(  "testmap.dat");
+            MapLoader loader = new("testmap.dat");
             Map mapFile = loader.Load();
             CollisionManager = new CollisionManager(mapFile.Width, mapFile.Height);
             pipeline.AddAll(MakeTileChunks(0, mapFile.TileChunkData));

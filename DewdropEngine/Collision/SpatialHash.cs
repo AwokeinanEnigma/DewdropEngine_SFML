@@ -1,4 +1,4 @@
-﻿using SFML.Graphics;
+using SFML.Graphics;
 using SFML.System;
 
 namespace DewDrop.Collision;
@@ -336,7 +336,7 @@ namespace DewDrop.Collision;
 
         public void DebugDraw(RenderTarget target)
         {
-            RenderStates states = new RenderStates(BlendMode.Alpha, Transform.Identity, null, null);
+            RenderStates states = new(BlendMode.Alpha, Transform.Identity, null, null);
             foreach (ICollidable[] array in _buckets)
             {
                 if (array != null)
