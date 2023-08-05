@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop.GUI;
 using DewDrop.Scenes;
@@ -98,11 +98,6 @@ public static partial class Engine
             SceneManager.Instance.Clear();
         }
         // GameLoop();
-    }
-
-    public static void GameLoop()
-    {
-
     }
 
     public static void Update()
