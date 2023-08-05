@@ -2600,9 +2600,7 @@ public abstract class NbtTag : ICloneable
             {
                 return;
             }
-
-            var parentAsCompound = Parent as NbtCompound;
-            if (parentAsCompound != null)
+            if (Parent is NbtCompound parentAsCompound)
             {
                 if (value == null)
                 {
@@ -2636,9 +2634,7 @@ public abstract class NbtTag : ICloneable
             {
                 return Name ?? "";
             }
-
-            var parentAsList = Parent as NbtList;
-            if (parentAsList != null)
+            if (Parent is NbtList parentAsList)
             {
                 return parentAsList.Path + '[' + parentAsList.IndexOf(this) + ']';
             }
@@ -5166,15 +5162,13 @@ public class NbtReader
 
     private void AddToParent(NbtTag thisTag, NbtTag parent)
     {
-        var parentAsList = parent as NbtList;
-        if (parentAsList != null)
+        if (parent is NbtList parentAsList)
         {
             parentAsList.Add(thisTag);
         }
         else
         {
-            var parentAsCompound = parent as NbtCompound;
-            if (parentAsCompound != null)
+            if (parent is NbtCompound parentAsCompound)
             {
                 parentAsCompound.Add(thisTag);
             }
