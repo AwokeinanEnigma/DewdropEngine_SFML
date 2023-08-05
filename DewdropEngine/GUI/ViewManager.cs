@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using DewDrop.Entities;
 using DewDrop.Utilities;
@@ -140,7 +140,7 @@ public class ViewManager
 
     private float CalculateSmoothMovement(float progress)
     {
-        return (float)(1.0 - (Math.Cos(progress * 2.0 * 3.141592653589793) / 2.0 + 0.5)) * (_moveToSpeed - 0.5f) + 0.5f;
+        return (float)(1.0 - (Math.Cos(progress * 2.0 * Math.PI) / 2.0 + 0.5)) * (_moveToSpeed - 0.5f) + 0.5f;
     }
 
     public void Update()

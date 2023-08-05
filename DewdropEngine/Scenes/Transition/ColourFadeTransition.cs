@@ -79,7 +79,7 @@ namespace DewDrop.Scenes.Transitions;
         {
             this.progress += this.speed;
             this.isComplete = (this.progress > 1f);
-            byte b = (byte)(255.0 * (Math.Cos(this.progress * 2f * 3.141592653589793 + 3.141592653589793) / 2.0 + 0.5));
+            byte b = (byte)(255.0 * (Math.Cos(this.progress * 2f * Math.PI+ Math.PI) / 2.0 + 0.5));
             b /= 25;
             b *= 25;
             this.verts[0].Color.A = b;
