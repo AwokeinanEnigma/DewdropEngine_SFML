@@ -1,4 +1,4 @@
-﻿using DewDrop.Utilities;
+using DewDrop.Utilities;
 
 namespace DewDrop.Entities;
 
@@ -24,7 +24,7 @@ public abstract class Entity : IDisposable
     /// <summary>
     ///     This is your constructor. You can do whatever you want with it.
     /// </summary>
-    public Entity()
+    protected Entity()
     {
 
     }
