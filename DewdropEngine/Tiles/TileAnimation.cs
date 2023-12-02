@@ -1,10 +1,9 @@
 ﻿namespace DewDrop.Tiles;
 
-public struct AnimatedTile
-{
-    public int[] Tiles;
+public struct AnimatedTile {
+	public int[] Tiles;
 
-    public IList<int> VertexIndexes;
+	public IList<int> VertexIndexes;
 
-    public float AnimationSpeed;
+	public float AnimationSpeed;
 }

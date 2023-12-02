@@ -15,6 +15,7 @@ using ImGuiNET;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using Color = SFML.Graphics.Color;
 
 #endregion
 
@@ -53,8 +54,9 @@ namespace Prototype.Scenes
             mapFile.Collisions.ForEach(x => CollisionManager.Add( new StaticCollider(x)));
             #endregion
             
-
+            
             #region Create Entities
+            TextureManager.Instance.DumpLoadedTextures();
 
             _playerEntity = new Player(
                 new RectangleShape(new Vector2f(11, 20)),
@@ -77,7 +79,7 @@ namespace Prototype.Scenes
             #endregion
 
             Engine.RenderImGUI += EngineOnRenderImGUI;
-            Input.Instance.OnKeyPressed += InstanceOnOnKeyPressed;
+            Input.OnKeyPressed += InstanceOnOnKeyPressed;
 
         }
 
@@ -85,9 +87,9 @@ namespace Prototype.Scenes
         {
             if (key == Keyboard.Key.Tilde) 
                 Engine.DebugMode = !Engine.DebugMode;
-            if (key == Keyboard.Key.F1)
+            if (key == Keyboard.Key.F1 && !SceneManager.Instance.IsTransitioning)
             {
-                SceneManager.Instance.Push(new GUIText(), true);
+                SceneManager.Instance.Push(new DebugPlayground(false), true);
             }
 
             //SceneManager.Instance.Pop();
@@ -180,13 +182,14 @@ namespace Prototype.Scenes
                 CollisionManager.Clear();
                 EntityManager.ClearEntities();
                 pipeline.Clear(true);
+                TextureManager.Instance.Purge();
                 
                 ViewManager.Instance.EntityFollow = null;
                 disposed = true;
                 // dispose here
             }
             Engine.RenderImGUI -= EngineOnRenderImGUI;
-            Input.Instance.OnKeyPressed -= InstanceOnOnKeyPressed;
+            Input.OnKeyPressed -= InstanceOnOnKeyPressed;
             ViewManager.Instance.Center = new Vector2(0, 0);
 
             base.Dispose(disposing);

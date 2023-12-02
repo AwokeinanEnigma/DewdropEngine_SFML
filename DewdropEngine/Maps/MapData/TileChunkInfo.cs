@@ -1,14 +1,13 @@
-﻿public struct TileChunkData
-{
-    public ushort[] Tiles;
+﻿public struct TileChunkData {
+	public ushort[] Tiles;
 
-    public uint Depth;
+	public uint Depth;
 
-    public int X;
+	public int X;
 
-    public int Y;
+	public int Y;
 
-    public int Width;
+	public int Width;
 
-    public int Height;
+	public int Height;
 }

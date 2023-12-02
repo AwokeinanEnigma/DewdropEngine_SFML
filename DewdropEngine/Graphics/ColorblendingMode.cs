@@ -1,9 +1,8 @@
 ﻿/// <summary>
 ///     Enum for color blending modes
 /// </summary>
-public enum ColorBlendMode
-{
-    Replace,
+public enum ColorBlendMode {
+	Replace,
     /// <summary>
     ///     A*B
     /// </summary>

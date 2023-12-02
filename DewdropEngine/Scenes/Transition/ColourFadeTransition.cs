@@ -1,104 +1,87 @@
+#region
+
+using DewDrop.GUI;
 using SFML.Graphics;
 using SFML.System;
-using System;
-using DewDrop.GUI;
 
+#endregion
 namespace DewDrop.Scenes.Transitions;
 
+public class ColorFadeTransition : ITransition {
+	public bool IsComplete { get; private set; }
 
-    public class ColorFadeTransition : ITransition
-    {
-        public bool IsComplete
-        {
-            get => this.isComplete;
-        }
+	public float Progress { get; private set; }
 
-        public float Progress
-        {
-            get => this.progress;
-        }
+	public bool ShowNewScene {
+		get => Progress > 0.5f;
+	}
 
-        public bool ShowNewScene
-        {
-            get => this.progress > 0.5f;
-        }
+	public bool Blocking { get; set; }
 
-        public bool Blocking { get; set; }
+	float duration;
+	Color givenColor;
 
-        private float duration;
-        private Color givenColor;
-        
-        private const int STEPS = 10;
+	const int STEPS = 10;
 
-        private float speed;
+	float speed;
 
-        private bool isComplete;
+	RenderTarget target;
 
-        private float progress;
+	Vertex[] verts;
 
-        private RenderTarget target;
+	RenderStates renderStates;
 
-        private Vertex[] verts;
+	public ColorFadeTransition (float duration, Color color) {
+		this.duration = duration;
+		givenColor = color;
+		Initialize();
+	}
+	void Initialize () {
+		float num = 60f*duration;
+		speed = 1f/num;
+		IsComplete = false;
+		Progress = 0f;
+		target = Engine.RenderTexture;
+		float num2 = 160f;
+		float num3 = 90f;
+		verts = new Vertex[4];
+		verts[0] = new Vertex(new Vector2f(-num2, -num3), givenColor);
+		verts[1] = new Vertex(new Vector2f(num2, -num3), givenColor);
+		verts[2] = new Vertex(new Vector2f(num2, num3), givenColor);
+		verts[3] = new Vertex(new Vector2f(-num2, num3), givenColor);
+		Transform transform = new Transform(1f, 0f, ViewManager.Instance.FinalCenter.X, 0f, 1f, ViewManager.Instance.FinalCenter.Y, 0f, 0f, 1f);
+		renderStates = new RenderStates(transform);
+	}
 
-        private RenderStates renderStates;
+	public void Update () {
+		Progress += speed;
+		IsComplete = Progress > 1f;
+		byte b = (byte)(255.0*(Math.Cos(Progress*2f*Math.PI + Math.PI)/2.0 + 0.5));
+		b /= 25;
+		b *= 25;
+		verts[0].Color.A = b;
+		verts[1].Color.A = b;
+		verts[2].Color.A = b;
+		verts[3].Color.A = b;
+	}
 
-        public ColorFadeTransition(float duration, Color color)
-        {
-            this.duration = duration;
-            givenColor = color;
-            Initialize();
-        }
-        private void Initialize()
-        {
-            float num = 60f * duration;
-            this.speed = 1f / num;
-            this.isComplete = false;
-            this.progress = 0f;
-            this.target = Engine.RenderTexture;
-            float num2 = 160f;
-            float num3 = 90f;
-            this.verts = new Vertex[4];
-            this.verts[0] = new Vertex(new Vector2f(-num2, -num3), givenColor);
-            this.verts[1] = new Vertex(new Vector2f(num2, -num3), givenColor);
-            this.verts[2] = new Vertex(new Vector2f(num2, num3), givenColor);
-            this.verts[3] = new Vertex(new Vector2f(-num2, num3), givenColor);
-            Transform transform = new(1f, 0f, ViewManager.Instance.FinalCenter.X, 0f, 1f, ViewManager.Instance.FinalCenter.Y, 0f, 0f, 1f);
-            this.renderStates = new RenderStates(transform);
-        }
+	public void Draw () {
+		renderStates.Transform = new Transform(1f, 0f, ViewManager.Instance.FinalCenter.X, 0f, 1f, ViewManager.Instance.FinalCenter.Y, 0f, 0f, 1f);
+		target.Draw(verts, PrimitiveType.Quads, renderStates);
+	}
 
-        public void Update()
-        {
-            this.progress += this.speed;
-            this.isComplete = (this.progress > 1f);
-            byte b = (byte)(255.0 * (Math.Cos(this.progress * 2f * Math.PI+ Math.PI) / 2.0 + 0.5));
-            b /= 25;
-            b *= 25;
-            this.verts[0].Color.A = b;
-            this.verts[1].Color.A = b;
-            this.verts[2].Color.A = b;
-            this.verts[3].Color.A = b;
-        }
+	public void Reset () {
 
-        public void Draw()
-        {
-            this.renderStates.Transform = new Transform(1f, 0f, ViewManager.Instance.FinalCenter.X, 0f, 1f, ViewManager.Instance.FinalCenter.Y, 0f, 0f, 1f);
-            this.target.Draw(this.verts, PrimitiveType.Quads, this.renderStates);
-        }
+		IsComplete = false;
+		Progress = 0f;
+		verts[0].Color.A = 0;
+		verts[1].Color.A = 0;
+		verts[2].Color.A = 0;
+		verts[3].Color.A = 0;
+	}
 
-        public void Reset()
-        {
-
-            this.isComplete = false;
-            this.progress = 0f;
-            this.verts[0].Color.A = 0;
-            this.verts[1].Color.A = 0;
-            this.verts[2].Color.A = 0;
-            this.verts[3].Color.A = 0;
-        }
-
-        public void Destroy()
-        {
-            Array.Clear(verts, 0, verts.Length);
-            verts = null;
-        }
-    }
+	public void Destroy () {
+		Array.Clear(verts, 0, verts.Length);
+		verts = null;
+	}
+}

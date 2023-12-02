@@ -11,11 +11,10 @@ namespace DewDrop;
 ///     This struct contains values used by the engine to determine certain aspects of itself.
 ///     Such as the size of the screen, and if VSync should be enabled.
 /// </summary>
-internal struct EngineConfigurationData
-{
-    public Vector2 screen_size;
+struct EngineConfigurationData {
+	public Vector2 screen_size;
 
-    public float screen_width => screen_size.x;
+	public float screen_width => screen_size.x;
 
-    public float screen_height => screen_size.y;
+	public float screen_height => screen_size.y;
 }

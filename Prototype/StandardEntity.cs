@@ -88,57 +88,58 @@ public class Player : RenderableEntity, ICollidable
  
             //DDDebug.Log("Velocity: " + Velocity);
         }
-        if (
-            //if our collision manager exists
-            _manager != null &&
-            //and we cannot move next
-            !_manager.PlaceFree(this, _position) //, collisionResults, ignoreCollisionTypes)
-        )
-        {
-            //collision
-            HandleCornerSliding();
-            DDDebug.Log("Collision!");
-            //HandleCollision(collisionResults);
-        }
-        else
+
+        if (_manager != null)
         {
 
 
-            if (Velocity.X != 0f)
+            if (
+                //and we cannot move next
+                !_manager.PlaceFree(this, _position) //, collisionResults, ignoreCollisionTypes)
+            )
             {
-                moveTemp = new Vector2(_position.X + Velocity.X, _position.Y);
-                bool flag = _manager == null ||
-                            _manager.PlaceFree(this, moveTemp);
-                if (flag) // && collisionManager.ObjectsAtPosition(position).Count() < 0)
-                {
-                    _position = moveTemp;
-                }
-                else
-                {
-                    HandleCornerSliding();
-                    Velocity.X = 0f;
-                }
+                //collision
+                HandleCornerSliding();
+                Outer.Log("Collision!");
+                //HandleCollision(collisionResults);
             }
+            else
+            {
 
-            if (Velocity.Y != 0f)
-            {
-                moveTemp = new Vector2(_position.X, _position.Y + Velocity.Y);
-                bool flag = _manager == null ||
-                            _manager.PlaceFree(this, moveTemp);
-                if (flag)
+
+                if (Velocity.X != 0f)
                 {
-                    _position = moveTemp;
+                    moveTemp = new Vector2(_position.X + Velocity.X, _position.Y);
+
+                    if (_manager.PlaceFree(this,
+                            moveTemp)) // && collisionManager.ObjectsAtPosition(position).Count() < 0)
+                    {
+                        _position = moveTemp;
+                    }
+                    else
+                    {
+                        HandleCornerSliding();
+                        Velocity.X = 0f;
+                    }
                 }
-                else
+
+                if (Velocity.Y != 0f)
                 {
-                    HandleCornerSliding();
-                    Velocity.Y = 0f;
+                    moveTemp = new Vector2(_position.X, _position.Y + Velocity.Y);
+                    if (_manager.PlaceFree(this, moveTemp))
+                    {
+                        _position = moveTemp;
+                    }
+                    else
+                    {
+                        HandleCornerSliding();
+                        Velocity.Y = 0f;
+                    }
                 }
+
             }
+            _manager.Update(this, lastPosition, _position);
         }
-
-        _manager.Update(this,  lastPosition,_position);
-        
         ///Depth = Int32.MaxValue;
         //Console.WriteLine(_depth);
     }
@@ -195,13 +196,13 @@ public class Player : RenderableEntity, ICollidable
     public override void BecomeVisible()
     {
         base.BecomeVisible();
-        DDDebug.Log("We're barack.");
+        Outer.Log("We're barack.");
     }
     
     public override void BecomeInvisible()
     {
         base.BecomeInvisible();
-        DDDebug.Log("It's joeover.");
+        Outer.Log("It's joeover.");
     }
     
     protected override void Dispose(bool disposing)
@@ -241,6 +242,6 @@ public class Player : RenderableEntity, ICollidable
     
     public void Collision(CollisionContext context)
     {
-        DDDebug.Log("CollisioN!");
+        Outer.Log("CollisioN!");
     }
 }

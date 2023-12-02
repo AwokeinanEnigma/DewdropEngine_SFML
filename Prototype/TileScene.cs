@@ -41,7 +41,7 @@ public class TileScene : SceneBase
     public SpriteGraphic texture;
     public TileScene()
     {       
-        Input.Instance.OnKeyPressed += (key, key2) =>
+        Input.OnKeyPressed += (key, key2) =>
         {
             if (key2 == Keyboard.Key.Down)
             {
@@ -119,7 +119,7 @@ public class TileScene : SceneBase
                         && TileGridX > 0 && TileGridY > 0)
                     {
                         TileGridInitialized = true;
-                        DDDebug.Log("Tilegrid successfully initialized!");
+                        Outer.Log("Tilegrid successfully initialized!");
                         TileGrid = new Tile[TileGridX, TileGridY];
                         // loop through every tile and add an sprite graphic to the render pipeline
                     }
@@ -127,12 +127,12 @@ public class TileScene : SceneBase
                     {
                         if (TileGridInitialized)
                         {
-                            DDDebug.Log("Tile Grid already initialized!");
+                            Outer.Log("Tile Grid already initialized!");
                         }
 
                         if (TileGridX <= 0 || TileGridY <= 0)
                         {
-                            DDDebug.Log("Tile Grid X and Y must be greater than 0!");
+                            Outer.Log("Tile Grid X and Y must be greater than 0!");
                         }
                     }
                 }
@@ -173,7 +173,7 @@ public class TileScene : SceneBase
             Vector2 newPosition = Input.GetMousePosition() - ViewManager.Instance.Center /2;
             int tileX = (int)newPosition.X / 8 ;
             int tileY = (int)newPosition.Y / 8;
-            DDDebug.Log($"tileX: {tileX}, tileY: {tileY}");
+            Outer.Log($"tileX: {tileX}, tileY: {tileY}");
             //if (tileX >= 0 && tileX < TileGridX && tileY >= 0 && tileY < TileGridY)
             {
                 pipeline.Add(new SpriteGraphic("C:\\\\Users\\\\Tom\\\\Documents\\\\block.dat", "base", new Vector2(tileX* 8, tileY * 8), 100));

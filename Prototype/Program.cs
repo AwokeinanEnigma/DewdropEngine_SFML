@@ -2,7 +2,9 @@
 using DewDrop.Utilities;
 using DewDrop.Scenes;
 using DewDrop.UserInput;
+using DewDrop.Wren;
 using Prototype;
+using System.Reflection;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 {
@@ -11,8 +13,14 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
         [STAThread]
         static void Main(string[] args)
         {
+            WrenManager.CollectTypes += (types) => {
+                types.AddRange(
+                    WrenManager.FindWrenTypes(Assembly.GetExecutingAssembly()).ToArray()
+                    );
+            };
             Engine.Initialize();
-            SceneManager.Instance.Push(new GUIText());
+
+            SceneManager.Instance.Push(new DebugPlayground(true));
             Engine.DebugMode = true;
             Engine.Window.SetMouseCursorVisible(false);
             

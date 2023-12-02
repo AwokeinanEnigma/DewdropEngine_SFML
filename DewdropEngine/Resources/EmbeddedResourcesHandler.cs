@@ -1,7 +1,7 @@
 ﻿#region
 
-using System.Reflection;
 using DewDrop.Utilities;
+using System.Reflection;
 
 #endregion
 
@@ -10,39 +10,33 @@ namespace DewDrop.Resources;
 /// <summary>
 ///     Allows you to easily acquire a resource stream of any resource.
 /// </summary>
-public static class EmbeddedResourcesHandler
-{
-    private static Dictionary<string, Stream> streams;
+public static class EmbeddedResourcesHandler {
+	static Dictionary<string, Stream> streams;
 
-    public static void GetStreams()
-    {
+	public static void GetStreams () {
 
-        // create dict 
-        streams = new Dictionary<string, Stream>();
+		// create dict 
+		streams = new Dictionary<string, Stream>();
 
-        // get current assembly
-        Assembly currentAssembly = Assembly.GetExecutingAssembly();
+		// get current assembly
+		Assembly currentAssembly = Assembly.GetExecutingAssembly();
 
-        // get all manifest resource names
-        string[] allResourceNames = currentAssembly.GetManifestResourceNames();
+		// get all manifest resource names
+		string[] allResourceNames = currentAssembly.GetManifestResourceNames();
 
-        for (int i = 0; i < allResourceNames.Length; i++)
-        {
-            string currentStreamName = allResourceNames[i];
+		for (int i = 0; i < allResourceNames.Length; i++) {
+			string currentStreamName = allResourceNames[i];
 
-            // trim the DewDrop.Resources part
-            Stream? resourceStream = currentAssembly.GetManifestResourceStream(currentStreamName);
-            if (resourceStream != null)
-            {
-                // we can do this safely because we know the name of the project will never change
-                streams.Add(currentStreamName.Replace("DewDrop.Resources.", ""), resourceStream);
-            }
-            else
-            {
-                DDDebug.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
-            }
-        }
-    }
+			// trim the DewDrop.Resources part
+			Stream? resourceStream = currentAssembly.GetManifestResourceStream(currentStreamName);
+			if (resourceStream != null) {
+				// we can do this safely because we know the name of the project will never change
+				streams.Add(currentStreamName.Replace("DewDrop.Resources.", ""), resourceStream);
+			} else {
+				Outer.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
+			}
+		}
+	}
 
     /// <summary>
     ///     Adds all embedded resources from an assembly. Embedded resources must be in a folder called "Resources" at the root
@@ -50,43 +44,36 @@ public static class EmbeddedResourcesHandler
     /// </summary>
     /// <param name="asm">The assembly you want to get embedded resource from</param>
     /// <param name="trimName">To remove the path to the embedded resource, the name of the assembly is required./</param>
-    public static void AddEmbeddedResources(Assembly asm, string trimName)
-    {
+    public static void AddEmbeddedResources (Assembly asm, string trimName) {
 
-        // get all manifest resource names
-        string[] allResourceNames = asm.GetManifestResourceNames();
+		// get all manifest resource names
+		string[] allResourceNames = asm.GetManifestResourceNames();
 
-        for (int i = 0; i < allResourceNames.Length; i++)
-        {
-            string currentStreamName = allResourceNames[i];
+		for (int i = 0; i < allResourceNames.Length; i++) {
+			string currentStreamName = allResourceNames[i];
 
-            Stream? resourceStream = asm.GetManifestResourceStream(currentStreamName);
+			Stream? resourceStream = asm.GetManifestResourceStream(currentStreamName);
 
-            if (resourceStream != null)
-            {
-                streams.Add(currentStreamName.Replace($"{trimName}.Resources.", ""), resourceStream);
-            }
-            else
-            {
-                DDDebug.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
-            }
-        }
-    }
+			if (resourceStream != null) {
+				streams.Add(currentStreamName.Replace($"{trimName}.Resources.", ""), resourceStream);
+			} else {
+				Outer.LogError($"Can't get resource stream of resource '{currentStreamName}'", new Exception("Resource stream is null!"));
+			}
+		}
+	}
 
     /// <summary>
     ///     Gets a resource stream by name.
     /// </summary>
     /// <param name="name">The name of the resource you want to get.</param>
     /// <returns>The resource stream of the resource. Can be null.</returns>
-    public static Stream? GetResourceStream(string name)
-    {
+    public static Stream? GetResourceStream (string name) {
 
-        if (streams.TryGetValue(name, out Stream? stream))
-        {
-            return stream;
-        }
+		if (streams.TryGetValue(name, out Stream? stream)) {
+			return stream;
+		}
 
-        DDDebug.LogError($"Couldn't find stream '{name}'!", null);
-        return null;
-    }
+		Outer.LogError($"Couldn't find stream '{name}'!", null);
+		return null;
+	}
 }

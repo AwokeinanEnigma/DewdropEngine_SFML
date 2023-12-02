@@ -10,7 +10,7 @@ using SFML.Graphics;
 
 #endregion
 
-public class ShapeEntity2 : RenderableEntity
+public class ShapeEntity2 : RenderableEntity    
 {   
     public Shape Shape => _shape;
     //set => _shape = value;
@@ -75,13 +75,13 @@ public class ShapeEntity2 : RenderableEntity
     public override void BecomeVisible()
     {
         base.BecomeVisible();
-        DDDebug.Log("We're barack.");
+        Outer.Log("We're barack.");
     }
     
     public override void BecomeInvisible()
     {
         base.BecomeInvisible();
-        DDDebug.Log("It's joeover.");
+        Outer.Log("It's joeover.");
     }
     
     protected override void Dispose(bool disposing)

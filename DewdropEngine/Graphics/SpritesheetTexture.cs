@@ -1,9 +1,9 @@
 ﻿#region
 
-using System.Runtime.InteropServices;
-using System.Security;
 using DewDrop.Utilities;
 using SFML.Graphics;
+using System.Runtime.InteropServices;
+using System.Security;
 
 #endregion
 
@@ -12,179 +12,192 @@ namespace DewDrop.Graphics;
 /// <summary>
 ///     Holds information about a spritesheet's sprite definitions, its grayscale image, and its palette.
 /// </summary>
-public class SpritesheetTexture : ITexture
-{
-    [SuppressUnmanagedCodeSecurity]
-    [DllImport("csfml-graphics", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe void sfTexture_updateFromPixels(IntPtr texture, byte* pixels, uint width, uint height, uint x, uint y);
+public class SpritesheetTexture : ITexture {
+	[SuppressUnmanagedCodeSecurity]
+	[DllImport("csfml-graphics", CallingConvention = CallingConvention.Cdecl)]
+	static extern unsafe void sfTexture_updateFromPixels (IntPtr texture, byte* pixels, uint width, uint height, uint x, uint y);
 
-    #region Properties
+	#region Properties
 
-    public Texture Image
-    {
-        get => _imageTex;
-        set => _imageTex = value;
-    }
+	public Texture Image { get; set; }
+	public unsafe void Reload () {
+		Tuple<byte[], int[][]> result = TextureManager.Instance.GetRawSpritesheetData(_fileName);
+		int[][] palettes = result.Item2;
+		byte[] image = result.Item1;
+		
+		PaletteCount = (uint)palettes.Length;
+		PaletteSize = (uint)palettes[0].Length;
+		Palette = new Texture(PaletteSize, PaletteCount);
+		Image = new Texture((uint)_size.x, (uint)_size.y);
 
-    public Texture Palette => _paletteTex;
+		Color[] totalColors = new Color[PaletteSize*PaletteCount];
+		for (uint allPalettes = 0; allPalettes < PaletteCount; allPalettes++) {
+			uint colors = 0;
+			while (colors < palettes[allPalettes].Length) {
+				totalColors[allPalettes*PaletteSize + colors] = ColorHelper.FromInt(palettes[allPalettes][colors]);
+				colors++;
+			}
+		}
 
-    public uint CurrentPalette
-    {
-        get => _currentPal;
-        set => _currentPal = Math.Min(_totalPals, value);
-    }
+		Color[] uncoloredPixels = new Color[(int)(_size.x*_size.y)];
+		uint pixels = 0;
+		while (pixels < image.Length) {
+			uncoloredPixels[pixels].A = byte.MaxValue;
+			uncoloredPixels[pixels].R = image[pixels];
+			uncoloredPixels[pixels].G = image[pixels];
+			uncoloredPixels[pixels].B = image[pixels];
+			pixels++;
+		}
 
-    public float CurrentPaletteFloat => _currentPal / (float)_totalPals;
+		fixed (Color* ptr = totalColors) {
+			byte* b_pixels = (byte*)ptr;
+			sfTexture_updateFromPixels(Palette.CPointer, b_pixels, PaletteSize, PaletteCount, 0, 0);
+		}
 
-    public uint PaletteCount => _totalPals;
+		fixed (Color* ptr2 = uncoloredPixels) {
+			byte* pixels2 = (byte*)ptr2;
+			sfTexture_updateFromPixels(Image.CPointer, pixels2, (uint)_size.x, (uint)_size.y, 0, 0);
+		}
+	}
 
-    public uint PaletteSize => _palSize;
+	public Texture Palette { get; private set;}
 
-    #endregion
+	public uint CurrentPalette {
+		get => _currentPal;
+		set => _currentPal = Math.Min(PaletteCount, value);
+	}
 
-    #region Sprite Definitions
+	public float CurrentPaletteFloat => _currentPal/(float)PaletteCount;
 
-    private readonly SpriteDefinition _defaultDefinition;
-    private readonly Dictionary<int, SpriteDefinition> _definitions;
+	public uint PaletteCount { get; private set; }
 
-    public SpriteDefinition GetSpriteDefinition(string name)
-    {
+	public uint PaletteSize { get;private set; }
 
-        int hashCode = name.GetHashCode();
-        return GetSpriteDefinition(hashCode);
-    }
+	#endregion
 
-    public SpriteDefinition GetSpriteDefinition(int hash)
-    {
-        SpriteDefinition result;
-        if (!_definitions.TryGetValue(hash, out result))
-        {
-            result = default;
-        }
+	#region Sprite Definitions
 
-        return result;
-    }
+	readonly SpriteDefinition _defaultDefinition;
+	readonly Dictionary<int, SpriteDefinition> _definitions;
 
-    public ICollection<SpriteDefinition> GetSpriteDefinitions()
-    {
-        return _definitions.Values;
-    }
+	public SpriteDefinition GetSpriteDefinition (string name) {
 
-    public SpriteDefinition GetDefaultSpriteDefinition()
-    {
-        return _defaultDefinition;
-    }
+		int hashCode = name.GetHashCode();
+		return GetSpriteDefinition(hashCode);
+	}
 
-    #endregion
+	public SpriteDefinition GetSpriteDefinition (int hash) {
+		SpriteDefinition result;
+		if (!_definitions.TryGetValue(hash, out result)) {
+			result = default;
+		}
 
-    #region Textures
+		return result;
+	}
 
-    private readonly Texture _paletteTex;
-    private Texture _imageTex;
+	public ICollection<SpriteDefinition> GetSpriteDefinitions () {
+		return _definitions.Values;
+	}
 
-    #endregion
+	public SpriteDefinition GetDefaultSpriteDefinition () {
+		return _defaultDefinition;
+	}
 
-    #region Palette
+	#endregion
 
-    private uint _currentPal;
-    private readonly uint _totalPals;
-    private readonly uint _palSize;
+	#region Textures
 
-    #endregion
+	#endregion
 
+	#region Palette
 
-    private bool _disposed;
+	uint _currentPal;
 
-    public unsafe SpritesheetTexture(uint imageWidth, int[][] palettes, byte[] image, Dictionary<int, SpriteDefinition> definitions, SpriteDefinition defaultDefinition)
-    {
-        // create palette
-        _totalPals = (uint)palettes.Length;
-        _palSize = (uint)palettes[0].Length;
-        _paletteTex = new Texture(_palSize, _totalPals);
+	#endregion
 
 
-        uint imageHeight = (uint)(image.Length / (int)imageWidth);
-        _imageTex = new Texture(imageWidth, imageHeight);
+	bool _disposed;
+	string _fileName;
+	Vector2 _size;
+	public unsafe SpritesheetTexture (uint imageWidth, int[][] palettes, byte[] image, Dictionary<int, SpriteDefinition> definitions, SpriteDefinition defaultDefinition, string fileName) {
+		// create palette
+		PaletteCount = (uint)palettes.Length;
+		PaletteSize = (uint)palettes[0].Length;
+		Palette = new Texture(PaletteSize, PaletteCount);
 
-        Color[] totalColors = new Color[_palSize * _totalPals];
-        for (uint allPalettes = 0; allPalettes < _totalPals; allPalettes++)
-        {
-            uint colors = 0;
-            while (colors < palettes[allPalettes].Length)
-            {
-                totalColors[allPalettes * _palSize + colors] = ColorHelper.FromInt(palettes[allPalettes][colors]);
-                colors++;
-            }
-        }
+		_fileName = fileName;
 
-        Color[] uncoloredPixels = new Color[imageWidth * imageHeight];
-        uint pixels = 0;
-        while (pixels < image.Length)
-        {
-            uncoloredPixels[pixels].A = byte.MaxValue;
-            uncoloredPixels[pixels].R = image[pixels];
-            uncoloredPixels[pixels].G = image[pixels];
-            uncoloredPixels[pixels].B = image[pixels];
-            pixels++;
-        }
+		uint imageHeight = (uint)(image.Length/(int)imageWidth);
+		_size = new Vector2(imageWidth, imageHeight);
+		Image = new Texture(imageWidth, imageHeight);
 
-        fixed (Color* ptr = totalColors)
-        {
-            byte* b_pixels = (byte*)ptr;
-            sfTexture_updateFromPixels(_paletteTex.CPointer, b_pixels, _palSize, _totalPals, 0, 0);
-        }
+		Color[] totalColors = new Color[PaletteSize*PaletteCount];
+		for (uint allPalettes = 0; allPalettes < PaletteCount; allPalettes++) {
+			uint colors = 0;
+			while (colors < palettes[allPalettes].Length) {
+				totalColors[allPalettes*PaletteSize + colors] = ColorHelper.FromInt(palettes[allPalettes][colors]);
+				colors++;
+			}
+		}
 
-        fixed (Color* ptr2 = uncoloredPixels)
-        {
-            byte* pixels2 = (byte*)ptr2;
-            sfTexture_updateFromPixels(_imageTex.CPointer, pixels2, imageWidth, imageHeight, 0, 0);
-        }
+		Color[] uncoloredPixels = new Color[imageWidth*imageHeight];
+		uint pixels = 0;
+		while (pixels < image.Length) {
+			uncoloredPixels[pixels].A = byte.MaxValue;
+			uncoloredPixels[pixels].R = image[pixels];
+			uncoloredPixels[pixels].G = image[pixels];
+			uncoloredPixels[pixels].B = image[pixels];
+			pixels++;
+		}
 
-        _definitions = definitions;
-        _defaultDefinition = defaultDefinition;
-    }
+		fixed (Color* ptr = totalColors) {
+			byte* b_pixels = (byte*)ptr;
+			sfTexture_updateFromPixels(Palette.CPointer, b_pixels, PaletteSize, PaletteCount, 0, 0);
+		}
 
-    ~SpritesheetTexture()
-    {
-        Dispose(false);
-    }
+		fixed (Color* ptr2 = uncoloredPixels) {
+			byte* pixels2 = (byte*)ptr2;
+			sfTexture_updateFromPixels(Image.CPointer, pixels2, imageWidth, imageHeight, 0, 0);
+		}
 
-    public void ToFullColorTexture()
-    {
-        uint x1 = _imageTex.Size.X;
-        uint y1 = _imageTex.Size.Y;
-        Image image1 = new(x1, y1);
-        Image image2 = _imageTex.CopyToImage();
-        Image image3 = _paletteTex.CopyToImage();
-        for (uint y2 = 0; y2 < y1; ++y2)
-        {
-            for (uint x2 = 0; x2 < x1; ++x2)
-            {
-                uint x3 = (uint)(image2.GetPixel(x2, y2).R / (double)byte.MaxValue * _palSize);
-                Color pixel = image3.GetPixel(x3, _currentPal);
-                image1.SetPixel(x2, y2, pixel);
-            }
-        }
+		_definitions = definitions;
+		_defaultDefinition = defaultDefinition;
+	}
 
-        image1.SaveToFile("combinedEngineSprite.png");
-        image2.SaveToFile("baseSpritesheet.png");
-        image3.SaveToFile("palette.png");
-    }
+	~SpritesheetTexture () {
+		Dispose(false);
+	}
 
-    public virtual void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+	public void ToFullColorTexture () {
+		uint x1 = Image.Size.X;
+		uint y1 = Image.Size.Y;
+		Image image1 = new Image(x1, y1);
+		Image image2 = Image.CopyToImage();
+		Image image3 = Palette.CopyToImage();
+		for (uint y2 = 0; y2 < y1; ++y2) {
+			for (uint x2 = 0; x2 < x1; ++x2) {
+				uint x3 = (uint)(image2.GetPixel(x2, y2).R/(double)byte.MaxValue*PaletteSize);
+				Color pixel = image3.GetPixel(x3, _currentPal);
+				image1.SetPixel(x2, y2, pixel);
+			}
+		}
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed && disposing)
-        {
-            _imageTex.Dispose();
-            _paletteTex.Dispose();
-        }
+		image1.SaveToFile("combinedEngineSprite.png");
+		image2.SaveToFile("baseSpritesheet.png");
+		image3.SaveToFile("palette.png");
+	}
 
-        _disposed = true;
-    }
+	public virtual void Dispose () {
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+	protected virtual void Dispose (bool disposing) {
+		if (!_disposed && disposing) {
+			Image.Dispose();
+			Palette.Dispose();
+		}
+
+		_disposed = true;
+	}
 }

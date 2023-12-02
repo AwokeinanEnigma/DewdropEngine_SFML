@@ -3,8 +3,7 @@
 /// <summary>
 ///     Generic interface providing fields and methods for transitions.
 /// </summary>
-public interface ITransition
-{
+public interface ITransition {
     /// <summary>
     ///     If
     /// </summary>
@@ -28,16 +27,16 @@ public interface ITransition
     /// <summary>
     ///     This method is called every frame.
     /// </summary>
-    void Update();
+    void Update ();
 
     /// <summary>
     ///     Use this method to to draw whatever you need to draw.
     /// </summary>
-    void Draw();
+    void Draw ();
 
     /// <summary>
     ///     Transitions are NOT initiated every time they're needed. Instead, they're restarted.
     ///     Do restart stuff here.
     /// </summary>
-    void Reset();
+    void Reset ();
 }

@@ -6,8 +6,7 @@ using SFML.System;
 
 namespace DewDrop.Tiles;
 
-public struct Tile
-{
+public struct Tile {
     /// <summary>
     ///     Creates a new tile.
     /// </summary>
@@ -17,15 +16,14 @@ public struct Tile
     /// <param name="flipVert">Should this tile be flipped vertically?</param>
     /// <param name="flipDiag">Should this tile be flipped diagonally?</param>
     /// <param name="animId">The animation ID of this tile</param>
-    public Tile(uint tileID, Vector2f position, bool flipHoriz, bool flipVert, bool flipDiag, ushort animId)
-    {
-        ID = tileID;
-        Position = position;
-        FlipHorizontal = flipHoriz;
-        FlipVertical = flipVert;
-        FlipDiagonal = flipDiag;
-        AnimationId = animId;
-    }
+    public Tile (uint tileID, Vector2f position, bool flipHoriz, bool flipVert, bool flipDiag, ushort animId) {
+		ID = tileID;
+		Position = position;
+		FlipHorizontal = flipHoriz;
+		FlipVertical = flipVert;
+		FlipDiagonal = flipDiag;
+		AnimationId = animId;
+	}
 
     /// <summary>
     ///     The constant size of the tile. Don't change this.

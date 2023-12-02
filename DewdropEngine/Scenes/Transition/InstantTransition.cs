@@ -1,28 +1,23 @@
 ﻿namespace DewDrop.Scenes.Transitions;
 
-public class InstantTransition : ITransition
-{
-    public bool IsComplete => true;
+public class InstantTransition : ITransition {
+	public bool IsComplete => true;
 
-    public float Progress => 1f;
+	public float Progress => 1f;
 
-    public bool ShowNewScene => true;
+	public bool ShowNewScene => true;
 
-    public bool Blocking { get; set; }
+	public bool Blocking { get; set; }
 
-    public void Update()
-    {
-    }
+	public void Update () {
+	}
 
-    public void Draw()
-    {
-    }
+	public void Draw () {
+	}
 
-    public void Reset()
-    {
-    }
+	public void Reset () {
+	}
 
-    public void Destroy()
-    {
-    }
+	public void Destroy () {
+	}
 }

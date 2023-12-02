@@ -32,4 +32,10 @@
         <PackageReference Include="SFML.Net" Version="2.5.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="IronWren">
+        <HintPath>C:\Users\Tom\Documents\IronWren\IronWren\bin\Release\netcoreapp3.1\IronWren.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
