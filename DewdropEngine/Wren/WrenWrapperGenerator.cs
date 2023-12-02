@@ -15,7 +15,7 @@ public class WrenWrapperGenerator {
 	public static string GenerateWrapper (Type originalType) {
 		// check if type has WrenBlackList
 		if (originalType.GetCustomAttributes(typeof(WrenBlackList), true).Length > 0) {
-			Outer.LogError("Cannot generate wrapper for blacklisted type: " + originalType.Name);
+			Outer.LogError("Cannot generate wrapper for blacklisted type: " + originalType.Name, null);
 			return null;
 		}
 		

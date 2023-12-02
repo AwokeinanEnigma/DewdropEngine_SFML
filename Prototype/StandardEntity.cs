@@ -74,6 +74,9 @@ public class Player : RenderableEntity, ICollidable
     private Vector2 moveTemp;
     private Vector2 lastPosition;
     private int direction;
+     public Vector2 CheckVector;
+     Vector2 LastMoveVector;
+    
     public override void Update()
     {
         base.Update();
@@ -105,8 +108,8 @@ public class Player : RenderableEntity, ICollidable
             }
             else
             {
-
-
+                
+                LastMoveVector = Velocity;
                 if (Velocity.X != 0f)
                 {
                     moveTemp = new Vector2(_position.X + Velocity.X, _position.Y);
@@ -136,7 +139,10 @@ public class Player : RenderableEntity, ICollidable
                         Velocity.Y = 0f;
                     }
                 }
-
+                if ((Velocity.X != 0f || Velocity.Y != 0f))
+                {
+                    CheckVector = Vector2.Truncate(Vector2.Normalize(Velocity) * 22);
+                }
             }
             _manager.Update(this, lastPosition, _position);
         }

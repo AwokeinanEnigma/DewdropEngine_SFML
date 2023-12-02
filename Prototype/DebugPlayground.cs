@@ -31,9 +31,9 @@ public class DebugPlayground : SceneBase
             firsta = first; ;
 
             // save it to a file
-            Type type = typeof(Engine);
-            string code =  WrenWrapperGenerator.GenerateWrapper(type) ;
-            File.WriteAllText(Directory.GetCurrentDirectory() + $"/{WrenWrapperGenerator.GetWrapperClassName(type)}.cs", code);
+            //Type type = typeof(Engine);
+            //string code =  WrenWrapperGenerator.GenerateWrapper(type) ;
+            //File.WriteAllText(Directory.GetCurrentDirectory() + $"/{WrenWrapperGenerator.GetWrapperClassName(type)}.cs", code);
             
             #endregion   
         }
@@ -79,7 +79,12 @@ public class DebugPlayground : SceneBase
                         new ScrollableList.SelectAction() {
                             OnSelect = (list) => {
                                 if (!SceneManager.Instance.IsTransitioning) {
-                                    SceneManager.Instance.Transition = new ColorFadeTransition(0.5f, Color.Black);
+                                    SceneManager.Instance.Transition = new ColorFuckTransition(0.45f, new [] {
+                                        Color.Red,
+                                        Color.Blue,
+                                        Color.Blue,
+                                        Color.Red,
+                                    });
                                     SceneManager.Instance.Push(new TestScene(), true);
                                     return true;
                                 }
@@ -117,7 +122,7 @@ public class DebugPlayground : SceneBase
                 _pipeline.Add(List);
                 TextureManager.Instance.DumpLoadedTextures();
                 clock = new Clock();
-                WrenEventHandler a = new WrenEventHandler(_wreno, Input.OnButtonPressed);
+
 
                 // create wren 
                 _wreno = WrenManager.MakeWreno(File.ReadAllText(Directory.GetCurrentDirectory() + "/test.wren"));

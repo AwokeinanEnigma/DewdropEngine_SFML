@@ -179,7 +179,7 @@ public static class Outer {
     /// <param name="message">The message to display.</param>
     /// <param name="callerFilePath">Ignore this.</param>
     /// <param name="callerLineNumber">Ignore this.</param>
-    public static void Log (
+    public static void sLog (
 	        string message) {
 	        LogInternal(LogLevel.System, message);
         }
@@ -190,7 +190,7 @@ public static class Outer {
     /// <param name="message">The message to display.</param>
     /// <param name="callerFilePath">Ignore this.</param>
     /// <param name="callerLineNumber">Ignore this.</param>
-    internal static void LogEngine (
+    internal static void sLogEngine (
 	    string message) {
 	    LogInternal(LogLevel.Engine, message);
     }
@@ -202,7 +202,7 @@ public static class Outer {
     /// <param name="message">The message to display if the condition is false. Is "Assertion failed." by default.</param>
     /// <param name="callerFilePath">Ignore this.</param>
     /// <param name="callerLineNumber">Ignore this.</param>
-    public static void LogAssertion (
+    public static void sLogAssertion (
 		bool condition,
 		string message = "Assertion failed."){
 	    if (condition == false) {
@@ -217,7 +217,7 @@ public static class Outer {
     /// <param name="message">The message to display.</param>
     /// <param name="callerFilePath">Ignore this.</param>
     /// <param name="callerLineNumber">Ignore this.</param>
-    public static void LogError (
+    public static void sLogError (
 	    string message) {
 	    LogInternal(LogLevel.Error, message);
     }
@@ -226,7 +226,7 @@ public static class Outer {
     ///     Used to send warning messages to the console.
     /// </summary>
     /// <param name="message">The message to display.</param>
-    public static void LogWarning (
+    public static void sLogWarning (
 	    string message) {
 	    LogInternal(LogLevel.Warning, message);
     }
@@ -235,7 +235,7 @@ public static class Outer {
     ///     Used to send info messages to the console.
     /// </summary>
     /// <param name="message">The message to display.</param>
-    public static void LogInfo (
+    public static void sLogInfo (
 	    string message) {
 	    LogInternal(LogLevel.Info, message);
     }
@@ -244,7 +244,7 @@ public static class Outer {
     ///     Used to send Lua info messages to the console.
     /// </summary>
     /// <param name="message">The message to display.</param>
-    public static void LogESL (
+    public static void sLogESL (
 	    string message) {
 	    LogInternal(LogLevel.Lua, message);
     }
@@ -253,7 +253,7 @@ public static class Outer {
     ///     Used to send debug messages to the console.
     /// </summary>
     /// <param name="message">The message to display.</param>
-    public static void LogDebug (
+    public static void sLogDebug (
 	    string message) {
 	    LogInternal(LogLevel.Debug, message);
     }

@@ -26,6 +26,7 @@ namespace Prototype.Scenes
         private Player _playerEntity;
         public Text funnyText;
         private ShapeEntity2 overlayEntity;
+        private Wrentity wren;
 
         private RenderPipeline pipeline;
 
@@ -67,14 +68,20 @@ namespace Prototype.Scenes
             pipeline.Add(_playerEntity);
             CollisionManager.Add(_playerEntity);
 
+            
 
             overlayEntity = new ShapeEntity2(
                 new RectangleShape(new Vector2f(1, 1)),
                 new Vector2(160, 90),
                 new Vector2(20, 20),
                 new Vector2(0, 0), 90000, pipeline, Color.Blue, Color.Blue);
+            
+            
+            
             EntityManager.AddEntity(overlayEntity);
             pipeline.Add(overlayEntity);
+            
+            
 
             #endregion
 
@@ -82,6 +89,8 @@ namespace Prototype.Scenes
             Input.OnKeyPressed += InstanceOnOnKeyPressed;
 
         }
+        
+        public ICollidable[] results = new ICollidable[8];
 
         private void InstanceOnOnKeyPressed(object? sender, Keyboard.Key key)
         {
@@ -90,6 +99,27 @@ namespace Prototype.Scenes
             if (key == Keyboard.Key.F1 && !SceneManager.Instance.IsTransitioning)
             {
                 SceneManager.Instance.Push(new DebugPlayground(false), true);
+            }
+            if (key == Keyboard.Key.E) {
+             
+                Outer.Log("Checking collisions");
+                LineGraphic line = new LineGraphic(_playerEntity.Position, _playerEntity.Position + _playerEntity.CheckVector, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Red);
+                pipeline.Add(line);
+                if (!CollisionManager.PlaceFree(_playerEntity, _playerEntity.Position + _playerEntity.CheckVector, results)) {
+                    Console.WriteLine("results loop start");
+                    for (int i = 0; i < results.Length; i++) {
+                        Console.Write("{0}: ", i);
+                        ICollidable collidable = this.results[i];
+                        if (collidable is Wrentity wrentity) {
+                            wrentity.Interact();
+                        }
+                        if (collidable is StaticCollider) {
+                            Console.WriteLine("Found StaticCollider");
+                            break;
+                        }
+                    }
+                    Console.WriteLine("results loop end");
+                }
             }
 
             //SceneManager.Instance.Pop();
@@ -153,6 +183,14 @@ namespace Prototype.Scenes
         public override void Focus()
         {
             base.Focus();
+            wren = new Wrentity(File.ReadAllText(Directory.GetCurrentDirectory() + "/wrentity.wren"), new RectangleShape(new Vector2f(11, 20)),
+                new Vector2(160, 90),
+                new Vector2(11, 20),
+                new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Blue, Color.Blue);
+            EntityManager.AddEntity(wren);
+            pipeline.Add(wren);
+            CollisionManager.Add(wren);
+            
             ViewManager.Instance.EntityFollow = _playerEntity;
             ViewManager.Instance.Center = new Vector2(160f, 90f);
         }

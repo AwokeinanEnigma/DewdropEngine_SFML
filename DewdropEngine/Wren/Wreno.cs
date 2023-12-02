@@ -2,20 +2,27 @@
 using IronWren;
 using IronWren.AutoMapper;
 using System.Text;
-namespace DewDrop.Wren; 
+using System.Text.RegularExpressions;
+namespace DewDrop.Wren;
 
 /// <summary>
 /// A quick and easy WrenVM wrapper.
 /// Tip: Don't initalize these in your Scene's constructor, use TransitionIn instead!
 /// </summary>
-public class Wreno : IDisposable 
-{
+public class Wreno : IDisposable {
 	readonly WrenVM _wren;
 	readonly Dictionary<string, WrenFunctionHandle> _handles;
 	readonly Dictionary<Type, Action<int, object>> _typeMap;
-  	bool _disposed;
+	WrenEventHandler[] _eventHandlers;
+	bool _disposed;
 	string _script;
-	
+	static Dictionary<string, Type> _EventHandlers = new Dictionary<string, Type>() {
+		["e_OnButtonPressed"] = typeof(WrenOnButtonPressedHandler),
+		["e_OnButtonReleased"] = typeof(WrenOnButtonReleasedHandler),
+		["e_OnKeyReleased"] = typeof(WrenOnKeyReleasedHandler),
+		["e_OnKeyPressed"] = typeof(WrenOnKeyPressedHandler)
+	};
+
 	/// <summary>
 	/// Initializes a new instance of the Wreno class.
 	/// </summary>
@@ -37,7 +44,25 @@ public class Wreno : IDisposable
 			[typeof(byte[])] = (i, v) => _wren.SetSlotBytes(i , (byte[])v)
 		};
 		_script = script;
+		GenerateEventHandlers ();
 	}
+	
+	void GenerateEventHandlers () {
+		Regex gex = new Regex(@"e_(\w+)");
+		MatchCollection matches = gex.Matches(_script);
+		_eventHandlers = new WrenEventHandler[matches.Count];
+		for (int i = 0; i < matches.Count; i++) {
+			Match m = matches[i];
+			if (m.Success) {
+				string eventName = m.Groups[i].Value;
+				Outer.Log($"Found event handler {eventName}");
+				if (_EventHandlers.TryGetValue(eventName, out var type)) {
+					_eventHandlers[i] = (WrenEventHandler)Activator.CreateInstance(type, this);
+				}
+			}
+		}
+	}
+	
 	#region Variable
 
 	public T GetVariable<T> (string variable, string module = WrenVM.MainModule) {
@@ -185,6 +210,7 @@ public class Wreno : IDisposable
 	/// <param name="script">The Wren script to run.</param>
 	public void SetScript (string script) {
 		_script = script;
+		GenerateEventHandlers();
 	}
 	
 	/// <summary>
@@ -226,6 +252,10 @@ public class Wreno : IDisposable
 			foreach (var handle in _handles.Values) {
 				handle.Close();
 				handle.Dispose();
+			}
+			
+			for (int i = 0; i < _eventHandlers.Length; i++) {
+				_eventHandlers[i].Dispose();
 			}
 			
 			_wren.CollectGarbage();
