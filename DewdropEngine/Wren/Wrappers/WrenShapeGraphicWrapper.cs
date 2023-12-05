@@ -8,9 +8,9 @@ using DewDrop.Graphics;
 [WrenClass("ShapeGraphic")]
 public class WrenShapeGraphicWrapper : BasicRenderableWrapper {
 	public override IRenderable Renderable => Stored;
-	private const string constructorCode = "";
-	public DewDrop.Graphics.ShapeGraphic Stored;
-	public WrenShapeGraphicWrapper (DewDrop.Graphics.ShapeGraphic original) {
+	private const string constructorCode = $"System.print(\"hello\")";
+	public DewDrop.Graphics.ShapeRenderer Stored;
+	public WrenShapeGraphicWrapper (DewDrop.Graphics.ShapeRenderer original) {
 		Stored = original;
 	}	
 	[WrenConstructor("position", "size", "origin", "depth", "fillColor", "outlineColor", Code = "field:constructorCode")]
@@ -22,7 +22,7 @@ public class WrenShapeGraphicWrapper : BasicRenderableWrapper {
 		var depth = (int)vm.GetSlotDouble(4);
 		var fillColor = vm.GetSlotForeign<WrenColorWrapper>(5);
 		var outlineColor = vm.GetSlotForeign<WrenColorWrapper>(6);
-		Stored = new DewDrop.Graphics.ShapeGraphic(null, position.Vector, size.Vector, origin.Vector, depth, fillColor.Color, outlineColor.Color);
+		Stored = new DewDrop.Graphics.ShapeRenderer(null, position.Vector, size.Vector, origin.Vector, depth, fillColor.Color, outlineColor.Color);
 	}
 	[WrenProperty(PropertyType.Set, "OutlineColor")]
 	public void SetOutlineColor (WrenVM vm) {

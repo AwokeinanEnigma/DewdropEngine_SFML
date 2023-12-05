@@ -11,6 +11,7 @@ using DewDrop.Scenes;
 using DewDrop.Tiles;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
+using DewDrop.Wren;
 using ImGuiNET;
 using SFML.Graphics;
 using SFML.System;
@@ -29,7 +30,7 @@ namespace Prototype.Scenes
         private Wrentity wren;
 
         private RenderPipeline pipeline;
-
+        LineRenderer line;
         private TextRenderer title;
         public EntityManager EntityManager { get; private set; }
         public CollisionManager CollisionManager { get; private set; }
@@ -43,6 +44,8 @@ namespace Prototype.Scenes
 
             pipeline = new RenderPipeline(Engine.RenderTexture);
             EntityManager = new EntityManager();
+            WrenPipelineWrapper.Pipeline = pipeline;
+            
             #endregion
 
             #region  Tiles
@@ -54,6 +57,7 @@ namespace Prototype.Scenes
 
             mapFile.Collisions.ForEach(x => CollisionManager.Add( new StaticCollider(x)));
             #endregion
+
             
             
             #region Create Entities
@@ -82,8 +86,10 @@ namespace Prototype.Scenes
             pipeline.Add(overlayEntity);
             
             
-
+            
             #endregion
+            line = new LineRenderer(_playerEntity.Position, _playerEntity.Position, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Yellow);
+            pipeline.Add(line);
 
             Engine.RenderImGUI += EngineOnRenderImGUI;
             Input.OnKeyPressed += InstanceOnOnKeyPressed;
@@ -101,27 +107,45 @@ namespace Prototype.Scenes
                 SceneManager.Instance.Push(new DebugPlayground(false), true);
             }
             if (key == Keyboard.Key.E) {
-             
-                Outer.Log("Checking collisions");
-                LineGraphic line = new LineGraphic(_playerEntity.Position, _playerEntity.Position + _playerEntity.CheckVector, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Red);
-                pipeline.Add(line);
-                if (!CollisionManager.PlaceFree(_playerEntity, _playerEntity.Position + _playerEntity.CheckVector, results)) {
-                    Console.WriteLine("results loop start");
-                    for (int i = 0; i < results.Length; i++) {
-                        Console.Write("{0}: ", i);
-                        ICollidable collidable = this.results[i];
+                var lino = new LineRenderer(_playerEntity.Position, _playerEntity.Position + Vector2.Normalize(_playerEntity.CheckVector) * 25, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Magenta);
+                pipeline.Add(lino);
+                List<ICollidable> intersectedCollidables = CollisionManager.RaycastAll(
+                    _playerEntity.Position, 
+                    Vector2.Normalize(_playerEntity.CheckVector) , 
+                    25);
+                if (intersectedCollidables.Count > 0) {
+                    Outer.Log("Found collidables");
+                        for (int i = 0; i < intersectedCollidables.Count; i++) {
+                        ICollidable collidable = intersectedCollidables[i];
                         if (collidable is Wrentity wrentity) {
-                            wrentity.Interact();
+                            line.SetPositionB(wrentity.Position);
+                         
+                            break;
                         }
                         if (collidable is StaticCollider) {
-                            Console.WriteLine("Found StaticCollider");
+                            line.SetPositionB(collidable.Position);
                             break;
                         }
                     }
-                    Console.WriteLine("results loop end");
                 }
             }
 
+            if (key == Keyboard.Key.G){
+                Outer.Log("Checking collisions");
+                //draw floatrect
+                FloatRect rect = new FloatRect( -15f, -15f, 30, 30);
+                FloatRectDrawer drawer = new FloatRectDrawer(rect, _playerEntity.Position);
+                pipeline.Add(drawer);
+                
+                List<ICollidable> overlap = CollisionManager.OverlapBoxAll(_playerEntity.Position, rect);
+                Outer.Log(overlap.Count - 1);
+                overlap.ForEach(x => {
+                    if (x is Wrentity wrentity) {
+                        Outer.Log("Found wrentity");
+                        Outer.Log(wrentity.Position);
+                    }
+                });
+            }
             //SceneManager.Instance.Pop();
         }
 
@@ -183,13 +207,7 @@ namespace Prototype.Scenes
         public override void Focus()
         {
             base.Focus();
-            wren = new Wrentity(File.ReadAllText(Directory.GetCurrentDirectory() + "/wrentity.wren"), new RectangleShape(new Vector2f(11, 20)),
-                new Vector2(160, 90),
-                new Vector2(11, 20),
-                new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Blue, Color.Blue);
-            EntityManager.AddEntity(wren);
-            pipeline.Add(wren);
-            CollisionManager.Add(wren);
+ 
             
             ViewManager.Instance.EntityFollow = _playerEntity;
             ViewManager.Instance.Center = new Vector2(160f, 90f);
@@ -200,7 +218,20 @@ namespace Prototype.Scenes
         {
             base.Update();
             EntityManager.Update();
+            line.SetPositionA(_playerEntity.Position);
   
+        }
+
+        public override void TransitionIn () {
+            base.TransitionIn();
+            Outer.Log("Created wreno.");
+            wren = new Wrentity(File.ReadAllText(Directory.GetCurrentDirectory() + "/wrentity.wren"), new RectangleShape(new Vector2f(11, 20)),
+                new Vector2(160, 90),
+                new Vector2(11, 20),
+                new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Blue, Color.Blue);
+            EntityManager.AddEntity(wren);
+            pipeline.Add(wren);
+            CollisionManager.Add(wren);
         }
 
         public override void Draw()

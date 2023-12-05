@@ -1,4 +1,5 @@
-﻿namespace DewDrop.Scenes;
+﻿using DewDrop.Utilities;
+namespace DewDrop.Scenes;
 
 /// <summary>
 ///     A scene is basically a part of the game containing logic
@@ -76,6 +77,7 @@ public abstract class SceneBase : IDisposable {
 		if (!disposed) {
 		}
 		GC.Collect();
+		Outer.Log("GCS");
 		disposed = true;
 	}
 

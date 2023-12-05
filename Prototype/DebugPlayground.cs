@@ -31,9 +31,9 @@ public class DebugPlayground : SceneBase
             firsta = first; ;
 
             // save it to a file
-            //Type type = typeof(Engine);
-            //string code =  WrenWrapperGenerator.GenerateWrapper(type) ;
-            //File.WriteAllText(Directory.GetCurrentDirectory() + $"/{WrenWrapperGenerator.GetWrapperClassName(type)}.cs", code);
+            Type type = typeof(LineRenderer);
+            string code =  WrenWrapperGenerator.GenerateWrapper(type) ;
+            File.WriteAllText(Directory.GetCurrentDirectory() + $"/{WrenWrapperGenerator.GetWrapperClassName(type)}.cs", code);
             
             #endregion   
         }
@@ -122,7 +122,6 @@ public class DebugPlayground : SceneBase
                 _pipeline.Add(List);
                 TextureManager.Instance.DumpLoadedTextures();
                 clock = new Clock();
-
 
                 // create wren 
                 _wreno = WrenManager.MakeWreno(File.ReadAllText(Directory.GetCurrentDirectory() + "/test.wren"));

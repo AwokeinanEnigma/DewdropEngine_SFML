@@ -6,7 +6,7 @@ namespace DewDrop.Wren;
 [WrenClass("RenderPipeline")]
 public static class WrenPipelineWrapper {
 	public static RenderPipeline Pipeline;
-	private const string constructorCode = "";
+	private const string constructorCode = $"System.print(\"hello\")";
 
 	[WrenMethod("Add", "renderable")]
 	public static void Add(WrenVM vm)

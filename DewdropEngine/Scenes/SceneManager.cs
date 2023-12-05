@@ -1,6 +1,7 @@
 #region
 
 using DewDrop.Scenes.Transitions;
+using DewDrop.Utilities;
 using ImGuiNET;
 
 #endregion
@@ -324,11 +325,11 @@ public class SceneManager {
 
 			// progress ranges between 0 & 1
 			// 0.5 is halfway
-			// so what this is saying is "Okay if the transition is halfway done let's clean up our shit and make sure we don't clean up our shit again"
+			// so what this is saying is "Okay if the transition is halfway done let's clean up our shit and make sure we don't clean up our shit again"		
 			if (Transition.Progress > 0.5f && !cleanupFlag) {
 				// TextureManager.Instance.Purge();
 				GC.Collect();
-
+				Outer.Log("GCSMe");
 				// transition.Destroy();
 				cleanupFlag = true;
 			}

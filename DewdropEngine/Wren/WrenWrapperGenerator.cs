@@ -53,7 +53,7 @@ public class WrenWrapperGenerator {
 
 			wrapperCode += $"public {wrapperClassName}({originalType.FullName} original)" + Environment.NewLine;
 			wrapperCode += "{" + Environment.NewLine;
-			wrapperCode += "{storedName} = original;" + Environment.NewLine;
+			wrapperCode += $"{storedName} = original;" + Environment.NewLine;
 			wrapperCode += "}" + Environment.NewLine;
 
 
@@ -85,29 +85,70 @@ public class WrenWrapperGenerator {
 			if (constructorParams.Length > 0) {
 				wrapperCode += $"vm.EnsureSlots({validParams.Count});" + Environment.NewLine;
 			}
-			code = "";
+			string constructoCode = "";
 			foreach (var parameter in constructorParams) {
 				string type = GetWrenTypeSuffix(parameter.ParameterType, out string cast, false);
 				if (type.Contains("Unknown")) {
 					//Outer.Log("Skipping unknown type: " + parameter.ParameterType);
-					code += "null, ";
+					constructoCode += "null, ";
 					continue;
 				}
 				wrapperCode += $"var {parameter.Name} = {cast}vm.GetSlot{type}({validParams.IndexOf(parameter) + 1});" + Environment.NewLine;
 				if (type.Contains("Foreign")) {
 					//Outer.Log("hey");
-					code += $"{parameter.Name}.{GetForeignField(parameter.ParameterType)}, ";
+					constructoCode += $"{parameter.Name}.{GetForeignField(parameter.ParameterType)}, ";
 				} else {
 					//Outer.Log(parameter.Name);
-					code += $"{parameter.Name}, ";
+					constructoCode += $"{parameter.Name}, ";
 				}
 			}
-			if (code.Length > 2) {
-				code = code.Substring(0, code.Length - 2);
+			if (constructoCode.Length > 2) {
+				constructoCode = constructoCode.Substring(0, constructoCode.Length - 2);
 			}
+			
 			// remove the last comma and space
-			wrapperCode += $"{storedName} = new {originalType.FullName}({code});" + Environment.NewLine;
+			wrapperCode += $"{storedName} = new {originalType.FullName}({constructoCode});" + Environment.NewLine;
 			wrapperCode += "}" + Environment.NewLine;
+			
+			// also generate static constructor
+			wrapperCode += $"[WrenMethod(\"New\", {code})]" + Environment.NewLine;
+			wrapperCode += $"public static void New(WrenVM vm)" + Environment.NewLine;
+			wrapperCode += "{" + Environment.NewLine;
+			if (constructorParams.Length > 0) {
+				wrapperCode += $"vm.EnsureSlots({validParams.Count});" + Environment.NewLine;
+			}
+			foreach (var parameter in constructorParams) {
+				string type = GetWrenTypeSuffix(parameter.ParameterType, out string cast, false);
+				if (type.Contains("Unknown")) {
+					//Outer.Log("Skipping unknown type: " + parameter.ParameterType);
+					continue;
+				}
+				wrapperCode += $"var {parameter.Name} = {cast}vm.GetSlot{type}({validParams.IndexOf(parameter) + 1});" + Environment.NewLine;
+			}
+
+
+			string foreignConstructoCode = constructoCode;
+				// remove all instances of "null," from the string
+			foreignConstructoCode = foreignConstructoCode.Replace("null,", "");
+			foreignConstructoCode = foreignConstructoCode.Replace(", null)", "");
+			if (foreignConstructoCode.Contains("null")) {
+				foreignConstructoCode = foreignConstructoCode.Substring(0, foreignConstructoCode.Length - 6);
+			}
+
+			wrapperCode += $"vm.SetSlotNewForeign(0, new {wrapperClassName}({foreignConstructoCode})";
+			wrapperCode +=  ");" + Environment.NewLine;
+			wrapperCode += "}" + Environment.NewLine;
+			
+			// now generate a constructor that takes constructorparams as arguments and generates a new instance
+			wrapperCode += $"public {wrapperClassName}({string.Join(", ", validParams.Select(p => $"{p.ParameterType} {p.Name}"))})" + Environment.NewLine;
+			wrapperCode += "{" + Environment.NewLine;
+			constructoCode = constructoCode.Replace(".Vector", "");
+			//wrapperCode += $"{storedName} = new {originalType.FullName}({string.Join(", ", validParams.Select(p => p.Name))});" + Environment.NewLine;
+			wrapperCode += $"{storedName} = new {originalType.FullName}({constructoCode});" + Environment.NewLine;
+			wrapperCode += "}" + Environment.NewLine;
+			
+
+
 		} else {
 			storedName = originalType.FullName;
 		}
@@ -135,7 +176,7 @@ public class WrenWrapperGenerator {
 			wrapperCode += $"{declarationParameters} Set{field.Name}(WrenVM vm)" + Environment.NewLine;
 			wrapperCode += "{" + Environment.NewLine;
 			wrapperCode += "vm.EnsureSlots(1);" + Environment.NewLine;
-
+			
 			if (type.Contains("Foreign")) {
 				wrapperCode += $"{storedName}.{field.Name} = {cast}vm.GetSlot{type}(1).{GetForeignField(field.FieldType)};" + Environment.NewLine;
 
@@ -156,6 +197,7 @@ public class WrenWrapperGenerator {
 			}
 			wrapperCode += "}" + Environment.NewLine;
 			wrapperCode += Environment.NewLine;
+			
 		}
 
 		if (originalType.GetProperties().Length > 0) {
@@ -278,7 +320,11 @@ public class WrenWrapperGenerator {
 					var parameter = parameters[i];
 					string type = GetWrenTypeSuffix(parameter.ParameterType, out string cast, false);
 
-					parameterList += $"{cast}vm.GetSlot{type}({i + 1})";
+					if (type.Contains("Foreign")) {
+						parameterList += $"{cast}vm.GetSlot{type}({i + 1}).{GetForeignField(parameter.ParameterType)}";
+					} else {
+						parameterList += $"{cast}vm.GetSlot{type}({i + 1})";
+					}
 					if (i < parameters.Length - 1) {
 						parameterList += ", ";
 					}
@@ -345,6 +391,8 @@ public class WrenWrapperGenerator {
 		return "Unknown";
 		// }
 	}
+	
+
 
 	static string GetWrenTypeSuffix (Type type, out string cast, bool set) {
 		cast = "";

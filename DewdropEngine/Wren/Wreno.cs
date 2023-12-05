@@ -1,6 +1,8 @@
 ﻿using DewDrop.Utilities;
+using ImGuiNET;
 using IronWren;
 using IronWren.AutoMapper;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 namespace DewDrop.Wren;
@@ -28,23 +30,45 @@ public class Wreno : IDisposable {
 	/// </summary>
 	/// <param name="config">The WrenConfig to use for initialization.</param>
 	/// <param name="script">The Wren script to run.</param>
-	public Wreno (WrenConfig config, string script) {
-		_wren = new WrenVM(config);
-		//_wren.BindForeignClass += BindForeignClass;
-		_handles = new Dictionary<string, WrenFunctionHandle>();
-		_wren.Write +=  Write;
-		_wren.Error += WriteError;
-		_typeMap = new Dictionary<Type, Action<int, object>>
-		{	
-			[typeof(float)] = (i, v) => { _wren.SetSlotDouble(i , (float)v); },
-			[typeof(int)] = (i, v) => { _wren.SetSlotDouble(i , (int)v); },
-			[typeof(string)] = (i, v) => _wren.SetSlotString(i , (string)v),
-			[typeof(bool)] = (i, v) => _wren.SetSlotBool(i , (bool)v),
-			[typeof(double)] = (i, v) => _wren.SetSlotDouble(i , (double)v),
-			[typeof(byte[])] = (i, v) => _wren.SetSlotBytes(i , (byte[])v)
-		};
-		_script = script;
-		GenerateEventHandlers ();
+	public Wreno (WrenConfig config, string script, [CallerFilePath] string callerFilePath = "",
+	              [CallerLineNumber] int callerLineNumber = 0) {
+		try {
+
+
+			_wren = new WrenVM(config);
+			//_wren.BindForeignClass += OnVmOnBindForeignClass;
+			_handles = new Dictionary<string, WrenFunctionHandle>();
+			_wren.Write += Write;
+			_wren.Error += WriteError;
+			Outer.Log("Wreno initialized! " + callerFilePath + ":" + callerLineNumber);
+			_typeMap = new Dictionary<Type, Action<int, object>> {
+				[typeof(float)] = (i, v) => { _wren.SetSlotDouble(i, (float)v); },
+				[typeof(int)] = (i, v) => { _wren.SetSlotDouble(i, (int)v); },
+				[typeof(string)] = (i, v) => _wren.SetSlotString(i, (string)v),
+				[typeof(bool)] = (i, v) => _wren.SetSlotBool(i, (bool)v),
+				[typeof(double)] = (i, v) => _wren.SetSlotDouble(i, (double)v),
+				[typeof(byte[])] = (i, v) => _wren.SetSlotBytes(i, (byte[])v)
+			};
+			_script = script;
+			GenerateEventHandlers();
+		}
+		catch (Exception ex) {
+			Outer.LogError("Wreno failed to initialize!", ex);
+		}
+	}
+	bool _generatedAllocator = false;
+	 WrenForeignClassMethods OnVmOnBindForeignClass (WrenVM vm, string module, string className) {
+		var result = _generatedAllocator ? new WrenForeignClassMethods {
+				Allocate = alloc
+			}
+			: null;
+		_generatedAllocator = true;
+		return result;
+	}
+	private static void alloc(WrenVM vm)
+	{
+		Console.WriteLine("Allocator called!");
+		vm.SetSlotNewForeign(0, 1);
 	}
 	
 	void GenerateEventHandlers () {
@@ -226,8 +250,6 @@ public class Wreno : IDisposable {
 		return false;
 	}
 	
-	public void DoThings () {
-	}
 	#endregion
 	
 	#region Dispose

@@ -1,134 +1,160 @@
-﻿#region
-
-using DewDrop.Graphics;
-using DewDrop.GUI;
-using DewDrop.GUI.Fonts;
+﻿using DewDrop.Wren;
+using DewDrop.Utilities;
 using IronWren;
 using IronWren.AutoMapper;
-
-#endregion
-namespace DewDrop.Wren;
+using SFML.Graphics;
+using DewDrop.Graphics;
 
 [WrenClass("TextRenderer")]
 public class WrenTextRendererWrapper : BasicRenderableWrapper {
-	const string constructorCode = "";
-	public TextRenderer _original;
-	public override IRenderable Renderable => _original;
-	WrenColorWrapper colorWrapper;
-
+	public override IRenderable Renderable => Stored;
+	private const string constructorCode = "";
+	public DewDrop.GUI.TextRenderer Stored;
+	public WrenTextRendererWrapper (DewDrop.GUI.TextRenderer original) {
+		Stored = original;
+	}
 	[WrenConstructor("position", "depth", "text", Code = "field:constructorCode")]
 	public WrenTextRendererWrapper (WrenVM vm) {
 		vm.EnsureSlots(3);
 		var position = vm.GetSlotForeign<WrenVector2Wrapper>(1);
 		var depth = (int)vm.GetSlotDouble(2);
 		var text = vm.GetSlotString(3);
-		_original = new DewDrop.GUI.TextRenderer(position.Vector, depth, text);
+		Stored = new DewDrop.GUI.TextRenderer(position.Vector, depth, text);
 	}
+	[WrenMethod("New", "position", "depth", "text")]
+	public static void New (WrenVM vm) {
+		vm.EnsureSlots(3);
+		var position = vm.GetSlotForeign<WrenVector2Wrapper>(1);
+		var depth = (int)vm.GetSlotDouble(2);
+		var text = vm.GetSlotString(3);
+		vm.SetSlotNewForeign(0, new WrenTextRendererWrapper(position.Vector, depth, text));
+	}
+	public WrenTextRendererWrapper (DewDrop.Utilities.Vector2 position, System.Int32 depth, System.String text) {
+		Stored = new DewDrop.GUI.TextRenderer(position, depth, text);
+	}
+// Property wrappers
 	[WrenProperty(PropertyType.Set, "RenderPosition")]
 	public void SetRenderPosition (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.RenderPosition = vm.GetSlotForeign<WrenVector2Wrapper>(1).Vector;
+		Stored.RenderPosition = vm.GetSlotForeign<WrenVector2Wrapper>(1).Vector;
 	}
 
 	[WrenProperty(PropertyType.Get, "RenderPosition")]
 	public void GetRenderPosition (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotNewForeign(0, new WrenVector2Wrapper(_original.RenderPosition));
+		vm.SetSlotNewForeign(0, new WrenVector2Wrapper(Stored.RenderPosition));
 	}
 
 	[WrenProperty(PropertyType.Set, "Text")]
 	public void SetText (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.Text = vm.GetSlotString(1);
+		Stored.Text = vm.GetSlotString(1);
 	}
 
 	[WrenProperty(PropertyType.Get, "Text")]
 	public void GetText (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotString(0, _original.Text);
+		vm.SetSlotString(0, Stored.Text);
 	}
 
 	[WrenProperty(PropertyType.Set, "Color")]
 	public void SetColor (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.Color = vm.GetSlotForeign<WrenColorWrapper>(1).Color;
+		Stored.Color = vm.GetSlotForeign<WrenColorWrapper>(1).Color;
 	}
 
 	[WrenProperty(PropertyType.Get, "Color")]
 	public void GetColor (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotNewForeign(0, new WrenColorWrapper(_original.Color));
+		vm.SetSlotNewForeign(0, new WrenColorWrapper(Stored.Color));
 	}
 
 	[WrenProperty(PropertyType.Set, "Origin")]
 	public void SetOrigin (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.Origin = vm.GetSlotForeign<WrenVector2Wrapper>(1).Vector;
+		Stored.Origin = vm.GetSlotForeign<WrenVector2Wrapper>(1).Vector;
 	}
 
 	[WrenProperty(PropertyType.Get, "Origin")]
 	public void GetOrigin (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotNewForeign(0, new WrenVector2Wrapper(_original.Origin));
+		vm.SetSlotNewForeign(0, new WrenVector2Wrapper(Stored.Origin));
 	}
 
 	[WrenProperty(PropertyType.Set, "Size")]
 	public void SetSize (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.Size = vm.GetSlotForeign<WrenVector2Wrapper>(1).Vector;
+		Stored.Size = vm.GetSlotForeign<WrenVector2Wrapper>(1).Vector;
 	}
 
 	[WrenProperty(PropertyType.Get, "Size")]
 	public void GetSize (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotNewForeign(0, new WrenVector2Wrapper(_original.Size));
+		vm.SetSlotNewForeign(0, new WrenVector2Wrapper(Stored.Size));
 	}
 
 	[WrenProperty(PropertyType.Set, "Depth")]
 	public void SetDepth (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.Depth = (int)vm.GetSlotDouble(1);
+		Stored.Depth = (int)vm.GetSlotDouble(1);
 	}
 
 	[WrenProperty(PropertyType.Get, "Depth")]
 	public void GetDepth (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotDouble(0, _original.Depth);
+		vm.SetSlotDouble(0, Stored.Depth);
 	}
 
 	[WrenProperty(PropertyType.Set, "Visible")]
 	public void SetVisible (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.Visible = vm.GetSlotBool(1);
+		Stored.Visible = vm.GetSlotBool(1);
 	}
 
 	[WrenProperty(PropertyType.Get, "Visible")]
 	public void GetVisible (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotBool(0, _original.Visible);
+		vm.SetSlotBool(0, Stored.Visible);
 	}
 
 	[WrenProperty(PropertyType.Set, "Rotation")]
 	public void SetRotation (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.Rotation = (float)vm.GetSlotDouble(1);
+		Stored.Rotation = (float)vm.GetSlotDouble(1);
 	}
 
 	[WrenProperty(PropertyType.Get, "Rotation")]
 	public void GetRotation (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotDouble(0, _original.Rotation);
+		vm.SetSlotDouble(0, Stored.Rotation);
 	}
 
 	[WrenProperty(PropertyType.Set, "IsBeingDrawn")]
 	public void SetIsBeingDrawn (WrenVM vm) {
 		vm.EnsureSlots(1);
-		_original.IsBeingDrawn = vm.GetSlotBool(1);
+		Stored.IsBeingDrawn = vm.GetSlotBool(1);
 	}
 
 	[WrenProperty(PropertyType.Get, "IsBeingDrawn")]
 	public void GetIsBeingDrawn (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotBool(0, _original.IsBeingDrawn);
+		vm.SetSlotBool(0, Stored.IsBeingDrawn);
+	}
+
+	[WrenMethod("FindCharacterPosition", "index")]
+	public void FindCharacterPosition (WrenVM vm) {
+		vm.EnsureSlots(1);
+		vm.SetSlotNewForeign(0, new WrenVector2Wrapper(Stored.FindCharacterPosition((uint)vm.GetSlotDouble(1))));
+	}
+
+	[WrenMethod("ToString")]
+	public void ToString (WrenVM vm) {
+		vm.EnsureSlots(1);
+		vm.SetSlotString(0, Stored.ToString());
+	}
+	[WrenMethod("GetHashCode")]
+	public void GetHashCode (WrenVM vm) {
+		vm.EnsureSlots(1);
+		vm.SetSlotDouble(0, Stored.GetHashCode());
 	}
 }

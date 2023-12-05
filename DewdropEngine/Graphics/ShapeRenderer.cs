@@ -7,7 +7,7 @@ using SFML.Graphics;
 
 namespace DewDrop.Graphics;
 
-public class ShapeGraphic : Renderable {
+public class ShapeRenderer : Renderable {
 	public Shape Shape { get; }
 	//set => _shape = value;
 	public Color OutlineColor {
@@ -20,7 +20,7 @@ public class ShapeGraphic : Renderable {
 		set => Shape.FillColor = value;
 	}
 
-	public ShapeGraphic (Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, Color fillColor = default, Color outlineColor = default) {
+	public ShapeRenderer (Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, Color fillColor = default, Color outlineColor = default) {
 		RenderPosition = position;
 		Size = size;
 		Origin = origin;

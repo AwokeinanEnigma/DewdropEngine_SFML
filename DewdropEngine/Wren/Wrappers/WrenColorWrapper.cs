@@ -7,7 +7,7 @@ namespace DewDrop.Wren;
 [WrenClass("Color")]
 public class WrenColorWrapper {
 	public Color Color;
-	private const string constructorCode = "";
+	private const string constructorCode = $"System.print(\"hello\")";
 
 	public WrenColorWrapper(Color color) {
 		Color = color;
@@ -77,11 +77,10 @@ public class WrenColorWrapper {
 		vm.EnsureSlots(3);
 		Color = new Color((byte)vm.GetSlotDouble(1), (byte)vm.GetSlotDouble(2), (byte)vm.GetSlotDouble(3));
 	}
-	
-	//[WrenFinalizer]
-	private void wrenFinalize()
-	{
-		Outer.Log("Color Finalized!");
-	}
-	
+
+	[WrenMethod("New", "r", "g", "b")]
+	static void New (WrenVM vm) {
+		vm.EnsureSlots(3);
+		vm.SetSlotNewForeign(0, new WrenColorWrapper(new Color((byte)vm.GetSlotDouble(1), (byte)vm.GetSlotDouble(2), (byte)vm.GetSlotDouble(3))));
+	}	
 }

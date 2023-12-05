@@ -141,7 +141,7 @@ public class Player : RenderableEntity, ICollidable
                 }
                 if ((Velocity.X != 0f || Velocity.Y != 0f))
                 {
-                    CheckVector = Vector2.Truncate(Vector2.Normalize(Velocity) * 22);
+                    CheckVector = Vector2.Truncate(Vector2.Normalize(Velocity) * 10);
                 }
             }
             _manager.Update(this, lastPosition, _position);

@@ -24,8 +24,7 @@ public struct Vector2 {
     /// <summary>
     ///     Represents a Vector2 at (0,0).
     /// </summary>
-    public static Vector2 Zero = new Vector2(0, 0);
-
+    public static readonly Vector2 Zero = new Vector2(0, 0);
     /// <summary>
     ///     Represents a Vector2f with the point (0,0).
     /// </summary>
@@ -112,6 +111,11 @@ public struct Vector2 {
 	}
 
 
+    public static float GetLength(Vector2 v)
+	{
+		return (float)Math.Sqrt(v.x * v.x + v.y * v.y);
+	}
+    
 	#region Translation methods
 
     /// <summary>
@@ -268,6 +272,12 @@ public struct Vector2 {
 
 	// divison with an int
 	public static Vector2 operator / (Vector2 a, int divider) {
+		a.x /= divider;
+		a.y /= divider;
+		return a;
+	}
+	
+	public static Vector2 operator / (Vector2 a, float divider) {
 		a.x /= divider;
 		a.y /= divider;
 		return a;

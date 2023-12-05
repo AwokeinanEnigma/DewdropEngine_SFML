@@ -130,13 +130,11 @@ public class Wrentity : RenderableEntity, ICollidable
     
     protected override void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (!_disposed && disposing)
         {
-            if (disposing && _shape != null)
-            {
                 _shape.Dispose();
+                _wreno.Dispose();
             }
-        }
         _disposed = true;
     }
 

@@ -3,6 +3,7 @@ using DewDrop.Utilities;
 using IronWren;
 using IronWren.AutoMapper;
 using SFML.Graphics;
+using DewDrop.Graphics;
 
 [WrenClass("SpriteDefinition")]
 public class WrenSpriteDefinitionWrapper {
@@ -24,6 +25,23 @@ public class WrenSpriteDefinitionWrapper {
 		var mode = (int)vm.GetSlotDouble(8);
 		Stored = new DewDrop.Graphics.SpriteDefinition(name, coords.Vector, bounds.Vector, origin.Vector, frames, null, flipX, flipY, mode, null);
 	}
+	[WrenMethod("New", "name", "coords", "bounds", "origin", "frames", "flipX", "flipY", "mode")]
+	public static void New (WrenVM vm) {
+		vm.EnsureSlots(8);
+		var name = vm.GetSlotString(1);
+		var coords = vm.GetSlotForeign<WrenVector2Wrapper>(2);
+		var bounds = vm.GetSlotForeign<WrenVector2Wrapper>(3);
+		var origin = vm.GetSlotForeign<WrenVector2Wrapper>(4);
+		var frames = (int)vm.GetSlotDouble(5);
+		var flipX = vm.GetSlotBool(6);
+		var flipY = vm.GetSlotBool(7);
+		var mode = (int)vm.GetSlotDouble(8);
+		vm.SetSlotNewForeign(0, new WrenSpriteDefinitionWrapper(name, coords.Vector, bounds.Vector, origin.Vector, frames, flipX, flipY, mode));
+	}
+	public WrenSpriteDefinitionWrapper (System.String name, DewDrop.Utilities.Vector2 coords, DewDrop.Utilities.Vector2 bounds, DewDrop.Utilities.Vector2 origin, System.Int32 frames, System.Boolean flipX, System.Boolean flipY, System.Int32 mode) {
+		Stored = new DewDrop.Graphics.SpriteDefinition(name, coords, bounds, origin, frames, null, flipX, flipY, mode, null);
+	}
+// Property wrappers
 	[WrenProperty(PropertyType.Get, "IsValid")]
 	public void GetIsValid (WrenVM vm) {
 		vm.EnsureSlots(1);
@@ -77,7 +95,6 @@ public class WrenSpriteDefinitionWrapper {
 		vm.EnsureSlots(1);
 		vm.SetSlotDouble(0, Stored.GetHashCode());
 	}
-
 	[WrenMethod("ToString")]
 	public void ToString (WrenVM vm) {
 		vm.EnsureSlots(1);

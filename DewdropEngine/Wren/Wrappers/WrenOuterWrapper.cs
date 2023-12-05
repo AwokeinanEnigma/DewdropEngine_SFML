@@ -7,7 +7,7 @@ using DewDrop.Graphics;
 
 [WrenClass("Outer")]
 public static class WrenOuterWrapper {
-	private const string constructorCode = "";
+	private const string constructorCode = $"System.print(\"hello\")";
 	[WrenMethod("Log", "message")]
 	public static void Log (WrenVM vm) {
 		vm.EnsureSlots(1);

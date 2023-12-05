@@ -72,7 +72,7 @@ public class TextRenderer : Renderable {
 		renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, shader);
 	}
 
-	public Vector2f FindCharacterPosition (uint index) {
+	public Vector2 FindCharacterPosition (uint index) {
 		uint num = Math.Max(0U, Math.Min((uint)text.Length, index));
 		return drawText.FindCharacterPos(num);
 	}

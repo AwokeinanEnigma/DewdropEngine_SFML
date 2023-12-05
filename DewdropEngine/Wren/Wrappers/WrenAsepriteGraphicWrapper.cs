@@ -5,35 +5,24 @@ using IronWren.AutoMapper;
 using SFML.Graphics;
 using DewDrop.Graphics;
 
-[WrenClass("SpriteGraphic")]
-public class WrenSpriteGraphicWrapper : BasicRenderableWrapper {
+[WrenClass("AsepriteGraphic")]
+public class WrenAsepriteGraphicWrapper : BasicRenderableWrapper {
 	public override IRenderable Renderable => Stored;
-	private const string constructorCode = "";
-	public DewDrop.Graphics.SpriteGraphic Stored;
-	public WrenSpriteGraphicWrapper (DewDrop.Graphics.SpriteGraphic original) {
+	private const string constructorCode = $"System.print(\"hello\")";
+	public DewDrop.Graphics.AsepriteGraphic Stored;
+	public WrenAsepriteGraphicWrapper (DewDrop.Graphics.AsepriteGraphic original) {
 		Stored = original;
 	}
+	[Obsolete("This corresponds to .new(_) in Wren, which will be garbage collected. Use the .New(_) method instead.")]
 	[WrenConstructor("resource", "spriteName", "position", "depth", Code = "field:constructorCode")]
-	public WrenSpriteGraphicWrapper (WrenVM vm) {
+	public WrenAsepriteGraphicWrapper (WrenVM vm) {
 		vm.EnsureSlots(4);
 		var resource = vm.GetSlotString(1);
 		var spriteName = vm.GetSlotString(2);
 		var position = vm.GetSlotForeign<WrenVector2Wrapper>(3);
 		var depth = (int)vm.GetSlotDouble(4);
-		Stored = new DewDrop.Graphics.SpriteGraphic(resource, spriteName, position.Vector, depth);
+		Stored = new DewDrop.Graphics.AsepriteGraphic(resource, spriteName, position.Vector, depth);
 	}
-	[WrenProperty(PropertyType.Set, "CurrentPalette")]
-	public void SetCurrentPalette (WrenVM vm) {
-		vm.EnsureSlots(1);
-		Stored.CurrentPalette = (uint)vm.GetSlotDouble(1);
-	}
-
-	[WrenProperty(PropertyType.Get, "CurrentPalette")]
-	public void GetCurrentPalette (WrenVM vm) {
-		vm.EnsureSlots(1);
-		vm.SetSlotDouble(0, Stored.CurrentPalette);
-	}
-
 	[WrenProperty(PropertyType.Set, "Color")]
 	public void SetColor (WrenVM vm) {
 		vm.EnsureSlots(1);
@@ -44,24 +33,6 @@ public class WrenSpriteGraphicWrapper : BasicRenderableWrapper {
 	public void GetColor (WrenVM vm) {
 		vm.EnsureSlots(1);
 		vm.SetSlotNewForeign(0, new WrenColorWrapper(Stored.Color));
-	}
-
-	[WrenProperty(PropertyType.Get, "PreviousPalette")]
-	public void GetPreviousPalette (WrenVM vm) {
-		vm.EnsureSlots(1);
-		vm.SetSlotDouble(0, Stored.PreviousPalette);
-	}
-
-	[WrenProperty(PropertyType.Set, "AnimationEnabled")]
-	public void SetAnimationEnabled (WrenVM vm) {
-		vm.EnsureSlots(1);
-		Stored.AnimationEnabled = vm.GetSlotBool(1);
-	}
-
-	[WrenProperty(PropertyType.Get, "AnimationEnabled")]
-	public void GetAnimationEnabled (WrenVM vm) {
-		vm.EnsureSlots(1);
-		vm.SetSlotBool(0, Stored.AnimationEnabled);
 	}
 
 	[WrenProperty(PropertyType.Get, "Frames")]
@@ -199,7 +170,7 @@ public class WrenSpriteGraphicWrapper : BasicRenderableWrapper {
 	[WrenMethod("Clone")]
 	public void Clone (WrenVM vm) {
 		vm.EnsureSlots(1);
-		vm.SetSlotNewForeign(0, new WrenSpriteGraphicWrapper(Stored.Clone()));
+		vm.SetSlotNewForeign(0, new WrenAsepriteGraphicWrapper(Stored.Clone()));
 	}
 	[WrenMethod("Translate", "x", "y")]
 	public void Translate (WrenVM vm) {

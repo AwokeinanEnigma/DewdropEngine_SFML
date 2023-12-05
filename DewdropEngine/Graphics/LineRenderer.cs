@@ -3,10 +3,10 @@ using SFML.Graphics;
 using SFML.System;
 namespace DewDrop.Graphics; 
 
-public class LineGraphic : Renderable{
+public class LineRenderer : Renderable{
 
 	private VertexArray _line;
-	public LineGraphic (Vector2 positionA, Vector2 positionB, Vector2 size, Vector2 origin, int depth, Color color = default){
+	public LineRenderer (Vector2 positionA, Vector2 positionB, Vector2 size, Vector2 origin, int depth, Color color = default){
 		// get inbetween of position a and b
 		RenderPosition = positionA;
 		Size = size;
@@ -16,6 +16,15 @@ public class LineGraphic : Renderable{
 		_line.Append(new Vertex(positionA, color));
 		_line.Append(new Vertex(positionB, color));
 	}
+	
+	public void SetPositionA(Vector2 positionA) {
+		_line[0] = new Vertex(positionA, _line[0].Color);
+	}
+	
+	public void SetPositionB(Vector2 positionB) {
+		_line[1] = new Vertex(positionB, _line[1].Color);
+	}
+	
 	public override void Draw (RenderTarget target) {
 		target.Draw(_line);
 	}

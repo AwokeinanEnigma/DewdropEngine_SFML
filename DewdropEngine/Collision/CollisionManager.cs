@@ -118,7 +118,28 @@ public class CollisionManager {
 		resultStack.Clear();
 		return !flag;
 	}
-
+	
+	public ICollidable Raycast (Vector2 position, Vector2 direction, float distance) {
+		return _spatialHash.Raycast(position, direction, distance);
+	}
+	public List<ICollidable> RaycastAll (Vector2 position, Vector2 direction, float distance) {
+		return _spatialHash.RaycastAll(position, direction, distance);
+	}
+	
+	public List<ICollidable> OverlapBoxAll (Vector2 position, FloatRect size) {
+		return _spatialHash.OverlapBoxAll(position, size);
+	}
+	
+	public ICollidable OverlapBoxTarrget (Vector2 position, FloatRect size) {
+		return _spatialHash.OverlapBoxTarget(position, size);
+	}
+	
+	public bool OverlapBox (Vector2 position, FloatRect size) {
+		return _spatialHash.OverlapBox(position, size);
+	}
+	
+	
+	
 	public bool GetDoorStuck (Vector2 position) {
 		return _spatialHash.CheckPosition(position);
 	}
