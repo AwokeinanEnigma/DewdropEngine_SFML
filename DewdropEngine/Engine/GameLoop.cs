@@ -2,58 +2,61 @@
 
 using DewDrop.GUI;
 using DewDrop.Scenes;
+using DewDrop.Scenes.Transitions;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using System.Diagnostics;
 
 #endregion
 
 namespace DewDrop;
 
 public static partial class Engine {
-	static Time _deltaTime;
-	static Clock _frameTimer;
-	static Clock _deltaTimeClock;
+	static Time _DeltaTime;
+	static Clock _FrameTimer;
+	static Clock _DeltaTimeClock;
+	static Stopwatch _FrameStopwatch;
 
-	static float _deltaTimeFloat = 1;
-	static int _frameLoops;
-	static float _maxDeltaTime = 0.25f;
-	static float _accumulator;
-	static float _sixty_fps = 1.0f/60.0f;
-	static float _technically_sixty_fps = 1.0f/59.0f;
-	static float time;
-	static float lastTime;
+	static float _DeltaTimeFloat = 1;
+	static int _FrameLoops;
+	const float MaxDeltaTime = 0.25f;
+	static float _Accumulator;
+	const float SixtyFps = 0.016666668F;
+	const float TechnicallySixtyFps = 0.016949153F;
+	static float _Time;
+	static float _LastTime;
 	public static event Action RenderImGUI;
-
+	static double _Fps;
 	public static void StartGameLoop () {
-		_deltaTimeClock = new Clock();
-		_frameTimer = new Clock();
+		_DeltaTimeClock = new Clock();
+		_FrameTimer = new Clock();
 
-		time = _frameTimer.ElapsedTime.AsSeconds();
-		lastTime = time;
-
-		try {
+		_FrameStopwatch = Stopwatch.StartNew();
+		_Time = _FrameTimer.ElapsedTime.AsSeconds();
+		_LastTime = _Time;
 
 			while (Window.IsOpen) {
-				time = _frameTimer.ElapsedTime.AsSeconds();
-				_deltaTimeFloat = time - lastTime;
-				lastTime = time;
+				
+				_Time = _FrameTimer.ElapsedTime.AsSeconds();
+				_DeltaTimeFloat = _Time - _LastTime;
+				_LastTime = _Time;
 
 
-				if (_deltaTimeFloat > _maxDeltaTime) {
-					Outer.LogWarning($"Passed the threshold for max deltaTime, deltaTime is {_deltaTime}, lastTime is {lastTime}");
-					_deltaTimeFloat = _maxDeltaTime;
+				if (_DeltaTimeFloat > MaxDeltaTime) {
+					Outer.LogWarning($"Passed the threshold for max deltaTime, deltaTime is {_DeltaTime}, lastTime is {_LastTime}");
+					_DeltaTimeFloat = MaxDeltaTime;
 				}
 
-				_accumulator += _deltaTimeFloat;
+				_Accumulator += _DeltaTimeFloat;
+				
 				/*deltaText.DisplayedString = $"d {_deltaTime}" + Environment.NewLine +
 				                            $"a {_accumulator}";*/
-				_frameLoops = 0;
+				_FrameLoops = 0;
 
-
-				while (_accumulator >= _technically_sixty_fps) {
-					if (_frameLoops >= 5) {
+				while (_Accumulator >= TechnicallySixtyFps) {
+					if (_FrameLoops >= 5) {
 						/*
 						 * Here's possible causes as to why this would be triggered:
 						 *
@@ -64,30 +67,36 @@ public static partial class Engine {
 						 * 
 						*/
 
-						Outer.LogWarning($"Resyncing, accumulator is {_accumulator}, and loop count is {_frameLoops}. See comments above this line in Program.cs for more info.");
-						_accumulator = 0.0f;
+						Outer.LogWarning($"Resyncing, accumulator is {_Accumulator}, and loop count is {_FrameLoops}. See comments above this line in Program.cs for more info.");
+						_Accumulator = 0.0f;
 						break;
 					}
 
-					Update();
-					Render();
-
-					_accumulator -= _sixty_fps;
-					_frameLoops++;
+					_FrameStopwatch.Restart();
+					try {
+						Update();
+						Render();
+					}
+					catch (Exception value) {
+						SceneManager.AbortTransition();
+						SceneManager.Clear();
+						SceneManager.Transition = new InstantTransition();
+						SceneManager.Push(new ErrorScene(value), true);
+						
+						StreamWriter streamWriter = new StreamWriter("error.log", true);
+						streamWriter.WriteLine("At {0}:", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss:fff"));
+						streamWriter.WriteLine(value);
+						streamWriter.WriteLine();
+						streamWriter.Close();
+					}
+					_FrameStopwatch.Stop();
+					_Fps = 1.0f / _FrameStopwatch.Elapsed.TotalSeconds * Stopwatch.Frequency;
+					_Accumulator -= SixtyFps;
+					_FrameLoops++;
 
 				}
 			}
-		} catch (Exception value) {
 
-			StreamWriter streamWriter = new StreamWriter("error.log", true);
-			streamWriter.WriteLine("At {0}:", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss:fff"));
-			streamWriter.WriteLine(value);
-			streamWriter.WriteLine();
-			streamWriter.Close();
-
-			SceneManager.Instance.AbortTransition();
-			SceneManager.Instance.Clear();
-		}
 		// GameLoop();
 	}
 
@@ -95,6 +104,7 @@ public static partial class Engine {
 	public static event Action  OnFocusGained;
 	static bool _HadFocus = true;
 	static bool _HasFocus = false;
+	static Stopwatch FrameTimer = new Stopwatch();
 	public static void Update () {
 
 		// Update our audio as soon as possible
@@ -104,7 +114,7 @@ public static partial class Engine {
 		Window.DispatchEvents();
 
 		// Update crucial game instances
-		SceneManager.Instance.Update();
+		SceneManager.Update();
 
 		ViewManager.Instance.Update();
 		ViewManager.Instance.UseView();
@@ -112,14 +122,14 @@ public static partial class Engine {
 		// OpenGL shit, we have to clear our frame buffer before we can draw to it
 		RenderTexture.Clear(Color.Black);
 		//Finally, draw our scene.
-		SceneManager.Instance.Draw();
+		SceneManager.Draw();
 		// Draw over our scene.
 		if (_debugMode) {
 			DebugPipeline.Draw();
 		}
 
 		if (_debugMode) {
-			ImGuiSfml.Update(Window, _deltaTimeFloat);
+			ImGuiSfml.Update(Window, _DeltaTimeFloat);
 		}
 
 		ViewManager.Instance.UseDefault();

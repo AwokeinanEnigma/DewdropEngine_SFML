@@ -84,10 +84,10 @@ public class ScrollableList : Renderable {
 		// if we're self controlled, we need to check for input
 		// this is done as draw because its updated every frame
 		if (_selfControlled) {
-			if (AxisManager.Instance.Axis.Y > 0.5f && _clock.ElapsedTime.AsSeconds() > 0.2f) {
+			if (Input.Instance.Axis.Y > 0.5f && _clock.ElapsedTime.AsSeconds() > 0.2f) {
 				SelectNext();
 				_clock.Restart();
-			} else if (AxisManager.Instance.Axis.Y < -0.5f && _clock.ElapsedTime.AsSeconds() > 0.2f) {
+			} else if (Input.Instance.Axis.Y < -0.5f && _clock.ElapsedTime.AsSeconds() > 0.2f) {
 				SelectPrevious();
 				_clock.Restart();
 			}

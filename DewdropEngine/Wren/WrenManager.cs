@@ -5,7 +5,8 @@ using System.Reflection;
 namespace DewDrop.Wren;
 
 public static class WrenManager {
-	static List<Type> _Types;
+	static List<Type> _TypesList;
+	static Type[] _TypesArray;
 	public static IEnumerable<Type> FindWrenTypes(Assembly assembly) {
 		foreach(Type type in assembly.GetTypes()) {
 			if (type.GetCustomAttributes(typeof(WrenClassAttribute), true).Length > 0) {
@@ -15,17 +16,23 @@ public static class WrenManager {
 	}
 	
 	static WrenConfig _Config;
-	public static void Initialize () {
-		_Types = new();
-		_Types.AddRange(FindWrenTypes(Assembly.GetExecutingAssembly()));
-		CollectTypes?.Invoke(_Types);
+	internal static void Initialize (EngineConfigurationData configurationData) {
+		_TypesList = new();
+		_TypesList.AddRange(FindWrenTypes(Assembly.GetExecutingAssembly()));
+		
+		if (configurationData.WrenTypes != null) 
+			_TypesList.AddRange(configurationData.WrenTypes);
+		
+		CollectTypes?.Invoke(_TypesList);
+		_TypesArray = _TypesList.ToArray();
+		
 		_Config = new WrenConfig();
 	}
 
 	public static Wreno MakeWreno(string script) {
 		WrenConfig config = new WrenConfig();
 		Wreno wreno = new Wreno(config, script);
-		wreno.Automap(_Types.ToArray());
+		wreno.Automap(_TypesArray);
 		return wreno;
 	}
 

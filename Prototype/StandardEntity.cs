@@ -80,7 +80,7 @@ public class Player : RenderableEntity, ICollidable
     public override void Update()
     {
         base.Update();
-        Velocity = AxisManager.Instance.Axis * 2;
+        Velocity = Input.Instance.Axis * 2;
         lastPosition = _position;
 
         if (Velocity!=Vector2.Zero)
@@ -151,54 +151,84 @@ public class Player : RenderableEntity, ICollidable
     }
 
     public bool move = true;
-        private void HandleCornerSliding()
+    /// <summary>
+    /// Handles the corner sliding behavior.
+    /// </summary>
+private void HandleCornerSliding()
+{
+    // If the direction is even, execute the sliding logic
+    if (direction % 2 == 0)
+    {
+        // Convert the direction to a vector
+        Vector2 directionVector = Vector2.DirectionToVector(direction);
+        // Compute the left normal to the direction vector
+        Vector2 leftNormalVector = Vector2.LeftNormal(directionVector);
+        // Based on the direction, decide the number of iterations for the sliding check
+        int numIterations = (direction == 0 || direction == 4) ? 8 : 10;
+        // Initialize variables to store the free distances in both directions
+        int distance1 = -1;
+        int distance2 = -1;
+
+        // Check for free positions in the direction of the left normal vector
+        for (int i = numIterations; i > 0; i--)
         {
-            if (this.direction % 2 == 0)
+            // If a free position is found, store the distance and exit
+            bool isPositionFree = _manager.PlaceFree(this, _position + directionVector + leftNormalVector * i);
+            if (isPositionFree)
             {
-                Vector2 Vector2 = Vector2.DirectionToVector(this.direction);
-                Vector2 Vector22 = Vector2.LeftNormal(Vector2);
-                int num = (this.direction == 0 || this.direction == 4) ? 8 : 10;
-                int num2 = -1;
-                for (int i = num; i > 0; i--)
-                { 
-                    bool flag = _manager.PlaceFree(this, _position + Vector2 + Vector22 * i);
-                    if (flag)
-                    {
-                        num2 = i;
-                        break;
-                    }
-                }
-                int num3 = -1;
-                for (int j = num; j > 0; j--)
+                distance1 = i;
+                break;
+            }
+        }
+
+        // Check for free positions in the opposite direction
+        for (int j = numIterations; j > 0; j--)
+        {
+            // If a free position is found, store the distance and exit
+            bool isPositionFree = _manager.PlaceFree(this, _position + directionVector - leftNormalVector * j);
+            if (isPositionFree)
+            {
+                distance2 = j;
+                break;
+            }
+        }
+
+        // If a free position was found in either direction, execute the corner sliding logic
+        if (distance1 >= 0 || distance2 >= 0)
+        {
+            // Choose the direction with the greater free distance
+            Vector2 newPosition = _position + ((distance1 > distance2) ? leftNormalVector : (-leftNormalVector));
+            // Check if the new position is free
+            bool isPositionFree = _manager.PlaceFree(this, newPosition);
+            // If the new position is free, move there
+            if (isPositionFree)
+            {
+                // Update the last position
+                this.lastPosition = _position;
+                // Update the current position
+                _position = newPosition;
+                // Notify the manager of the position change
+                _manager.Update(this, this.lastPosition, _position);
+
+                // Calculate the next potential position
+                newPosition = _position + directionVector;
+                // Check if the next position is free
+                isPositionFree = _manager.PlaceFree(this, newPosition);
+                // If the next position is free, move there
+                if (isPositionFree)
                 {
-                    bool flag2 = _manager.PlaceFree(this, _position + Vector2 - Vector22 * j);
-                    if (flag2)
-                    {
-                        num3 = j;
-                        break;
-                    }
-                }
-                if (num2 >= 0 || num3 >= 0)
-                {
-                    Vector2 position = _position + ((num2 > num3) ? Vector22 : (-Vector22.Vector2f));
-                    bool flag3 = _manager.PlaceFree(this, position);
-                    if (flag3)
-                    {
-                        this.lastPosition = _position;
-                        _position = position;
-                        _manager.Update(this, this.lastPosition, _position);
-                        position = _position + Vector2;
-                        flag3 = _manager.PlaceFree(this, position);
-                        if (flag3)
-                        {
-                            this.lastPosition = _position;
-                            _position = position;
-                            _manager.Update(this, this.lastPosition, _position);
-                        }
-                    }
+                    // Update the last position
+                    this.lastPosition = _position;
+                    // Update the current position
+                    _position = newPosition;
+                    // Notify the manager of the position change
+                    _manager.Update(this, this.lastPosition, _position);
                 }
             }
         }
+    }
+}
+    
     public override void BecomeVisible()
     {
         base.BecomeVisible();

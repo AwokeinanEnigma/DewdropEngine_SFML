@@ -41,13 +41,6 @@ public abstract class SceneBase : IDisposable {
     public virtual void Unfocus () {
 	}
 
-
-    /// <summary>
-    ///     Called when the scene is being unloaded and the game is transitioning to another scene.
-    /// </summary>
-    public virtual void Unload () {
-	}
-
     /// <summary>
     ///     Called every frame.
     /// </summary>
@@ -59,15 +52,7 @@ public abstract class SceneBase : IDisposable {
     /// </summary>
     public virtual void Draw () {
 	}
-
-    /// <summary>
-    ///     This is called when the scene is being completely unloaded during a scene transition. This is the place to dispose
-    ///     of resources.
-    /// </summary>
-    public virtual void CompletelyUnload () {
-		Dispose();
-	}
-
+    
 	public void Dispose () {
 		Dispose(true);
 		GC.SuppressFinalize(this);

@@ -2,6 +2,7 @@
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
+using DewDrop.Resources;
 using DewDrop.Scenes;
 using DewDrop.Scenes.Transitions;
 using DewDrop.UserInput;
@@ -35,6 +36,8 @@ public class DebugPlayground : SceneBase
             string code =  WrenWrapperGenerator.GenerateWrapper(type) ;
             File.WriteAllText(Directory.GetCurrentDirectory() + $"/{WrenWrapperGenerator.GetWrapperClassName(type)}.cs", code);
             
+            
+            
             #endregion   
         }
     
@@ -44,10 +47,8 @@ public class DebugPlayground : SceneBase
             if (!disposed && disposing)
             {
                 _pipeline.Clear(true);
-                //_wreno.GetVariable<WrenTextRendererWrapper>("render").TextRenderer.Dispose();
                _wreno.Dispose();
                 GC.Collect();
-                // dispose here
                 TextureManager.Instance.Purge();
                 clock.Dispose();
                 disposed = true;
@@ -73,19 +74,20 @@ public class DebugPlayground : SceneBase
         public override void Focus()
         {
             base.Focus();
+            Outer.Log(GlobalData.GetString("fu"));
             if (!initialized) {
                 _pipeline = new RenderPipeline(Engine.RenderTexture);
                 List = new ScrollableList(new Vector2f(32f, 0), 0, new[] {
                         new ScrollableList.SelectAction() {
                             OnSelect = (list) => {
-                                if (!SceneManager.Instance.IsTransitioning) {
-                                    SceneManager.Instance.Transition = new ColorFuckTransition(0.45f, new [] {
+                                if (!SceneManager.IsTransitioning) {
+                                    SceneManager.Transition = new ColorFuckTransition(0.45f, new [] {
                                         Color.Red,
                                         Color.Blue,
                                         Color.Blue,
                                         Color.Red,
                                     });
-                                    SceneManager.Instance.Push(new TestScene(), true);
+                                    SceneManager.Push(new TestScene(), true);
                                     return true;
                                 }
                                 return false;
@@ -131,6 +133,7 @@ public class DebugPlayground : SceneBase
                 // add it to the render pipeline
                 //_pipeline.Add(_wreno.GetVariable<WrenTextRendererWrapper>("render").TextRenderer);
                 initialized = true;
+
             }
             
 

@@ -32,14 +32,14 @@ public class Wrentity : RenderableEntity, ICollidable
     RenderPipeline _pipeline;
     Wreno _wreno;
     
-    public Vector2 Velocity;
     public AABB AABB { get; }
     public Mesh Mesh { get; }
     public bool Solid { get; set; }
     
     
     public VertexArray DebugVerts { get; set; }
-    
+    public Vector2 Velocity { get; set; }
+
     public void Collision(CollisionContext context)
     {
         Outer.Log("");
@@ -102,7 +102,7 @@ public class Wrentity : RenderableEntity, ICollidable
     public override void Update()
     {
         base.Update();
-        //_position += AxisManager.Instance.Axis * 2;
+        //_position += Input.Instance.Axis * 2;
         //_pipeline.ForceSort();
         ///Depth = Int32.MaxValue;
         //Console.WriteLine(_depth);

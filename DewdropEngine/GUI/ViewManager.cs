@@ -35,7 +35,7 @@ public class ViewManager {
 
 	public Vector2 FinalCenter => GetCenter();
 
-	public Vector2 FinalTopLeft => GetCenter() - Engine.Screen_Size/2;
+	public Vector2 FinalTopLeft => GetCenter() - Engine.ScreenSize/2;
 
 	public Vector2 Center {
 		get => _viewCenter;
@@ -48,7 +48,7 @@ public class ViewManager {
 		}
 	}
 
-	public Vector2 TopLeft => _viewCenter - (Engine.Screen_Size/2).Vector2f;
+	public Vector2 TopLeft => _viewCenter - (Engine.ScreenSize/2);
 
 	public Entity EntityFollow { get; set; }
 
@@ -86,7 +86,7 @@ public class ViewManager {
 
 	ViewManager () {
 		window = Engine.RenderTexture;
-		View = new View(new Vector2f(0f, 0f), new Vector2f(320f, 180f));
+		View = new View(new Vector2f(0f, 0f), Engine.ScreenSize);
 		window.SetView(View);
 		_viewCenter = Vector2.Zero;
 		Offset = Vector2.Zero;
@@ -215,7 +215,7 @@ public class ViewManager {
 	}
 
 	public void Reset () {
-		View.Reset(new FloatRect(0f, 0f, 320f, 180f));
+		View.Reset(new FloatRect(0f, 0f, Engine.ScreenSize.x, Engine.ScreenSize.y));
 		_viewCenter = new Vector2(View.Center);
 		_shakeOffset = Vector2.Zero;
 	}

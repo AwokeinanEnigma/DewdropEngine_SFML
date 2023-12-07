@@ -10,11 +10,14 @@ public class CollisionManager {
 	SpatialHash _spatialHash;
 	readonly Stack<ICollidable> resultStack;
 	readonly List<ICollidable> resultList;
+	readonly Dictionary<ICollidable, Vector2> positions;
 	public CollisionManager (int width, int height) {
 		_spatialHash = new SpatialHash(width, height);
 		resultStack = new Stack<ICollidable>(512);
 		resultList = new List<ICollidable>(4);
 		collidables = new List<ICollidable>();
+		positions = new Dictionary<ICollidable, Vector2>();
+		
 	}
 
     /// <summary>
@@ -24,6 +27,7 @@ public class CollisionManager {
     public void Add (ICollidable collidable) {
 		_spatialHash.Insert(collidable);
 		collidables.Add(collidable);
+		positions.Add(collidable, collidable.Position);
 	}
 
     /// <summary>
@@ -34,7 +38,6 @@ public class CollisionManager {
     public void AddAll<T> (ICollection<T> collidables) where T : ICollidable {
 		foreach (T t in collidables) {
 			ICollidable collidable = t;
-			this.collidables.Add(collidable);
 			Add(collidable);
 
 		}
@@ -47,6 +50,7 @@ public class CollisionManager {
     public void Remove (ICollidable collidable) {
 		collidables.Remove(collidable);
 		_spatialHash.Remove(collidable);
+		positions.Remove(collidable);
 
 	}
 
@@ -71,6 +75,7 @@ public class CollisionManager {
 	public void Update (ICollidable collidable, Vector2 oldPosition, Vector2 newPosition) {
 		_spatialHash.Update(collidable, oldPosition, newPosition);
 	}
+	
 
 	public bool PlaceFree (ICollidable obj, Vector2 position) {
 		return PlaceFree(obj, position, null);
@@ -119,10 +124,10 @@ public class CollisionManager {
 		return !flag;
 	}
 	
-	public ICollidable Raycast (Vector2 position, Vector2 direction, float distance) {
+	public RaycastHit Raycast (Vector2 position, Vector2 direction, float distance) {
 		return _spatialHash.Raycast(position, direction, distance);
 	}
-	public List<ICollidable> RaycastAll (Vector2 position, Vector2 direction, float distance) {
+	public List<RaycastHit> RaycastAll (Vector2 position, Vector2 direction, float distance) {
 		return _spatialHash.RaycastAll(position, direction, distance);
 	}
 	
@@ -198,6 +203,8 @@ public class CollisionManager {
 		}
 		return true;
 	}
+	
+	
 
 	int IntervalDistance (float minA, float maxA, float minB, float maxB) {
 		if (minA < minB) {

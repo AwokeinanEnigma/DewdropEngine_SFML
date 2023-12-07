@@ -46,7 +46,7 @@ public class TileScene : SceneBase
             if (key2 == Keyboard.Key.Down)
             {
                 ViewManager.Instance.Center += new Vector2(0, 8);
-                // SceneManager.Instance.Push(new TestScene());
+                // SceneManager.Push(new TestScene());
             }
         };
         Texture texture = new("C:\\Users\\Tom\\Documents\\Mother 4\\Maple Knob\\MapleKnob.png");
@@ -155,12 +155,7 @@ public class TileScene : SceneBase
         base.Unfocus();
 
     }
-
-    public override void Unload()
-    {
-        base.Unload();
-    }
-
+    
     public override void Update()
     {
         base.Update();

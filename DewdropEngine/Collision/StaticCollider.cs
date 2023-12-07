@@ -37,6 +37,7 @@ public class StaticCollider : ICollidable {
 	public bool Solid { get; set; }
 
 	public VertexArray DebugVerts { get; }
+	public Vector2 Velocity { get; set; }
 
 	public void Collision (CollisionContext context) {
 	}

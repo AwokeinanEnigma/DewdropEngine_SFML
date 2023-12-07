@@ -26,7 +26,8 @@ public static partial class Engine {
 	public const bool RenderImgui = true;
 	static bool _debugMode;
 
-	public static void CreateDebugPipeline () {
+	public static void CreateDebugPipeline (EngineConfigurationData config) {
+		_debugMode = config.DebugMode;
 		DebugPipeline = new RenderPipeline(RenderTexture);
 		if (RenderImgui) {
 			ImGuiSfml.Init(Window);
@@ -46,6 +47,13 @@ public static partial class Engine {
 		// this is sort of a memory intensive thing but its ok for now
 		ImGui.Text($"Memory Allocated: {GC.GetTotalMemory(false)/1024L}KB");
 		if (ImGui.Button("Force GC Collection")) GC.Collect();
+		ImGui.Separator();
+		
+		ImGui.Text("FPS//");
+		ImGui.Separator();
+			// get fps
+			
+		ImGui.Text($"FPS: ");
 		ImGui.Separator();
 
 		//Outer.Log(GC.GetTotalMemory(false)/1024L);

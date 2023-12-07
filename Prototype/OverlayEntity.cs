@@ -63,7 +63,7 @@ public class ShapeEntity2 : RenderableEntity
     public override void Update()
     {
         base.Update();
-        _position += AxisManager.Instance.Axis * 2;
+        _position += Input.Instance.Axis * 2;
         Depth = int.MaxValue;
         _pipeline.ForceSort();
         ///Depth = Int32.MaxValue;

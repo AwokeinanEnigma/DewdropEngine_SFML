@@ -38,7 +38,19 @@ public struct AABB {
 		OnlyPlayer = onlyPlayer;
 		floatRect = new FloatRect(Position.X, Position.Y, Size.X, Size.Y);
 	}
-
+	
+	public Vector2 GetNormal(Vector2 point) {
+		Vector2 center = Position + Size / 2;
+		Vector2 direction = point - center;
+		if (Math.Abs(direction.X) > Math.Abs(direction.Y)) {
+			// Point is closer to a vertical edge
+			return direction.X > 0 ? new Vector2(1, 0) : new Vector2(-1, 0);
+		} else {
+			// Point is closer to a horizontal edge
+			return direction.Y > 0 ? new Vector2(0, 1) : new Vector2(0, -1);
+		}
+	}
+	
 	public FloatRect GetFloatRect () {
 		return floatRect;
 	}

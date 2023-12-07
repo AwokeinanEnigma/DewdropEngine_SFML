@@ -102,28 +102,31 @@ namespace Prototype.Scenes
         {
             if (key == Keyboard.Key.Tilde) 
                 Engine.DebugMode = !Engine.DebugMode;
-            if (key == Keyboard.Key.F1 && !SceneManager.Instance.IsTransitioning)
+            if (key == Keyboard.Key.F1 && !SceneManager.IsTransitioning)
             {
-                SceneManager.Instance.Push(new DebugPlayground(false), true);
+                SceneManager.Push(new DebugPlayground(false), true);
             }
             if (key == Keyboard.Key.E) {
                 var lino = new LineRenderer(_playerEntity.Position, _playerEntity.Position + Vector2.Normalize(_playerEntity.CheckVector) * 25, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Magenta);
                 pipeline.Add(lino);
-                List<ICollidable> intersectedCollidables = CollisionManager.RaycastAll(
+                List<RaycastHit> intersectedCollidables = CollisionManager.RaycastAll(
                     _playerEntity.Position, 
                     Vector2.Normalize(_playerEntity.CheckVector) , 
                     25);
+                
                 if (intersectedCollidables.Count > 0) {
-                    Outer.Log("Found collidables");
+                
+                    Outer.Log($"""Found {intersectedCollidables.Count} collidables""");
                         for (int i = 0; i < intersectedCollidables.Count; i++) {
-                        ICollidable collidable = intersectedCollidables[i];
+                        ICollidable collidable = intersectedCollidables[i].Collider;
+                        Outer.Log("Found collidable: " + collidable.GetType().FullName);
                         if (collidable is Wrentity wrentity) {
-                            line.SetPositionB(wrentity.Position);
+                            line.SetPositionB(intersectedCollidables[i].Point);
                          
                             break;
                         }
                         if (collidable is StaticCollider) {
-                            line.SetPositionB(collidable.Position);
+                            line.SetPositionB(intersectedCollidables[i].Point);
                             break;
                         }
                     }
@@ -146,7 +149,12 @@ namespace Prototype.Scenes
                     }
                 });
             }
-            //SceneManager.Instance.Pop();
+            
+            if (key == Keyboard.Key.F2)
+            {
+                throw new System.NotImplementedException();
+            }
+            //SceneManager.Pop();
         }
 
 

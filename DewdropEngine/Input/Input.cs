@@ -111,6 +111,44 @@ public class Input {
 
 	#endregion
 
+	#region Axis
+	
+	/// <summary>
+	///     Contains various directions.
+	/// </summary>
+	public enum InputDirection {
+		Up,
+		Down,
+		Left,
+		Right
+	}
+
+	// contains the mapping of keys to directions
+	readonly Dictionary<Keyboard.Key, InputDirection> _axisMap;
+	// contains the state of each direction, if it's pressed or not
+	readonly Dictionary<InputDirection, bool> _axisState;
+
+	int _horizontalAxis;
+	int _verticalAxis;
+
+	/// <summary>
+	///     The axis the player is trying to move into.
+	/// </summary>
+	public Vector2 Axis => _axis;
+
+	Vector2 _axis;
+
+	/// <summary>
+	///     This event is invoked before the axis is updated with the previous axis value.
+	/// </summary>
+	public static event Action<Vector2> PreAxisChanged;
+
+	/// <summary>
+	///     This event is invoked after the axis is updated with the new axis value.
+	/// </summary>
+	public static event Action PostAxisChanged;
+
+	#endregion
 	public Input () {
 		if (Instance != null) {
 			throw new Exception("Input already exists!");
@@ -133,6 +171,27 @@ public class Input {
 				_buttonStatuses.Add(key, false);
 		}
 
+		_axisMap = new Dictionary<Keyboard.Key, InputDirection>();
+
+		_axisMap.Add(Keyboard.Key.W, InputDirection.Up);
+		_axisMap.Add(Keyboard.Key.S, InputDirection.Down);
+		_axisMap.Add(Keyboard.Key.A, InputDirection.Left);
+		_axisMap.Add(Keyboard.Key.D, InputDirection.Right);
+
+		_axisMap.Add(Keyboard.Key.Up, InputDirection.Up);
+		_axisMap.Add(Keyboard.Key.Down, InputDirection.Down);
+		_axisMap.Add(Keyboard.Key.Left, InputDirection.Left);
+		_axisMap.Add(Keyboard.Key.Right, InputDirection.Right);
+
+		_axisState = new Dictionary<InputDirection, bool>();
+
+		foreach (InputDirection direction in Enum.GetValues(typeof(InputDirection))) {
+			if (!_axisState.ContainsKey(direction))
+				_axisState.Add(direction, false);
+		}
+
+		_axis = new Vector2(0, 0);
+		
 		Instance = this;
 	}
 
@@ -280,6 +339,12 @@ public class Input {
 		if (SFMLtoDButtonsMap.ContainsKey(e.Code)) {
 			OnButtonReleased?.Invoke(this, SFMLtoDButtonsMap[e.Code]);
 		}
+		
+		if (_axisMap.TryGetValue(e.Code, out InputDirection value)) {
+			_axisState[value] = false;
+		}
+		
+		RemapAxis();
 	}
 
 	void WindowOnKeyPressed (object? sender, KeyEventArgs e) {
@@ -291,6 +356,25 @@ public class Input {
 		if (SFMLtoDButtonsMap.ContainsKey(e.Code)) {
 			OnButtonPressed?.Invoke(this, SFMLtoDButtonsMap[e.Code]);
 		}
+		
+
+		if (_axisMap.TryGetValue(e.Code, out InputDirection value)) {
+			_axisState[value] = true;
+		}
+		RemapAxis();
+	}
+	
+	// update our axis
+	void RemapAxis () {
+		PreAxisChanged?.Invoke(_axis);
+
+		_horizontalAxis = (_axisState[InputDirection.Left] ? -1 : 0) + (_axisState[InputDirection.Right] ? 1 : 0);
+		_verticalAxis = (_axisState[InputDirection.Up] ? -1 : 0) + (_axisState[InputDirection.Down] ? 1 : 0);
+
+		_axis.X = _horizontalAxis;
+		_axis.Y = _verticalAxis;
+
+		PostAxisChanged?.Invoke();
 	}
 
 	#endregion

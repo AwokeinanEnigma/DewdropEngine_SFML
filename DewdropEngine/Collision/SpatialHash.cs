@@ -78,13 +78,24 @@ class SpatialHash {
 	void ClearTouches () {
 		Array.Clear(_touches, 0, _touches.Length);
 	}
-	public int GetPositionHash (int x, int y) {
-		int num = x/CellSize;
-		int num2 = y/CellSize;
-		return num + num2*_widthInCells;
-	}
-	
 	/// <summary>
+	/// Gets the position hash for a given x and y coordinate.
+	/// </summary>
+	/// <param name="x">The x coordinate.</param>
+	/// <param name="y">The y coordinate.</param>
+	/// <returns>The position hash.</returns>
+	public int GetPositionHash(int x, int y)
+	{
+		// Calculate the x and y indices
+		int xIndex = x / CellSize;
+		int yIndex = y / CellSize;
+		// Calculate the position hash
+		return xIndex + yIndex * _widthInCells;
+	}
+
+	#region Buckets
+
+		/// <summary>
 	/// Inserts a collidable object into the spatial hash bucket
 	/// </summary>
 	/// <param name="hash">The hash value for the bucket</param>
@@ -139,17 +150,7 @@ class SpatialHash {
 		string message = string.Format("Cannot insert more than {0} collidables into a single bucket.", MaxBucketSize);
 		throw new InvalidOperationException(message);
 	}
-	
-	public ICollidable[] GetCollidables(int hash)
-	{
-		// Check if hash is valid
-		if (hash < 0 || hash >= _buckets.Length)
-		{
-			throw new ArgumentOutOfRangeException(nameof(hash));
-		}
-		return _buckets[hash] ?? new ICollidable[0];
-	}
-	
+
 	/// <summary>
 	/// Removes a collidable object from the bucket at the specified hash.
 	/// </summary>
@@ -226,6 +227,9 @@ class SpatialHash {
 			}
 		}
 	}
+
+	#endregion
+
 
 
 	/// <summary>
@@ -376,6 +380,7 @@ class SpatialHash {
 	/// <param name="resultStack">The stack to store the results in.</param>
 	public void Query(Vector2 point, Stack<ICollidable> resultStack)
 	{
+		ClearTouches();
 		// Calculate the position hash for the given point
 		int positionHash = GetPositionHash((int)point.X, (int)point.Y);
 
@@ -407,48 +412,48 @@ class SpatialHash {
 	/// <param name="collidable">The collidable to query with.</param>
 	/// <param name="offset">The offset to apply to the collidable's position.</param>
 	/// <param name="resultStack">The stack to store the resulting collidables.</param>
-	public void Query (ICollidable collidable, Vector2f offset, Stack<ICollidable> resultStack) {
-		// Clear the touches array
+	public void Query(ICollidable collidable, Vector2f offset, Stack<ICollidable> resultStack)
+	{
 		ClearTouches();
 
-		// Get the AABB of the collidable
 		AABB aabb = collidable.AABB;
 
-		// Calculate the number of cells in the X and Y directions that the collidable occupies
-		int numXCells = ((int)aabb.Size.X - 1)/CellSize + 1;
-		int numYCells = ((int)aabb.Size.Y - 1)/CellSize + 1;
+		int numXCells = ((int)aabb.Size.X - 1) / CellSize + 1;
+		int numYCells = ((int)aabb.Size.Y - 1) / CellSize + 1;
 
-		// Iterate over each cell that the collidable occupies
-		for (int i = 0; i <= numYCells; i++) {
-			// Calculate the Y coordinate of the current cell
-			int y = i == numYCells
-				? (int)(collidable.Position.Y + aabb.Position.Y) + (int)aabb.Size.Y
-				: (int)(collidable.Position.Y + aabb.Position.Y) + CellSize*i;
+		int collidablePosX = (int)(collidable.Position.X + aabb.Position.X);
+		int collidablePosY = (int)(collidable.Position.Y + aabb.Position.Y);
 
-			for (int j = 0; j <= numXCells; j++) {
-				// Calculate the X coordinate of the current cell
-				int x = j == numXCells
-					? (int)(collidable.Position.X + aabb.Position.X) + (int)aabb.Size.X
-					: (int)(collidable.Position.X + aabb.Position.X) + CellSize*j;
+		for (int i = 0; i <= numYCells; i++)
+		{
+			int y = collidablePosY + CellSize * i;
+			if (i == numYCells)
+			{
+				y += (int)aabb.Size.Y;
+			}
 
-				// Get the position hash for the current cell
+			for (int j = 0; j <= numXCells; j++)
+			{
+				int x = collidablePosX + CellSize * j;
+				if (j == numXCells)
+				{
+					x += (int)aabb.Size.X;
+				}
+
 				int positionHash = GetPositionHash(x, y);
 
-				// Check if the position hash is within valid range and the cell has not been touched before
-				if (positionHash >= 0 && positionHash < _buckets.Length && !_touches[positionHash]) {
-					// Set the touch flag for the cell
+				if (positionHash >= 0 && positionHash < _buckets.Length && !_touches[positionHash])
+				{
 					_touches[positionHash] = true;
 
-					// Get the array of collidables in the current cell
 					ICollidable[] array = _buckets[positionHash];
 
-					// Check if the array is not null
-					if (array != null) {
-						// Iterate over each collidable in the array
-						foreach (ICollidable t in array) {
-							// Check if the collidable is not null and is not the same as the queried collidable
-							if (t != null && t != collidable) {
-								// Push the collidable to the result stack
+					if (array != null)
+					{
+						foreach (ICollidable t in array)
+						{
+							if (t != null && t != collidable)
+							{
 								resultStack.Push(t);
 							}
 						}
@@ -479,70 +484,80 @@ class SpatialHash {
 		}
 	}
 
-	public ICollidable Raycast(Vector2 origin, Vector2 direction, float maxDistance)
+	#region Methods for checking collisions
+	/// <summary>
+	/// Performs a raycast from the specified origin in the given direction for a maximum distance.
+	/// Returns the first collidable object encountered along the raycast path, or null if no collidable objects were found.
+	/// </summary>
+	/// <param name="origin">The starting point of the raycast.</param>
+	/// <param name="direction">The direction of the raycast.</param>
+	/// <param name="maxDistance">The maximum distance the raycast should travel.</param>
+	/// <returns>The first collidable object encountered along the raycast path, or null if no collidable objects were found.</returns>
+	public RaycastHit Raycast(Vector2 origin, Vector2 direction, float maxDistance)
 	{
 		Vector2 currentPos = origin;
 		Vector2 normalizedDirection = Vector2.Normalize(direction);
+		Stack <ICollidable> resultStack = new();
 		float currentDistance = 0;
 
 		while (currentDistance <= maxDistance)
 		{
-			int hash = GetPositionHash((int)currentPos.X, (int)currentPos.Y);
-
-			ICollidable[] collidables = GetCollidables(hash);
-
-			foreach (ICollidable collidable in collidables)
+			Query(currentPos, resultStack);
+			while (resultStack.Count > 0)
 			{
-				if (collidable == null)
-				{
-					continue;
-				}
-				
-				if (PointInRect(currentPos, collidable))
-				{
-					return collidable;
-				}
+				ICollidable collidable = resultStack.Pop();
+				if (collidable != null && PointInRect(currentPos, collidable)) {
+					// get the normal of the collidable
+					Vector2 normal = collidable.AABB.GetNormal(currentPos);
+					// return the raycast hit
+					return new(currentPos, Vector2.Zero, currentDistance, collidable, true); }
 			}
-
-			currentPos += normalizedDirection * CellSize;
-			currentDistance += CellSize;
+			currentPos += normalizedDirection * 1;
+			currentDistance += 1;
 		}
 
-		return null;
+		return default;
 	}
 	
-	public List<ICollidable> RaycastAll(Vector2 origin, Vector2 direction, float maxDistance) {
+	/// <summary>
+	/// Performs a raycast and returns a list of all collidables intersected by the ray.
+	/// </summary>
+	/// <param name="origin">The starting position of the ray.</param>
+	/// <param name="direction">The direction of the ray.</param>
+	/// <param name="maxDistance">The maximum distance the ray can travel.</param>
+	/// <returns>A list of collidables intersected by the ray.</returns>
+	public List<RaycastHit> RaycastAll(Vector2 origin, Vector2 direction, float maxDistance) {
 		List<ICollidable> rayCollidables = new();
-		
+		List<RaycastHit> rayHits = new();
 		Vector2 currentPos = origin;
 		Vector2 normalizedDirection = Vector2.Normalize(direction);
 		float currentDistance = 0;
+		Stack <ICollidable> resultStack = new();
 
 		while (currentDistance <= maxDistance)
 		{
-			int hash = GetPositionHash((int)currentPos.X, (int)currentPos.Y);
-
-			ICollidable[] collidables = GetCollidables(hash);
-
-			foreach (ICollidable collidable in collidables)
+			Query(currentPos, resultStack);
+			while (resultStack.Count > 0)
 			{
-				if (collidable == null)
-				{
-					continue;
-				}
-				
-				if (PointInRect(currentPos, collidable) && !rayCollidables.Contains(collidable))
-				{
+				ICollidable collidable = resultStack.Pop();
+				if (collidable != null && !rayCollidables.Contains(collidable) && PointInRect(currentPos, collidable)) {
 					rayCollidables.Add(collidable);
+					rayHits.Add(new(currentPos, Vector2.Zero, currentDistance, collidable, true));
 				}
 			}
 
 			currentPos += normalizedDirection;
 			currentDistance += 1;
 		}
-		return rayCollidables;
+		return rayHits;
 	}
 	
+	/// <summary>
+	/// Checks if there is an overlap between a box and any collidable objects.
+	/// </summary>
+	/// <param name="position">The position of the box.</param>
+	/// <param name="rect">The rectangle defining the size of the box.</param>
+	/// <returns>True if there is an overlap, false otherwise.</returns>
 	public bool OverlapBox(Vector2 position, FloatRect rect)
 	{
 		// Define the box's position
@@ -588,6 +603,12 @@ class SpatialHash {
 		return false;
 	}
 	
+	/// <summary>
+	/// Finds all collidables that overlap with a given box.
+	/// </summary>
+	/// <param name="position">The position of the box.</param>
+	/// <param name="rect">The dimensions of the box.</param>
+	/// <returns>A list of collidables that overlap with the box.</returns>	
 	public List<ICollidable> OverlapBoxAll(Vector2 position, FloatRect rect) {
 		List<ICollidable> collidables = new();
 		// Define the box's position
@@ -633,6 +654,12 @@ class SpatialHash {
 		return collidables;
 	}
 	
+	/// <summary>
+	/// Finds the first collidable that overlaps with a given box.
+	/// </summary>
+	/// <param name="position">The position of the box.</param>
+	/// <param name="rect">The dimensions of the box.</param>
+	/// <returns>The collidable that overlaps with the box, or null if no overlap is found.</returns>
 	public ICollidable OverlapBoxTarget(Vector2 position, FloatRect rect) {
 		// Define the box's position
 		FloatRect boxRect = new FloatRect(
@@ -677,15 +704,79 @@ class SpatialHash {
 		return null;
 	}
 
-	private bool PointInRect (Vector2 position, ICollidable collidable) {
+	/// <summary>
+	/// Checks if a given position is inside the bounding box of a collidable object.
+	/// </summary>
+	/// <param name="position">The position to check.</param>
+	/// <param name="collidable">The collidable object.</param>
+	/// <returns>True if the position is inside the bounding box, false otherwise.</returns>
+	private bool PointInRect(Vector2 position, ICollidable collidable)
+	{
+		// Calculate the boundaries of the bounding box
+		float minX = collidable.Position.X + collidable.AABB.Position.X;
+		float maxX = collidable.Position.X + collidable.AABB.Position.X + collidable.AABB.Size.X;
+		float minY = collidable.Position.Y + collidable.AABB.Position.Y;
+		float maxY = collidable.Position.Y + collidable.AABB.Position.Y + collidable.AABB.Size.Y;
 
-		if (position.X >= collidable.Position.X + collidable.AABB.Position.X
-		    && position.X < collidable.Position.X + collidable.AABB.Position.X + collidable.AABB.Size.X
-		    && position.Y >= collidable.Position.Y + collidable.AABB.Position.Y
-		    && position.Y < collidable.Position.Y + collidable.AABB.Position.Y + collidable.AABB.Size.Y)
+		// Check if the position is inside the bounding box
+		if (position.X >= minX && position.X < maxX && position.Y >= minY && position.Y < maxY)
+		{
 			return true;
-		return false;
+		}
+		else
+		{
+			return false;
+		}
 	}
+	#endregion
+
+	bool CheckPositionCollision(ICollidable objA, Vector2 position, ICollidable objB)
+	{
+		foreach (var normal in objA.Mesh.Normals.Concat(objB.Mesh.Normals))
+		{
+			var normalizedNormal = Vector2.Normalize(normal);
+			if (!CheckProjection(normalizedNormal, objA.Mesh, position, objB.Mesh, objB.Position))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool CheckProjection(Vector2 normal, Mesh meshA, Vector2 positionA, Mesh meshB, Vector2 positionB)
+	{
+		var minA = 0f;
+		var minB = 0f;
+		var maxA = 0f;
+		var maxB = 0f;
+		ProjectPolygon(normal, meshA, positionA, ref minA, ref maxA);
+		ProjectPolygon(normal, meshB, positionB, ref minB, ref maxB);
+		return IntervalDistance(minA, maxA, minB, maxB) <= 0f;
+	}
+	
+	
+
+	int IntervalDistance (float minA, float maxA, float minB, float maxB) {
+		if (minA < minB) {
+			return (int)(minB - maxA);
+		}
+		return (int)(minA - maxB);
+	}
+
+	void ProjectPolygon (Vector2 normal, Mesh mesh, Vector2 offset, ref float min, ref float max) {
+		float num = Vector2.DotProduct(normal, mesh.Vertices[0] + offset);
+		min = num;
+		max = num;
+		for (int i = 0; i < mesh.Vertices.Count; i++) {
+			num = Vector2.DotProduct(mesh.Vertices[i] + offset, normal);
+			if (num < min) {
+				min = num;
+			} else if (num > max) {
+				max = num;
+			}
+		}
+	}
+	
 	/// <summary>
 	/// Draws the debug information for collidables on the specified render target.
 	/// </summary>

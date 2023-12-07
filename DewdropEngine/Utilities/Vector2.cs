@@ -255,6 +255,25 @@ public struct Vector2 {
 		a.y -= b.Y;
 		return a;
 	}
+	
+	public static Vector2 operator - (Vector2 a, float b) {
+		a.x -= b;
+		a.y -= b;
+		return a;
+	}
+	
+	public static Vector2 operator - (Vector2 a, int b) {
+		a.x -= b;
+		a.y -= b;
+		return a;
+	}
+	
+	// create a negative vector
+	public static Vector2 operator - (Vector2 a) {
+		a.x = -a.x;
+		a.y = -a.y;
+		return a;
+	}
 
 	// multiplication 
 	public static Vector2 operator * (Vector2 a, Vector2 b) {

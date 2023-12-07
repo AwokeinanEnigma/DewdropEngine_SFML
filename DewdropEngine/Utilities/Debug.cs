@@ -16,7 +16,7 @@ public static class Outer {
     /// <summary>
     ///     Initializes the Debug class
     /// </summary>
-    public static void Initialize () {
+    internal static void Initialize () {
 		SetVerbosity(LogLevel.Engine);
 	}
 

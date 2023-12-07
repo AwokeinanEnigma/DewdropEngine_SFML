@@ -11,24 +11,24 @@ namespace DewDrop.Scenes;
 /// <summary>
 ///     Manager for scenes, handling transitions to new scenes and such.
 /// </summary>
-public class SceneManager {
+public static class SceneManager {
     /// <summary>
     ///     Manages the stack of scenes.
     /// </summary>
-    class SceneStack {
-		List<SceneBase> list;
+    class SceneStack { 
+	    List<SceneBase> list;
 
 		public SceneBase this [int i] => list[i];
 
         /// <summary>
         ///     The amount of scenes in the stack
         /// </summary>
-        public int Count => list.Count;
+        public  int Count => list.Count;
 
         /// <summary>
         ///     Creates a new scene stack.
         /// </summary>
-        public SceneStack () {
+        public  SceneStack () {
 			list = new List<SceneBase>();
 		}
 
@@ -51,11 +51,11 @@ public class SceneManager {
         ///     Gets the scene from the bottom of the scene list
         /// </summary>
         /// <returns>The scene at the bottom of the scene list</returns>
-        public SceneBase Peek () {
+        public  SceneBase Peek () {
 			return Peek(0);
 		}
 
-		public SceneBase? Peek (int i) {
+		public  SceneBase? Peek (int i) {
 			//if we're outside of the list of scenes
 			if (i < 0 || i >= list.Count) {
 				return null;
@@ -92,98 +92,81 @@ public class SceneManager {
 
 	#region Properties
 
-    /// <summary>
-    ///     The active instance of the SceneManager
-    /// </summary>
-    public static SceneManager Instance {
-		get {
-			if (instance == null) {
-				instance = new SceneManager();
-			}
-
-			return instance;
-		}
-	}
-
-    /// <summary>
+	/// <summary>
     ///     The transition that is currently being used.
     /// </summary>
-    public ITransition Transition { get; set; }
+    public static ITransition Transition { get; set; }
 
     /// <summary>
     ///     If true, the scene manager is currently transitioning between scenes
     /// </summary>
-    public bool IsTransitioning => state == SceneManagerState.Transition;
+    public static bool IsTransitioning => state == SceneManagerState.Transition;
 
     /// <summary>
     ///     Are we not displaying a scene?
     /// </summary>
-    public bool IsEmpty { get; private set; }
+    public static bool IsEmpty { get; private set; }
 
     /// <summary>
     ///     Are we drawing two scenes at once?
     /// </summary>
-    public bool CompositeMode { get; set; }
+    public static bool CompositeMode { get; set; }
 
 	#endregion
 
 	#region Scene related fields
+	static SceneManagerState state;
 
-	static SceneManager instance;
+	static SceneStack scenes;
 
-	SceneManagerState state;
-
-	SceneStack scenes;
-
-	SceneBase previousScene;
+	static SceneBase previousScene;
 
 	#endregion
 
 	#region Boolean fields.
 
 	// if popped then we'll completely clean up the previous scene
-	bool popped;
+	static bool popped;
 
 	// if true then the new scene is currently being shown
-	bool newSceneShown;
+	static bool newSceneShown;
 
 	// if false and we're transitioning we need to clean up our shit
-	bool cleanupFlag;
+	static bool cleanupFlag;
 
 	// if true we're drawing multiple scenes
 
 	#endregion
 
 	#region Methods
-
-    /// <summary>
-    ///     Creates a new scene manager.
-    /// </summary>
-    SceneManager () {
-		// make new scenestack
-		scenes = new SceneStack();
-		// we have no scenes so we set this to true
-		IsEmpty = true;
-		// no transition so just use the empty one
-		Transition = new InstantTransition();
-		// even though we have no scenes, still set the scene state to Scene
-		state = SceneManagerState.Scene;
-		Engine.RenderImGUI += () => {
-			ImGui.Begin("Scene Manager");
-			ImGui.Text($"Scene state: {state}");
-			ImGui.End();
-		};
+	
+	internal static void Initialize ( SceneBase startScene ) {
+	    // make new scenestack
+	    scenes = new SceneStack();
+	    // we have no scenes so we set this to true
+	    IsEmpty = true;
+	    // push the start scene
+	    // no transition so just use the empty one
+	    Transition = new InstantTransition();
+	    Push(startScene);
+	    // even though we have no scenes, still set the scene state to Scene
+	    state = SceneManagerState.Transition;
+	    Engine.RenderImGUI += () => {
+		    ImGui.Begin("Scene Manager");
+		    ImGui.Text($"Scene state: {state}");
+		    ImGui.End();
+	    };
     }
 
     /// <summary>
     ///     Pushes a new scene to the stack
     /// </summary>
     /// <param name="newScene">The scene to push to the stack</param>
-    public void Push (SceneBase newScene) {
+    public static void Push (SceneBase newScene) {
 		Push(newScene, false);
 	}
 
-	public void Push (SceneBase newScene, bool swap) {
+	public static void Push (SceneBase newScene, bool swap) {
 		if (state != SceneManagerState.Transition) {
 			// if we have other scenes
 			if (scenes.Count > 0) {
@@ -203,7 +186,7 @@ public class SceneManager {
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public SceneBase Pop () {
+    public static SceneBase Pop () {
 		if (scenes.Count > 0) {
 			// get scene from the top
 			SceneBase result = scenes.Pop();
@@ -228,7 +211,7 @@ public class SceneManager {
 		throw new EmptySceneStackException();
 	}
 
-	void SetupTransition () {
+	static void SetupTransition () {
 		// reset transition
 		Transition.Reset();
 		// set our state
@@ -238,7 +221,7 @@ public class SceneManager {
 		// InputManager.Instance.Enabled = false;
 	}
 
-	public SceneBase Peek () {
+	public static SceneBase Peek () {
 		if (scenes.Count > 0) {
 			return scenes.Peek();
 		}
@@ -249,26 +232,25 @@ public class SceneManager {
     /// <summary>
     ///     Clears the scene list
     /// </summary>
-    public void Clear () {
+    public static void Clear () {
 		SceneBase scene = scenes.Peek();
 		while (scenes.Count > 0) {
 			SceneBase scene2 = scenes.Pop();
 			if (scene2 == scene) {
 				scene2.Unfocus();
 			}
-
-			scene2.Unload();
+			scene2.Dispose();
 		}
 	}
 
-	public void Update () {
+	public static void Update () {
 		UpdateScene();
 		if (state == SceneManagerState.Transition) {
 			UpdateTransition();
 		}
 	}
 
-	void UpdateScene () {
+	static void UpdateScene () {
 		if (scenes.Count > 0) {
 			SceneBase scene = scenes.Peek();
 			scene.Update();
@@ -278,7 +260,7 @@ public class SceneManager {
 		throw new EmptySceneStackException();
 	}
 
-	void UpdateTransition () {
+	static void UpdateTransition () {
 		// if we haven't shown a new scene but you can
 		if (!newSceneShown && Transition.ShowNewScene) {
 			// and if there is a previous scene
@@ -286,7 +268,7 @@ public class SceneManager {
 				// if popped is true,
 				// then we completely dispose of the previous scene
 				if (popped) {
-					previousScene.CompletelyUnload();
+					previousScene.Dispose();
 					popped = false;
 				}
 				// if it isn't
@@ -348,10 +330,10 @@ public class SceneManager {
 		}
 	}
 
-	public void AbortTransition () {
+	public static void AbortTransition () {
 		if (state == SceneManagerState.Transition) {
 			if (previousScene != null) {
-				previousScene.CompletelyUnload();
+				previousScene.Dispose();
 				previousScene = null;
 			}
 
@@ -369,7 +351,7 @@ public class SceneManager {
 		}
 	}
 
-	void CompositeDraw () {
+	static void CompositeDraw () {
 		int count = scenes.Count;
 		for (int i = 0; i < count - 1; i++) {
 			if (scenes[i + 1].DrawBehind) {
@@ -378,7 +360,7 @@ public class SceneManager {
 		}
 	}
 
-	public void Draw () {
+	public static void Draw () {
 		if (scenes.Count > 0) {
 			if (Transition.ShowNewScene) {
 				if (CompositeMode) {

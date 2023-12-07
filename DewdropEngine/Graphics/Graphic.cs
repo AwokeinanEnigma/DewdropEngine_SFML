@@ -57,7 +57,7 @@ public class Graphic : AnimatedRenderable {
     /// <summary>
     ///     Creates a new graphic
     /// </summary>
-    /// <param name="resource">The name of the IDewdropTexture to pull from the TextureManager</param>
+    /// <param name="resource">The name of the ITexture to pull from the TextureManager</param>
     /// <param name="position">the position of the sprite relative to the graphic</param>
     /// <param name="textureRect">Information about the texture's integer coordinates</param>
     /// <param name="origin">Origin of the texture relative to the graphic</param>

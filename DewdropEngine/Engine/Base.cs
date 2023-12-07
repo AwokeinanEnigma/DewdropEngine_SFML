@@ -1,17 +1,20 @@
 ﻿#region
 
 using DewDrop.Resources;
+using DewDrop.Scenes;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using DewDrop.Wren;
+using fNbt;
 using SFML.System;
+using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace DewDrop;
 
 /// <summary>
-///     "You must be ahead to quit. Too many people quit when they’re behind instead of attempting to get ahead. Failure!"
+///  "You must be ahead to quit. Too many people quit when they’re behind instead of attempting to get ahead. Failure!"
 /// </summary>
 public static partial class Engine {
 	static bool initialized;
@@ -20,27 +23,40 @@ public static partial class Engine {
     ///     Clock that's started when the game starts.
     /// </summary>
     public static Clock SessionTimer;
-
-	public static void Initialize () {
+    internal static EngineConfigurationData.ApplicationData ApplicationData;
+    public static void Initialize (EngineConfigurationData config) {
+	    ApplicationData = config.Application;
 
 		// if we haven't initialized yet
 		if (!initialized) {
 			Outer.Initialize();
-			WrenManager.Initialize();	
+			WrenManager.Initialize(config);	
 			EmbeddedResourcesHandler.GetStreams();
 			new Input();
 
+			// get the config from appdata
+			if (File.Exists(ApplicationData.ConfigPath)) {
+				GlobalData.LoadFromNbt(new NbtFile(ApplicationData.ConfigPath).RootTag);
+			} else {
+				//create folder if it doesn't exist
+				Directory.CreateDirectory(ApplicationData.ConfigPath.Replace("/config.nbt", ""));
+				Outer.LogError("Config file doesn't exist.", null);
+			}
+			
+			ScreenSize = config.ScreenSize;
+			HalfScreenSize = ScreenSize / 2;
+			
 			// get em' graphics going!!!
 			// this is located in EngineGraphics.cs
-			InitializeGraphics();
-			CreateDebugPipeline();
+			InitializeGraphics(config);
+			CreateDebugPipeline(config);
+			
+			SceneManager.Initialize(config.StartScene);
 			initialized = true;
 
 			SessionTimer = new Clock();
 			SessionTimer.Restart();
 
-			//TODO: Engine should REALLY be calling its own loop
-			// this is located in EngineLoop.cs
 			StartGameLoop();
 		}
 	}

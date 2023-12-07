@@ -13,21 +13,21 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 		[STAThread]
 		static void Main(string[] args)
 		{
-			WrenManager.CollectTypes += (types) => {
-				types.AddRange(
-					WrenManager.FindWrenTypes(Assembly.GetExecutingAssembly()).ToArray()
-					);
-			};
-			Engine.Initialize();
-
-			SceneManager.Instance.Push(new DebugPlayground(true));
-			Engine.DebugMode = true;
-			Engine.Window.SetMouseCursorVisible(false);
-            
-			new AxisManager();
- 
-			Console.WriteLine("Press ESC key to close window");
-			Engine.StartGameLoop();
+			Engine.Initialize(new EngineConfigurationData()
+				{
+					Application = new EngineConfigurationData.ApplicationData() {
+						Name = "Prototype",
+						Version = "0.0.1",	
+						Developer = "Enigma",
+						ConfigPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/DewDrop/Prototype/config.nbt"
+					},
+					ScreenSize = new Vector2(320, 180),
+					Fullscreen = false,
+					VSync = true,
+					DebugMode = true,
+					StartScene = new DebugPlayground(true),
+					WrenTypes = WrenManager.FindWrenTypes(Assembly.GetExecutingAssembly()).ToList()
+				});
 		}
 	}
 }
