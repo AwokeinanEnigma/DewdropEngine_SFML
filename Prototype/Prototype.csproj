@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles> 
+	<ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>RotatingHelloWorldSfmlDotNetCoreCSharp.Program</StartupObject>
+    <LangVersion>11</LangVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <OutputType>Exe</OutputType>
+   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ImGui.NET" Version="1.78.0" />
+    <PackageReference Include="SFML.Net" Version="2.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DewdropEngine\DewdropEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="IronWren">
+      <HintPath>C:\Users\Tom\Documents\IronWren\IronWren\bin\Release\netcoreapp3.1\IronWren.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
