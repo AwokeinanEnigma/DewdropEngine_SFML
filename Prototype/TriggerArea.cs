@@ -74,14 +74,14 @@ namespace Prototype
 
 
 		 public void OnTriggerStay (ICollidable context) {
-			 Outer.Log($"OnTriggerStay {context}");
+			 //Outer.Log($"OnTriggerStay {context}");
 		 }
 
 		public void OnTriggerEnter (ICollidable context) {
-			Outer.Log($"OnTriggerEnter {context}");
+			Wreno.Call("onTriggerEnter");
 		}
 		public void OnTriggerExit (ICollidable context) {
-			Outer.Log($"OnTriggerExit {context}");
+			Wreno.Call("onTriggerExit");
 		}
 		public List<ICollidable> CollidingWith { get; }
 		public void Dispose () {
