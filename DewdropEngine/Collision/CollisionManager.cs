@@ -81,11 +81,17 @@ public class CollisionManager {
 				 continue;
 			 
 			 if (collidable.IsTrigger) {
+				 if (collidable.CollidingWith == null) {
+					 Outer.LogError($"IsTrigger is true but CollidingWith list is null for '{collidable}'", null);
+					 continue;
+				 }
+
+
 				 foreach (ICollidable possibleTrigger in _collidables) {
 					 
 					 if (possibleTrigger == null || collidable == possibleTrigger || !possibleTrigger.Solid)
 						 continue;
-					 
+
 					 if (PlaceFreeBroadPhase(collidable, collidable.Position, possibleTrigger)) {
 						 if (CheckPositionCollision(collidable, collidable.Position, possibleTrigger)) {
 							 if (!collidable.CollidingWith.Contains(possibleTrigger)) {

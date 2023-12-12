@@ -22,82 +22,145 @@ public class TextRenderer : Renderable {
 		get => _position;
 		set {
 			_position = value;
-			drawText.Position = new Vector2f(_position.x + FontData.XCompensation, _position.y + FontData.YCompensation);
+			_drawText.Position = new Vector2f(_position.x + FontData.XCompensation, _position.y + FontData.YCompensation);
 		}
 	}
 
 	public string Text {
-		get => text;
+		get => _text;
 		set {
-			text = value;
+			_text = value;
 			UpdateText();
 		}
 	}
 
 	public Color Color {
-		get => drawText.FillColor;
+		get => _drawText.FillColor;
 		set {
-			drawText.FillColor = value;
+			_drawText.FillColor = value;
 			_colorDirty = true;
+		}
+	}
+
+	public int Length {
+		get => _length;
+		set {
+			if (value != _length)
+				_lengthDirty = true;
+
+			_length = value;
+			
+		}
+	}
+	public int Index
+	{
+		get
+		{
+			return _index;
+		}
+		set
+		{
+			if (value != _index)
+				_lengthDirty = true;
+			_index = value;
 		}
 	}
 
 	public FontData FontData { get; }
 
 	bool _colorDirty;
+	bool _lengthDirty;
 
-	RenderStates renderStates;
-	Text drawText;
-	Shader shader;
+	readonly RenderStates _renderStates;
+	readonly Text _drawText;
+	readonly Shader _shader;
+	int _length;
+	int _index;
+	string _text;
 
-	string text;
 
+	public TextRenderer (Vector2 position, int depth, FontData font, string text, int index, int length) {
+		_position = position;
+		this._text = text;
 
+		_index = index;
+		_length = length;
+
+		_depth = depth;
+		FontData = font;
+
+		_drawText = new Text(string.Empty, FontData.Font, FontData.Size);
+		_drawText.Position = new Vector2f(position.x + FontData.XCompensation, position.y + FontData.YCompensation);
+		UpdateText();
+
+		_shader = new Shader(EmbeddedResourcesHandler.GetResourceStream("text.vert"), null, EmbeddedResourcesHandler.GetResourceStream("text.frag"));
+		_shader.SetUniform("color", new Vec4(_drawText.FillColor));
+		_shader.SetUniform("threshold", font.AlphaThreshold);
+		_renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, _shader);
+	}
 	public TextRenderer (Vector2 position, int depth, string text) : this(position, depth, new FontData(), text) { }
 	public TextRenderer (Vector2 position, int depth, FontData font, string text) {
 		_position = position;
-		this.text = text;
+		this._text = text;
 
 
 		_depth = depth;
 		FontData = font;
 
-		drawText = new Text(string.Empty, FontData.Font, FontData.Size);
-		drawText.Position = new Vector2f(position.x + FontData.XCompensation, position.y + FontData.YCompensation);
+		_drawText = new Text(string.Empty, FontData.Font, FontData.Size);
+		_drawText.Position = new Vector2f(position.x + FontData.XCompensation, position.y + FontData.YCompensation);
 		UpdateText();
 
-		shader = new Shader(EmbeddedResourcesHandler.GetResourceStream("text.vert"), null, EmbeddedResourcesHandler.GetResourceStream("text.frag"));
-		shader.SetUniform("color", new Vec4(drawText.FillColor));
-		shader.SetUniform("threshold", font.AlphaThreshold);
-		renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, shader);
+		_shader = new Shader(EmbeddedResourcesHandler.GetResourceStream("text.vert"), null, EmbeddedResourcesHandler.GetResourceStream("text.frag"));
+		_shader.SetUniform("color", new Vec4(_drawText.FillColor));
+		_shader.SetUniform("threshold", font.AlphaThreshold);
+		_renderStates = new RenderStates(BlendMode.Alpha, Transform.Identity, null, _shader);
 	}
 
 	public Vector2 FindCharacterPosition (uint index) {
-		uint num = Math.Max(0U, Math.Min((uint)text.Length, index));
-		return drawText.FindCharacterPos(num);
+		uint num = Math.Max(0U, Math.Min((uint)_text.Length, index));
+		return _drawText.FindCharacterPos(num);
 	}
 
 	void UpdateText () {
-		drawText.DisplayedString = text;
-		FloatRect localBounds = drawText.GetLocalBounds();
+		_drawText.DisplayedString = _text;
+		FloatRect localBounds = _drawText.GetLocalBounds();
 
 		float width = Math.Max(1f, localBounds.Width);
 		float height = Math.Max(1f, localBounds.Height);
 		_size = new Vector2(width, height);
 	}
+	public void Reset(string text, int index, int length)
+	{
+		this._text = text;
+		_index = index;
+		_length = length;
+		this.UpdateText(index, length);
+	}
 
+	private void UpdateText(int index, int length)
+	{
+		this._drawText.DisplayedString = this._text.Substring(index, length);
+		FloatRect localBounds = this._drawText.GetLocalBounds();
+		_size = new Vector2f(Math.Max(1f, localBounds.Width), Math.Max(16f, localBounds.Height));
+	}
+	
 	public override void Draw (RenderTarget target) {
+		if (_lengthDirty) {
+			UpdateText(Index, Length);
+			_lengthDirty = false;
+		}
 		if (_colorDirty) {
-			shader.SetUniform("color", new Vec4(drawText.FillColor));
+			_shader.SetUniform("color", new Vec4(_drawText.FillColor));
 			_colorDirty = false;
 		}
 
-		target.Draw(drawText, renderStates);
+		target.Draw(_drawText, _renderStates);
 	}
 
 	protected override void Dispose (bool disposing) {
 		if (!_disposed && disposing) {
-			drawText.Dispose();
+			_drawText.Dispose();
 		}
 
 		_disposed = true;

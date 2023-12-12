@@ -58,6 +58,7 @@ public class SpriteGraphic : Graphic {
     /// </summary>
     public bool AnimationEnabled { get; set; }
 
+    public SpritesheetTexture Spritesheet => _spritesheet;
 	#endregion
 
 	#region Fields

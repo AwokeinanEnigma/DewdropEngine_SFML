@@ -15,6 +15,7 @@ using DewDrop.UserInput;
 using DewDrop.Utilities;
 using DewDrop.Wren;
 using ImGuiNET;
+using Mother4.GUI;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -37,6 +38,7 @@ namespace Prototype.Scenes
         public EntityManager EntityManager { get; private set; }
         public CollisionManager CollisionManager { get; private set; }
         public List<TriggerArea> Triggers { get; private set; }
+        public TextBox TextBox;
 
         public TestScene()
         {
@@ -67,8 +69,10 @@ namespace Prototype.Scenes
             mapFile.Collisions.ForEach(x => CollisionManager.Add( new StaticCollider(x)));
             #endregion
 
-            
-            
+            TextBox = new TextBox(pipeline, 0);
+            EntityManager.AddEntity(TextBox);
+            TextBox.Hide();
+            WrenContext.TextBox = TextBox;
             #region Create Entities
             TextureManager.Instance.DumpLoadedTextures();
 
@@ -81,8 +85,14 @@ namespace Prototype.Scenes
             pipeline.Add(_playerEntity);
             CollisionManager.Add(_playerEntity);
 
+            Wrentity wren = new Wrentity(File.ReadAllText(Directory.GetCurrentDirectory() + "/wrenity.wren"), new RectangleShape(new Vector2f(11, 20)),
+                new Vector2(160, 90),
+                new Vector2(11, 20),
+                new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Blue, Color.Blue);
+            EntityManager.AddEntity(wren);
+            pipeline.Add(wren);
+            CollisionManager.Add(wren);
             
-
             overlayEntity = new ShapeEntity2(
                 new RectangleShape(new Vector2f(1, 1)),
                 new Vector2(160, 90),
@@ -131,7 +141,7 @@ namespace Prototype.Scenes
                         Outer.Log("Found collidable: " + collidable.GetType().FullName);
                         if (collidable is Wrentity wrentity) {
                             line.SetPositionB(intersectedCollidables[i].Point);
-                         
+                            wrentity.Interact();    
                             break;
                         }
                         if (collidable is StaticCollider) {

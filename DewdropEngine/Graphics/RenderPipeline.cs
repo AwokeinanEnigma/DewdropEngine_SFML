@@ -77,6 +77,7 @@ public class RenderPipeline {
 
 	#endregion
 
+	public List<IRenderable> pIRenderables => IRenderables;
     /// <summary>
     ///     Creates a new RenderPipeline using a render target
     /// </summary>
