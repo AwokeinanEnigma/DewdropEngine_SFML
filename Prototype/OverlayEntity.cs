@@ -28,6 +28,7 @@ public class ShapeEntity2 : RenderableEntity
 
     private Shape _shape;
     private RenderPipeline _pipeline;
+    public override string Name => "Overlay Shape";
     public ShapeEntity2(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, RenderPipeline pipeline, Color fillColor = default, Color outlineColor = default)
     {
         RenderPosition = position;

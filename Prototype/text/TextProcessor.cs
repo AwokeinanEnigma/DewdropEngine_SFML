@@ -5,6 +5,7 @@
 // Assembly location: D:\OddityPrototypes\Mother4 - Copy (2).exe
 
 using DewDrop.GUI.Fonts;
+using DewDrop.Utilities;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -34,167 +35,158 @@ namespace Mother4.Scripts.Text
       '?'
         };
 
-        public static TextBlock Process(FontData font, string text, int frameWidth)
-        {
-            List<string> stringList = new List<string>();
-            Dictionary<int, bool> dictionary = new Dictionary<int, bool>();
-            List<ITextCommand> commands = new List<ITextCommand>();
-            StringBuilder stringBuilder = new StringBuilder(text ?? "").Replace("\r", "");
-            MatchCollection matchCollection = Regex.Matches(stringBuilder.ToString(), "\\[([a-zA-Z][a-zA-Z0-9]*):?(\\b[^\\]]*)\\](.*?)\\[\\/\\1\\]");
-            int num1 = 0;
-            foreach (Match match in matchCollection)
-            {
-                string str1 = match.Groups[1].Value;
-                string str2 = match.Groups[2].Value;
-                string str3 = match.Groups[3].Value;
-                stringBuilder = stringBuilder.Remove(match.Index, match.Length);
-                stringBuilder = stringBuilder.Insert(match.Index, str3);
+        public static TextBlock Process (FontData font, string text, int frameWidth) {
+            // List to hold each line of the text
+            List<string> linesList = new List<string>();
+
+            // Dictionary to track which lines have bullet points
+            Dictionary<int, bool> bulletLines = new Dictionary<int, bool>();
+
+            // List to hold text commands
+            List<ITextCommand> textCommands = new List<ITextCommand>();
+
+            // StringBuilder to manipulate the text
+            StringBuilder textBuilder = new StringBuilder(text ?? "").Replace("\r", "");
+
+            // Find and replace all enclosing commands in the text
+            MatchCollection enclosingCommandMatches = Regex.Matches(textBuilder.ToString(), ENCLOSING_CMD_REGEX);
+            int commandLengthOffset = 0;
+            foreach (Match match in enclosingCommandMatches) {
+                string replacementText = match.Groups[3].Value;
+                textBuilder = textBuilder.Remove(match.Index, match.Length);
+                textBuilder = textBuilder.Insert(match.Index, replacementText);
             }
-            foreach (Match match in Regex.Matches(stringBuilder.ToString(), "\\[([a-zA-Z][a-zA-Z0-9]*):?(\\b[^\\]]*)\\]"))
-            {
-                string str = match.Groups[1].Value;
-                string s = match.Groups[2].Value;
-                string[] sourceArray = s.Split(',');
-                for (int index = 0; index < sourceArray.Length; ++index)
-                    sourceArray[index] = sourceArray[index].Trim();
-                int num2 = match.Index - num1;
-                TextProcessor.OffsetCommandPositions(commands, num2, match.Length);
-                stringBuilder = stringBuilder.Remove(num2, match.Length);
-                num1 += match.Length;
-                switch (str)
-                {
-                    case "p":
-                        int result1;
-                        int.TryParse(s, out result1);
-                        commands.Add((ITextCommand)new TextPause(num2, result1));
-                        continue;
-                    /*case "cn":
-                        CharacterType result2;
-                        Enum.TryParse<CharacterType>(s, out result2);
-                        string name1 = CharacterNames.GetName(result2);
-                        stringBuilder = stringBuilder.Insert(num2, name1);
-                        num1 -= name1.Length;
-                        continue;*/
-                    case "t":
-                        int result3;
-                        int.TryParse(sourceArray[0], out result3);
-                        string[] strArray = new string[sourceArray.Length - 1];
-                        Array.Copy((Array)sourceArray, 1, (Array)strArray, 0, strArray.Length);
-                        commands.Add((ITextCommand)new TextTrigger(num2, result3, strArray));
-                        continue;
-                    /*case "travis":
-                        string name2 = CharacterNames.GetName(CharacterType.Travis);
-                        stringBuilder = stringBuilder.Insert(num2, name2);
-                        num1 -= name2.Length;
-                        continue;
-                    case "floyd":
-                        string name3 = CharacterNames.GetName(CharacterType.Floyd);
-                        stringBuilder = stringBuilder.Insert(num2, name3);
-                        num1 -= name3.Length;
-                        continue;
-                    case "meryl":
-                        string name4 = CharacterNames.GetName(CharacterType.Meryl);
-                        stringBuilder = stringBuilder.Insert(num2, name4);
-                        num1 -= name4.Length;
-                        continue;
-                    case "leo":
-                        string name5 = CharacterNames.GetName(CharacterType.Leo);
-                        stringBuilder = stringBuilder.Insert(num2, name5);
-                        num1 -= name5.Length;
-                        continue;
-                    case "zack":
-                        string name6 = CharacterNames.GetName(CharacterType.Zack);
-                        stringBuilder = stringBuilder.Insert(num2, name6);
-                        num1 -= name6.Length;
-                        continue;
-                    case "renee":
-                        string name7 = CharacterNames.GetName(CharacterType.Renee);
-                        stringBuilder = stringBuilder.Insert(num2, name7);
-                        num1 -= name7.Length;
-                        continue;*/
-                    default:
-                        continue;
+            // Find and process all single commands in the text
+            foreach (Match match in Regex.Matches(textBuilder.ToString(), SINGLE_CMD_REGEX)) {
+                string commandName = match.Groups[1].Value;
+                string commandParamsStr = match.Groups[2].Value;
+                string[] commandParams = commandParamsStr.Split(',');
+
+                for (int index = 0; index < commandParams.Length; ++index)
+                    commandParams[index] = commandParams[index].Trim();
+
+                int commandPosition = match.Index - commandLengthOffset;
+                OffsetCommandPositions(textCommands, commandPosition, match.Length);
+                textBuilder = textBuilder.Remove(commandPosition, match.Length);
+                commandLengthOffset += match.Length;
+
+                switch (commandName) {
+                case "p":
+                    int pauseDuration;
+                    int.TryParse(commandParamsStr, out pauseDuration);
+                    textCommands.Add(new TextPause(commandPosition, pauseDuration));
+                    continue;
+                case "t":
+                    int eventId;
+                    int.TryParse(commandParams[0], out eventId);
+                    string[] eventArgs = new string[commandParams.Length - 1];
+                    Array.Copy(commandParams, 1, eventArgs, 0, eventArgs.Length);
+                    textCommands.Add(new TextTrigger(commandPosition, eventId, eventArgs));
+                    continue;
+                default:
+                    continue;
                 }
             }
-            SFML.Graphics.Text text1 = new SFML.Graphics.Text(stringBuilder.ToString().Replace('@'.ToString(), string.Empty).Replace('\n'.ToString(), string.Empty), font.Font, font.Size);
-            float num3 = 0.0f;
-            float num4 = text1.FindCharacterPos(0U).X;
-            int num5 = 0;
-            int startIndex = 0;
-            int num6 = 0;
-            bool flag1 = false;
-            bool flag2 = false;
-            for (int index = 0; index < stringBuilder.Length; ++index)
-            {
-                char ch = stringBuilder[index];
-                if (((IEnumerable<char>)TextProcessor.PAUSE_CHARS).Contains<char>(ch))
-                {
-                    commands.Add((ITextCommand)new TextPause(index + 1, 10));
-                }
-                else
-                {
-                    switch (ch)
-                    {
-                        case '\n':
-                            num6 = index;
-                            stringBuilder = stringBuilder.Remove(index, 1);
-                            TextProcessor.OffsetCommandPositions(commands, index, -1);
-                            --index;
-                            flag1 = true;
-                            break;
-                        case ' ':
-                            num5 = index;
-                            break;
-                        case '@':
-                            num6 = index;
-                            stringBuilder = stringBuilder.Remove(index, 1);
-                            TextProcessor.OffsetCommandPositions(commands, index, -1);
-                            --index;
-                            flag1 = index > startIndex;
-                            if (flag2)
-                                commands.Add((ITextCommand)new TextWait(index));
-                            dictionary.Add(stringList.Count + (flag1 ? 1 : 0), true);
-                            flag2 = true;
-                            continue;
+            // Create a new SFML text object with the processed text
+            SFML.Graphics.Text sfmlText = new SFML.Graphics.Text(textBuilder.ToString().Replace('@'.ToString(), string.Empty).Replace('\n'.ToString(), string.Empty), font.Font, font.Size);
+
+            float accumulatedWidth = 0.0f;
+            float previousCharPositionX = sfmlText.FindCharacterPos(0U).X;
+            int lastSpaceIndex = 0;
+            int currentLineStartIndex = 0;
+            int currentLineEndIndex = 0;
+            bool newLineNeeded = false;
+            bool bulletPointActive = false;
+
+            bool splitDueToWidth = false;
+            // Process each character in the text, breaking lines where necessary
+            for (int index = 0; index < textBuilder.Length; ++index) {
+                char currentChar = textBuilder[index];
+                bool newLine = false;
+                if (PAUSE_CHARS.Contains(currentChar)) {
+                    textCommands.Add(new TextPause(index + 1, 5));
+                } else {
+                    switch (currentChar) {
+                    case '\n':
+                        currentLineEndIndex = index;
+                        textBuilder = textBuilder.Remove(index, 1);
+                        OffsetCommandPositions(textCommands, index, -1);
+                        --index;
+                        newLine = true;
+                        newLineNeeded = true;
+                        break;
+                    case ' ':
+                        lastSpaceIndex = index;
+                        break;
+                    case '@':
+                        currentLineEndIndex = index;
+                        textBuilder = textBuilder.Remove(index, 1);
+                        OffsetCommandPositions(textCommands, index, -1);
+                        --index;
+                        newLineNeeded = index > currentLineStartIndex;
+                        bulletPointActive = true;
+                        if (bulletPointActive) {
+                            textCommands.Add(new TextWait(index)); 
+                        }
+                        bulletLines.Add(linesList.Count + (newLineNeeded ? 1 : 0), true);
+                        continue;
                     }
                 }
-                float x = text1.FindCharacterPos((uint)index).X;
-                float num7 = x - num4;
-                num3 += num7;
-                num4 = x;
-                if ((double)num3 > (double)frameWidth)
-                {
-                    num6 = num5;
-                    flag1 = true;
+                float currentCharPositionX = sfmlText.FindCharacterPos((uint)index).X ;
+                float charWidth = (currentCharPositionX - previousCharPositionX) + .1f;
+                accumulatedWidth += charWidth;
+                previousCharPositionX = currentCharPositionX;
+                float savedAccumulatedWidth = accumulatedWidth;
+                if (accumulatedWidth > (double)frameWidth) {
+                    currentLineEndIndex = lastSpaceIndex; 
+                    newLineNeeded = true;
+                } 
+                if (newLineNeeded) {
+                    string lineStr = textBuilder.ToString(currentLineStartIndex, currentLineEndIndex - currentLineStartIndex);
+                    //get the end of lineStr relative to the original text
+                    Outer.Log(lineStr);
+                    int endOfLineStr = currentLineStartIndex + lineStr.Length;
+                    // get the last TextWait command in the line
+                    TextWait lastTextWait = null;
+                    if (textCommands.Count > 0) {
+                        TextWait textWait = textCommands.OfType<TextWait>().LastOrDefault() ?? null;
+
+                        if (textWait != null && textWait.Position <= endOfLineStr) {
+                            lastTextWait = textWait;
+                        }
+                    }
+                    if (lastTextWait != null) {
+                        lastTextWait.Position -= 1;
+                    }
+                    linesList.Add(lineStr);
+                    accumulatedWidth = 0.0f;
+                    int indexOffset = 0;
+                    int length = textBuilder.Length;
+                    while (currentLineEndIndex + indexOffset < length && textBuilder[currentLineEndIndex + indexOffset] == ' ')
+                        ++indexOffset;
+                    currentLineStartIndex = currentLineEndIndex + indexOffset;
+                    newLineNeeded = false;
                 }
-                if (flag1)
-                {
-                    string str = stringBuilder.ToString(startIndex, num6 - startIndex);
-                    stringList.Add(str);
-                    num3 = 0.0f;
-                    int num8 = 0;
-                    int length = stringBuilder.Length;
-                    while (num6 + num8 < length && stringBuilder[num6 + num8] == ' ')
-                        ++num8;
-                    startIndex = num6 + num8;
-                    flag1 = false;
-                }
+                splitDueToWidth  = savedAccumulatedWidth > (double)frameWidth;
             }
-            string str4 = stringBuilder.ToString(startIndex, stringBuilder.Length - startIndex);
-            if (str4.Length > 0)
-                stringList.Add(str4);
-            List<TextLine> lines = new List<TextLine>();
-            int startPosition = 0;
-            for (int index = 0; index < stringList.Count; ++index)
-            {
-                bool bullet = false;
-                if (dictionary.ContainsKey(index))
-                    bullet = dictionary[index];
-                string text2 = stringList[index];
-                lines.Add(new TextLine(bullet, TextProcessor.GetCommandRange(commands, startPosition, startPosition + text2.Length), text2));
-                startPosition += text2.Length;
+            string remainingStr = textBuilder.ToString(currentLineStartIndex, textBuilder.Length - currentLineStartIndex);
+            if (remainingStr.Length > 0)
+                linesList.Add(remainingStr);
+            List<TextLine> textLines = new List<TextLine>();
+            int commandStartPosition = 0;
+            for (int index = 0; index < linesList.Count; ++index) {
+                bool containsBullet = false;
+                if (bulletLines.TryGetValue(index, out bool value))
+                    containsBullet = value;
+
+                string lineText = linesList[index];
+                textLines.Add(new TextLine(
+                    containsBullet,
+                    GetCommandRange(textCommands, commandStartPosition, commandStartPosition + lineText.Length),
+                    lineText));
+                commandStartPosition += lineText.Length;
             }
-            return new TextBlock(lines);
+            return new TextBlock(textLines);
         }
 
         private static ITextCommand[] GetCommandRange(

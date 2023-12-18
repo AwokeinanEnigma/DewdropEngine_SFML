@@ -266,7 +266,7 @@ public class RenderPipeline {
 				IRenderableRect.Height = iRenderable.Size.y;
 
 				// if it's in the view of the game, allow that shit to draw baby!
-				if (IRenderableRect.Intersects(viewRect)) {
+				if (IRenderableRect.Intersects(viewRect) || iRenderable.DrawRegardlessOfVisibility) {
 					iRenderable.Draw(Target);
 					iRenderable.IsBeingDrawn = true;
 				} else {

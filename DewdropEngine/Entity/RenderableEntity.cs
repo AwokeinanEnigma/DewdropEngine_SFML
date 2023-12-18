@@ -84,7 +84,8 @@ public abstract class RenderableEntity : Entity, IRenderable {
 	protected bool _visible = true;
 
 	protected bool _wasDrawn;
-
+	
+	public bool DrawRegardlessOfVisibility { get; set; }
 	#endregion
 
 	public override void Update () {

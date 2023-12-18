@@ -10,6 +10,19 @@ namespace DewDrop.Graphics;
 public class ShapeRenderer : Renderable {
 	public Shape Shape { get; }
 	//set => _shape = value;
+	public override Vector2 RenderPosition {
+		get => Shape.Position;
+		set => Shape.Position = value;
+	}
+	public override Vector2 Size {
+		get => Shape.Scale;
+		set => Shape.Scale = value;
+		
+	}
+	public override Vector2 Origin {
+		get => Shape.Origin;
+		set => Shape.Origin = value;
+	}
 	public Color OutlineColor {
 		get => Shape.OutlineColor;
 		set => Shape.OutlineColor = value;
@@ -21,12 +34,6 @@ public class ShapeRenderer : Renderable {
 	}
 
 	public ShapeRenderer (Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, Color fillColor = default, Color outlineColor = default) {
-		RenderPosition = position;
-		Size = size;
-		Origin = origin;
-		Depth = depth;
-		
-
 		// ensure that we can actually see our fucking square
 		if (fillColor == default) {
 			fillColor = Color.White;
@@ -39,17 +46,18 @@ public class ShapeRenderer : Renderable {
 		Shape = shape;
 		Shape.FillColor = fillColor;
 		Shape.OutlineColor = outlineColor;
+		
+		RenderPosition = position;
+		Size = size;
+		Origin = origin;
+		Depth = depth;
 
-		Shape.Origin = Origin;
-		Shape.Position = RenderPosition;
 		//_shape.Scale = Size;
 		//_shape.Rotation = Rotation;
 
 	}
 
 	public override void Draw (RenderTarget target) {
-		Shape.Origin = Origin;
-		Shape.Position = RenderPosition;
 		target.Draw(Shape);
 	}
 

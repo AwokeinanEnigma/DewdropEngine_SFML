@@ -27,11 +27,13 @@ public struct EngineConfigurationData {
 	public SceneBase StartScene;
 	public bool DebugMode;
 	public List<Type> WrenTypes;
-	public EngineConfigurationData (ApplicationData data, Vector2 screenSize, bool fullscreen, bool vSync, bool debugMode, SceneBase startScene, List<Type> wrenTypes) {
+	public int DefaultBufferScale;
+	public EngineConfigurationData (ApplicationData data, Vector2 screenSize, bool fullscreen, bool vSync, bool debugMode, SceneBase startScene, int defaultBufferScale, List<Type> wrenTypes) {
 		Application = data;
 		ScreenSize = screenSize;
 		Fullscreen = fullscreen;
 		VSync = vSync;
+		DefaultBufferScale = defaultBufferScale;
 		DebugMode = debugMode;
 		StartScene = startScene;
 		WrenTypes = wrenTypes;

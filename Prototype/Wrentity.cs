@@ -8,6 +8,7 @@ using DewDrop.Graphics;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using DewDrop.Wren;
+using Prototype;
 using SFML.Graphics;
 
 #endregion
@@ -45,6 +46,7 @@ public class Wrentity : RenderableEntity, ICollidable
     public void OnTriggerExit (ICollidable context) { throw new NotImplementedException(); }
     public List<ICollidable> CollidingWith { get; }
     private Vector2 lastPosition;
+    public override string Name => "Wrentity";
     public override Vector2 Position
     {
         get => _position;
@@ -128,6 +130,8 @@ public class Wrentity : RenderableEntity, ICollidable
     
     public void Interact()
     {
+        //WrenContext.TextBox.Reset(File.ReadAllText("totallynormaltext.txt"), "cumler", true, true);
+        //WrenContext.TextBox.Show();
         _wreno.Call("Interact");
     }
     

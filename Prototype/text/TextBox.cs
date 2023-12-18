@@ -1,360 +1,407 @@
-﻿
- using DewDrop.Entities;
- using DewDrop.Graphics;
- using DewDrop.GUI;
- using DewDrop.GUI.Fonts;
- using DewDrop.UserInput;
+﻿using DewDrop;
+using DewDrop.Entities;
+using DewDrop.Graphics;
+using DewDrop.GUI;
+using DewDrop.GUI.Fonts;
+using DewDrop.UserInput;
+using DewDrop.Utilities;
+using ImGuiNET;
+using Mother4.GUI;
 using Mother4.Scripts.Text;
 using SFML.Graphics;
-using DewDrop.Utilities;
- using SFML.Window;
- namespace Mother4.GUI
+using SFML.System;
+using SFML.Window;
+using System.Collections;
+
+namespace Mother4.GUI
 {
-	public class TextBox : Entity
-	{
-		public event TextBox.CompletionHandler OnTextboxComplete;
+    public class TextBox : Entity
+    {  
+        public override string Name => "Text Box";
 
-		public event TextBox.TypewriterCompletionHandler OnTypewriterComplete;
+        public event TextBox.CompletionHandler OnTextboxComplete;
 
-		public bool Visible
-		{
-			get
-			{
-				return this.visible;
-			}
-		}
+        public event TextBox.TypewriterCompletionHandler OnTypewriterComplete;
 
-		public TextBox(RenderPipeline pipeline, int colorIndex)
-		{
-			this.pipeline = pipeline;
-			this.state = TextBox.AnimationState.SlideIn;
-			this.topLetterboxY = -14f;
-			this.bottomLetterboxY = 180f;
-			//this.dimmer = new ScreenDimmer(this.pipeline, Color.Transparent, 0, 2147450879);
-			Vector2 finalCenter = ViewManager.Instance.FinalCenter;
-			Vector2 Vector2 = finalCenter - ViewManager.Instance.View.Size / 2f;
-			Vector2 size = new Vector2(320f, 14f);
-			this.topLetterbox = new ShapeRenderer(new RectangleShape(size), new Vector2(0f, this.topLetterboxY), new Vector2(0f, 0f), size, 2147450880);
-			this.topLetterbox.Shape.FillColor = Color.Black;
-			this.topLetterbox.Visible = false;
-			this.pipeline.Add(this.topLetterbox);
-			this.bottomLetterbox = new ShapeRenderer(new RectangleShape(size), new Vector2(0f, this.bottomLetterboxY), new Vector2(0f, 0f), size, 2147450878);
-			this.bottomLetterbox.Shape.FillColor = Color.Black;
-			this.bottomLetterbox.Visible = false;
-			this.pipeline.Add(this.bottomLetterbox);
-			this.typewriterBox = new TypewriterBox(pipeline, new Vector2(Vector2.X + TextBox.TEXT_POSITION.X, Vector2.Y + TextBox.TEXT_POSITION.Y), TextBox.TEXT_SIZE, 2147450880, DButtons.Select, true, new TextBlock(new List<TextLine>()));
-			this.window = new WindowBox("window.gdat", 0,new Vector2(Vector2.X + TextBox.BOX_POSITION.X, Vector2.Y + TextBox.BOX_POSITION.Y), TextBox.BOX_SIZE, 2147450879);
-			this.window.Visible = false;
-			this.pipeline.Add(this.window);
-			this.advanceArrow = new SpriteGraphic("realcursor.dat", "down", new Vector2(Vector2.X + TextBox.BUTTON_POSITION.X, Vector2.Y + TextBox.BUTTON_POSITION.Y), 2147450880);
-			this.advanceArrow.Visible = false;
-			this.pipeline.Add(this.advanceArrow);
-			this.nametag = new Nametag(string.Empty, new Vector2(Vector2.X + TextBox.NAMETAG_POSITION.X, Vector2.Y + TextBox.NAMETAG_POSITION.Y), 2147450880);
-			this.nametag.Visible = false;
-			this.pipeline.Add(this.nametag);
-			this.visible = false;
-			this.nametagVisible = false;
-			this.arrowVisible = false;
-			this.hideAdvanceArrow = false;
-			this.typewriterBox.OnTypewriterComplete += this.TypewriterComplete;
-			this.typewriterBox.OnTextWait += this.TextWait;
-			Input.OnButtonPressed += this.ButtonPressed;
-			ViewManager.Instance.OnMove += this.OnViewMove;
-		}
+        public bool Visible => _visible;
+        
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        readonly RenderPipeline _pipeline;
+        readonly TypewriterBox _typewriterBox;
 
-		public void ClearTypewriterComplete()
-		{
-			this.OnTypewriterComplete = null;
-		}
+        readonly Nametag _nametag;
 
-		protected virtual void TextWait()
-		{
-			this.textboxWaitForPlayer = true;
-			if (!this.hideAdvanceArrow)
-			{
-				this.arrowVisible = true;
-				this.advanceArrow.Visible = this.arrowVisible;
-			}
-		}
+        readonly WindowBox _window;
 
-		protected virtual void TypewriterComplete()
-		{
-			this.textboxWaitForPlayer = true;
-			this.typewriterDone = true;
-			if (!this.hideAdvanceArrow)
-			{
-				this.arrowVisible = true;
-				this.advanceArrow.Visible = this.arrowVisible;
-			}
-			if (this.OnTypewriterComplete != null)
-			{
-				this.OnTypewriterComplete();
-			}
-		}
+        readonly ShapeRenderer _topLetterbox;
+        readonly ShapeRenderer _bottomLetterbox;
 
-		protected virtual void ButtonPressed(object? o, DButtons b)
-		{
-			if (this.textboxWaitForPlayer && b == DButtons.Select)
-			{
-				this.textboxWaitForPlayer = false;
-				if (!this.typewriterDone)
-				{
-					this.typewriterBox.ContinueFromWait();
-					if (!this.hideAdvanceArrow)
-					{
-						this.arrowVisible = false;
-						this.advanceArrow.Visible = this.arrowVisible;
-						return;
-					}
-				}
-				else if (this.OnTextboxComplete != null)
-				{
-					this.OnTextboxComplete();
-				}
-			}
-		}
+        bool _visible;
 
-		protected virtual void Recenter()
-		{
-			Vector2 finalCenter = ViewManager.Instance.FinalCenter;
-			Vector2 Vector2 = finalCenter - ViewManager.Instance.View.Size / 2f;
-			_position = new Vector2(Vector2.X + TextBox.BOX_POSITION.X, Vector2.Y + TextBox.BOX_POSITION.Y);
-			this.window.RenderPosition = new Vector2(_position.X, _position.Y + this.textboxY);
-			this.advanceArrow.RenderPosition = new Vector2(Vector2.X + TextBox.BUTTON_POSITION.X, Vector2.Y + TextBox.BUTTON_POSITION.Y);
-			this.nametag.RenderPosition = new Vector2(Vector2.X + TextBox.NAMETAG_POSITION.X, Vector2.Y + TextBox.NAMETAG_POSITION.Y + this.textboxY);
-			this.typewriterBox.Reposition(new Vector2(Vector2.X + TextBox.TEXT_POSITION.X, Vector2.Y + TextBox.TEXT_POSITION.Y + this.textboxY));
-			this.topLetterbox.RenderPosition = new Vector2(Vector2.X +BOX_POSITION.X, Vector2.Y + this.topLetterboxY + TextBox.BOX_POSITION.Y);
-			this.bottomLetterbox.RenderPosition = new Vector2(Vector2.X + BOX_POSITION.X, Vector2.Y + this.bottomLetterboxY+ TextBox.BOX_POSITION.Y);
-		}
+        bool _nametagVisible;
 
-		public virtual void Reset(string text, string namestring, bool suppressSlideIn, bool suppressSlideOut)
-		{
-			this.canTransitionIn = !suppressSlideIn;
-			this.canTransitionOut = !suppressSlideOut;
-			this.typewriterBox.Reset(TextProcessor.Process(new FontData(), text, (int)TextBox.TEXT_SIZE.X));
-			this.arrowVisible = false;
-			this.textboxWaitForPlayer = false;
-			this.typewriterDone = false;
-			if (namestring != null && namestring.Length > 0)
-			{
-				this.nametag.Name = namestring;
-				this.nametagVisible = true;
-			}
-			else
-			{
-				this.nametagVisible = false;
-			}
-			this.nametag.Visible = this.nametagVisible;
-			this.window.FrameStyle = "window.gdat";
-		}
+        bool _arrowVisible;
+        readonly bool _hideAdvanceArrow;
+        readonly Graphic _advanceArrow;
 
-		private void UpdateLetterboxing(float amount)
-		{
-			float num = Math.Max(0f, Math.Min(1f, amount));
-			this.topLetterboxY = (float)((int)(-14f * (1f - num)));
-			this.bottomLetterboxY = (float)(180L - (long)((int)(14f * num)));
-			this.topLetterbox.RenderPosition = new Vector2(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + this.topLetterboxY);
-			this.bottomLetterbox.RenderPosition= new Vector2(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + this.bottomLetterboxY);
-		}
+        bool _textboxWaitForPlayer;
+        bool _typewriterDone;
 
-		private void UpdateTextbox(float amount)
-		{
-			this.textboxY = 4f * (1f - Math.Max(0f, Math.Min(1f, amount)));
-			this.typewriterBox.Position = new Vector2((float)((int)(ViewManager.Instance.Viewrect.Left + TextBox.TEXT_POSITION.X)), (float)((int)(ViewManager.Instance.Viewrect.Top + TextBox.TEXT_POSITION.Y + this.textboxY)));
-			this.window.RenderPosition = new Vector2((float)((int)(ViewManager.Instance.Viewrect.Left + TextBox.BOX_POSITION.X)), (float)((int)(ViewManager.Instance.Viewrect.Top + TextBox.BOX_POSITION.Y + this.textboxY)));
-			this.nametag.RenderPosition = new Vector2((float)((int)(ViewManager.Instance.Viewrect.Left + TextBox.NAMETAG_POSITION.X)), (float)((int)(ViewManager.Instance.Viewrect.Top + TextBox.NAMETAG_POSITION.Y + this.textboxY)));
-		}
+        TextBox.AnimationState _state;
 
-		public virtual void Show()
-		{
-			if (!this.visible)
-			{
-				this.visible = true;
-				this.Recenter();
-				this.window.Visible = true;
-				this.topLetterbox.Visible = true;
-				this.bottomLetterbox.Visible = true;
-				this.typewriterBox.Show();
-				this.nametag.Visible = this.nametagVisible;
-				this.advanceArrow.Visible = this.arrowVisible;
-				this.state = TextBox.AnimationState.SlideIn;
-				this.letterboxProgress = (this.canTransitionIn ? 0f : 1f);
-				this.UpdateLetterboxing(this.letterboxProgress);
-			}
-		}
+        float _letterboxProgress;
+        float _topLetterboxY;
+        float _bottomLetterboxY;
+         
+        float _textboxY;
 
-		public virtual void Hide()
-		{
-			if (this.visible)
-			{
-				this.visible = false;
-				this.Recenter();
-				this.advanceArrow.Visible = false;
-				this.state = TextBox.AnimationState.SlideOut;
-				this.letterboxProgress = (this.canTransitionOut ? 1f : 0f);
-				this.UpdateLetterboxing(this.letterboxProgress);
-				this.UpdateTextbox(this.letterboxProgress * 2f);
-			}
-		}
+        bool _canTransitionIn;
+        bool _canTransitionOut;
 
-		public void SetDimmer(float dim)
-		{
-		//	this.dimmer.ChangeColor(new Color(0, 0, 0, (byte)(255f * dim)), 30);
-		}
+        //   readonly ScreenDimmer dimmer;
 
-		private void OnViewMove(ViewManager sender, Vector2 center)
-		{
-			if (this.visible || this.letterboxProgress > 0f)
-			{
-				this.Recenter();
-			}
-		}
+        enum AnimationState
+        {
+            SlideIn,
+            Textbox,
+            SlideOut,
+            Hide
+        }
 
-		private float TweenLetterboxing(float progress)
-		{
-			return (float)(0.5 - Math.Cos((double)progress * 3.141592653589793) / 2.0);
-		}
+        public delegate void CompletionHandler();
 
-		public override string Name => "ok actually textbox";
-		public override void Update()
-		{
-			base.Update();
-			switch (this.state)
-			{
-			case TextBox.AnimationState.SlideIn:
-				if (this.letterboxProgress < 1f)
-				{
-					this.UpdateLetterboxing(this.TweenLetterboxing(this.letterboxProgress));
-					this.UpdateTextbox(this.letterboxProgress);
-					this.letterboxProgress += 0.2f;
-				}
-				else
-				{
-					this.state = TextBox.AnimationState.Textbox;
-					this.UpdateLetterboxing(1f);
-					this.UpdateTextbox(1f);
-				}
-				break;
-			case TextBox.AnimationState.Textbox:
-				if (this.visible)
-				{
-					this.typewriterBox.Update();
-				}
-				break;
-			case TextBox.AnimationState.SlideOut:
-				if (this.letterboxProgress > 0f)
-				{
-					this.UpdateLetterboxing(this.TweenLetterboxing(this.letterboxProgress));
-					this.UpdateTextbox(this.letterboxProgress);
-					this.letterboxProgress -= 0.2f;
-				}
-				else
-				{
-					this.state = TextBox.AnimationState.Hide;
-					this.UpdateLetterboxing(0f);
-					this.UpdateTextbox(0f);
-					this.typewriterBox.Hide();
-					this.nametag.Visible = false;
-					this.window.Visible = false;
-					this.topLetterbox.Visible = false;
-					this.bottomLetterbox.Visible = false;
-				}
-				break;
-			}
-		//	this.dimmer.Update();
-		}
+        public delegate void TypewriterCompletionHandler();
 
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-			this.advanceArrow.Dispose();
-			this.window.Dispose();
-			this.nametag.Dispose();
-			this.topLetterbox.Dispose();
-			this.bottomLetterbox.Dispose();
-			this.typewriterBox.OnTypewriterComplete -= this.TypewriterComplete;
-			this.typewriterBox.OnTextWait -= this.TextWait;
-			Input.OnButtonPressed -= this.ButtonPressed;
-			ViewManager.Instance.OnMove -= this.OnViewMove;
-			this.typewriterBox.Dispose();
-		}
+        public TextBox(RenderPipeline pipeline, int colorIndex)
+        {
+            _pipeline = pipeline;
+            _state = TextBox.AnimationState.SlideIn;
+            _topLetterboxY = -14f;
+            _bottomLetterboxY = 180f;
+            //dimmer = new ScreenDimmer(pipeline, Color.Transparent, 0, 2147450879);
+            Vector2 finalCenter = ViewManager.Instance.FinalCenter;
+            Vector2 Vector2 = finalCenter - ViewManager.Instance.View.Size / 2f;
+            Vector2 size = new Vector2(320f, 14f);
+            Vector2 size2 = new Vector2(320f, 14);
+            _topLetterbox = new ShapeRenderer(new RectangleShape(size), 
+                new Vector2(0f, _topLetterboxY),
+                size2,//new Vector2(0f, 0f), 
+                Vector2.Zero, 2147450880);
+            _topLetterbox.FillColor = Color.Black;
+            _topLetterbox.OutlineColor = Color.White;
+            _topLetterbox.DrawRegardlessOfVisibility    = true;
+            _topLetterbox.Visible = false;
+            _canTransitionIn = true;
+            _canTransitionOut = true;
+            _pipeline.Add(_topLetterbox);
+            _bottomLetterbox = new ShapeRenderer(new RectangleShape(size), new Vector2(0f, _bottomLetterboxY), size, Vector2.Zero, 2147450878);
+            _bottomLetterbox.FillColor = Color.Black;
+            _bottomLetterbox.OutlineColor = Color.White;            _bottomLetterbox.Visible = false;
+            _pipeline.Add(_bottomLetterbox);
+            _typewriterBox = new TypewriterBox(pipeline, new Vector2(Vector2.X + TextBox.TEXT_POSITION.X, Vector2.Y + TextBox.TEXT_POSITION.Y), TextBox.TEXT_SIZE, 2147450880, DButtons.Select, true, new TextBlock(new List<TextLine>()));
+            _window = new WindowBox("window.gdat",
+                0, // palatte
+                // position
+                new Vector2(Vector2.X + TextBox.BOX_POSITION.X,
+                    Vector2.Y + TextBox.BOX_POSITION.Y),
+                // size
+                TextBox.BOX_SIZE,
+                2147450879)
+            {
+                Visible = false
+            };
+            _pipeline.Add(_window);
+            _advanceArrow = new SpriteGraphic("realcursor.dat", "down", new Vector2(Vector2.X + TextBox.BUTTON_POSITION.X, Vector2.Y + TextBox.BUTTON_POSITION.Y), 2147450880)
+            {
+                Visible = false
+            };
+            _pipeline.Add(_advanceArrow);
+            _nametag = new Nametag("Corpse", new Vector2(Vector2.X + TextBox.NAMETAG_POSITION.X, Vector2.Y + TextBox.NAMETAG_POSITION.Y), 2147450880)
+            {
+                Visible = false,
+            };
+            _pipeline.Add(_nametag);
+            _visible = false;
+            _nametagVisible = false;
+            _arrowVisible = false;
+            _hideAdvanceArrow = false;
+            _typewriterBox.OnTypewriterComplete += TypewriterComplete;
+            _typewriterBox.OnTextWait += TextWait;
+            Input.OnButtonPressed += OnButtonPressed;
+            ViewManager.Instance.OnMove += OnViewMove;
+        }
 
-		protected const DButtons ADVANCE_BUTTON = DButtons.Select;
+        public void ClearTypewriterComplete()
+        {
+            OnTypewriterComplete = null;
+        }
 
-		protected const float LETTERBOX_HEIGHT = 14f;
+        protected virtual void TextWait()
+        {
+            _textboxWaitForPlayer = true;
+            if (!_hideAdvanceArrow)
+            {
+                _arrowVisible = true;
+                _advanceArrow.Visible = _arrowVisible;
+            }
+        }
 
-		protected const float LETTERBOX_SPEED = 0.2f;
+        public class RollingText {
+            public string Text { get; set; }
+            public string Name;
+        }
+        public readonly Queue RollingTextQueue = new Queue();
+        
 
-		protected const float TEXTBOX_Y_OFFSET = 4f;
+        protected virtual void TypewriterComplete()
+        {
+            _textboxWaitForPlayer = true;
+            _typewriterDone = true;
+            if (!_hideAdvanceArrow)
+            {
+                _arrowVisible = true;
+                _advanceArrow.Visible = _arrowVisible;
+            }
 
-		public const int DEPTH = 2147450880;
+            if (OnTypewriterComplete != null)
+            {
+                OnTypewriterComplete();
+            }
+        }
 
-		protected static Vector2 BOX_POSITION = new Vector2(-20, 120f);
+        protected virtual void OnButtonPressed(object? sender, DButtons dButtons)
+        {
+            if (_textboxWaitForPlayer && dButtons == DButtons.Select)
+            {
+                if (RollingTextQueue.Count > 0 && _typewriterDone) {
+                    RollingText rt = (RollingText)RollingTextQueue.Dequeue();
+                    Reset(rt.Text, rt.Name, true, true);
+                    _typewriterDone = false;
+                    Recenter();
+                    return;
+                }
+                
+                _textboxWaitForPlayer = false;
+                if (!_typewriterDone)
+                {
+                    _typewriterBox.ContinueFromWait();
+                    if (!_hideAdvanceArrow)
+                    {
+                        _arrowVisible = false;
+                        _advanceArrow.Visible = _arrowVisible;
+                        return;
+                    }
+                }
+                else if (OnTextboxComplete != null)
+                {
+                    OnTextboxComplete();
+                }
+            }
+        }
 
-		protected static Vector2 BOX_SIZE = new Vector2(231f, 56f);
+        protected virtual void Recenter () {
+            Vector2 finalCenter = ViewManager.Instance.FinalCenter;
+            Vector2 viewSize = ViewManager.Instance.View.Size/2f;
+            Vector2 textBoxPosition = BOX_POSITION;
+            Vector2 buttonPosition = BUTTON_POSITION;
+            Vector2 nametagPosition = NAMETAG_POSITION;
+            Vector2 textPosition = TEXT_POSITION;
 
-		protected static Vector2 TEXT_POSITION = new Vector2(TextBox.BOX_POSITION.X + 10f, TextBox.BOX_POSITION.Y + 8f);
+            _position = new Vector2(finalCenter.X - viewSize.X + textBoxPosition.X, finalCenter.Y - viewSize.Y + textBoxPosition.Y);
+            _window.RenderPosition = new Vector2(_position.X, _position.Y + _textboxY);
+            _advanceArrow.RenderPosition = new Vector2(finalCenter.X - viewSize.X + buttonPosition.X, finalCenter.Y - viewSize.Y + buttonPosition.Y);
+            _nametag.RenderPosition = new Vector2(finalCenter.X - viewSize.X + nametagPosition.X, finalCenter.Y - viewSize.Y + nametagPosition.Y + _textboxY);
+            _typewriterBox.Reposition(new Vector2(finalCenter.X - viewSize.X + textPosition.X, finalCenter.Y - viewSize.Y + textPosition.Y + _textboxY));
+            _topLetterbox.RenderPosition = new Vector2(finalCenter.X - viewSize.X, finalCenter.Y - viewSize.Y + _topLetterboxY);
+            _bottomLetterbox.RenderPosition = new Vector2(finalCenter.X - viewSize.X, finalCenter.Y - viewSize.Y + _bottomLetterboxY);
+        }
 
-		protected static Vector2 TEXT_SIZE = new Vector2(TextBox.BOX_SIZE.X - 31f, TextBox.BOX_SIZE.Y - 8f);
+        public virtual void Reset(string text, string namestring, bool slideIn, bool slideOut)
+        {
+            _canTransitionIn = slideIn;
+            _canTransitionOut = slideOut;
+            _typewriterBox.Reset(TextProcessor.Process(new FontData(), text, (int)TextBox.TEXT_SIZE.X));
+            _arrowVisible = false;
+            _textboxWaitForPlayer = false;
+            _typewriterDone = false;
+            if (namestring != null && namestring.Length > 0)
+            {
 
-		protected static Vector2 NAMETAG_POSITION = new Vector2(TextBox.BOX_POSITION.X + 3f, TextBox.BOX_POSITION.Y - 14f);
+                _nametag.Name = namestring;
+                _nametagVisible = true;
+            }
+            else
+            {
+                _nametagVisible = false;
+            }
+            _nametag.Visible = _nametagVisible;
+            _window.FrameStyle = "window.gdat";
+        }
 
-		protected static Vector2 NAMETEXT_POSITION = new Vector2(TextBox.NAMETAG_POSITION.X + 5f, TextBox.NAMETAG_POSITION.Y + 1f);
+        float numa = -13f;
+         void UpdateLetterboxing(float amount)
+        {
+            float num = Math.Max(0f, Math.Min(1f, amount));
+            _topLetterboxY = -180 + (float)((int)(-14*(1f - num)));// - _topLetterbox.Size.y;
+            _bottomLetterboxY = (float)(180L - (long)((int)(14f * num)));
+            
+            _topLetterbox.RenderPosition = new Vector2f(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _topLetterboxY);
+            _bottomLetterbox.RenderPosition = new Vector2f(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _bottomLetterboxY);
+            /*
+            float num = Math.Max(0f, Math.Min(1f, amount));
+           // _topLetterbox.Visible = false;
+            _topLetterboxY = (int)(-0.5f * (1f - num));
+            _bottomLetterboxY = 180L - (int)(14f * num);; //
+            _topLetterbox.RenderPosition = new Vector2(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _topLetterboxY);
+            _bottomLetterbox.RenderPosition = new Vector2(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _bottomLetterboxY);
+           // _bottomLetterbox.RenderPosition = new Vector2((int)(ViewManager.Instance.Viewrect.Left), (int)(ViewManager.Instance.Viewrect.Top + LETTERBOX_POSITION.y + _bottomLetterboxY));; //(int)(ViewManager.Instance.Viewrect.Top + TextBox.BOX_POSITION.Y + _textboxY); //
+            */
+        }
 
-		protected static Vector2 BUTTON_POSITION = new Vector2(TextBox.BOX_POSITION.X + TextBox.BOX_SIZE.X - 14f, TextBox.BOX_POSITION.Y + TextBox.BOX_SIZE.Y - 6f);
+         void UpdateTextbox(float amount)
+        {
+            _textboxY = 4f * (1f - Math.Max(0f, Math.Min(1f, amount)));
+            _typewriterBox.Position = new Vector2((int)(ViewManager.Instance.Viewrect.Left + TextBox.TEXT_POSITION.X), (int)(ViewManager.Instance.Viewrect.Top + TextBox.TEXT_POSITION.Y + _textboxY));
+            _window.RenderPosition = new Vector2((int)(ViewManager.Instance.Viewrect.Left + TextBox.BOX_POSITION.X), (int)(ViewManager.Instance.Viewrect.Top + TextBox.BOX_POSITION.Y + _textboxY));
+            _nametag.RenderPosition = new Vector2((int)(ViewManager.Instance.Viewrect.Left + TextBox.NAMETAG_POSITION.X), (int)(ViewManager.Instance.Viewrect.Top + TextBox.NAMETAG_POSITION.Y + _textboxY));
+        }
 
-		protected RenderPipeline pipeline;
+        public virtual void Show()
+        {
+            if (!_visible)
+            {
+                _visible = true;
+                Recenter();
+                _window.Visible = true;
+                _topLetterbox.Visible = true;
+                _bottomLetterbox.Visible = true;
+                _typewriterBox.Show();
+                _nametag.Visible = _nametagVisible;
+                _advanceArrow.Visible = _arrowVisible;
+                _state = TextBox.AnimationState.SlideIn;
+                _letterboxProgress = (_canTransitionIn ? 0f : 1f);
+                UpdateLetterboxing(_letterboxProgress);
+            }
+        }
 
-		protected TypewriterBox typewriterBox;
+        public virtual void Hide()
+        {
+            if (_visible)
+            {
+                _visible = false;
+                Recenter();
+                _advanceArrow.Visible = false;
+                _state = TextBox.AnimationState.SlideOut;
+                _letterboxProgress = (_canTransitionOut ? 1f : 0f);
+                UpdateLetterboxing(_letterboxProgress);
+                UpdateTextbox(_letterboxProgress * 2f);
+            }
+        }
 
-		protected Nametag nametag;
+        public void SetDimmer(float dim)
+        {
+           // dimmer.ChangeColor(new Color(0, 0, 0, (byte)(255f * dim)), 30);
+        }
 
-		protected Graphic advanceArrow;
+         void OnViewMove(ViewManager sender, Vector2 center)
+        {
+            if (_visible || _letterboxProgress > 0f)
+            {
+                Recenter();
+            }
+        }
 
-		private WindowBox window;
+         float TweenLetterboxing(float progress)
+        {
+            return (float)(0.5 - Math.Cos(progress * 3.141592653589793) / 2.0);
+        }
 
-		private ShapeRenderer topLetterbox;
+        public override void Update()
+        {
+            base.Update();
+            switch (_state)
+            {
+                case TextBox.AnimationState.SlideIn:
+                    if (_letterboxProgress < 1f)
+                    {
+                        UpdateLetterboxing(TweenLetterboxing(_letterboxProgress));
+                        UpdateTextbox(_letterboxProgress);
+                        _letterboxProgress += 0.2f;
+                    }
+                    else
+                    {
+                        _state = TextBox.AnimationState.Textbox;
+                        UpdateLetterboxing(1f);
+                        UpdateTextbox(1f);
+                    }
+                    break;
+                case TextBox.AnimationState.Textbox:
+                    if (_visible)
+                    {
+                        _typewriterBox.Update();
+                    }
+                    break;
+                case TextBox.AnimationState.SlideOut:
+                    if (_letterboxProgress > 0f)
+                    {
+                        UpdateLetterboxing(TweenLetterboxing(_letterboxProgress));
+                        UpdateTextbox(_letterboxProgress);
+                        _letterboxProgress -= 0.2f;
+                    }
+                    else
+                    {
+                        _state = TextBox.AnimationState.Hide;
+                        UpdateLetterboxing(0f);
+                        UpdateTextbox(0f);
+                        _typewriterBox.Hide();
+                        _nametag.Visible = false;
+                        _window.Visible = false;
+                        _topLetterbox.Visible = false;
+                        _bottomLetterbox.Visible = false;
+                    }
+                    break;
+            }
+          //  dimmer.Update();
+        }
 
-		private ShapeRenderer bottomLetterbox;
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            _advanceArrow.Dispose();
+            _window.Dispose();
+            _nametag.Dispose();
+            _topLetterbox.Dispose();
+            _bottomLetterbox.Dispose();
+            _typewriterBox.OnTypewriterComplete -= TypewriterComplete;
+            _typewriterBox.OnTextWait -= TextWait;
+            Input.OnButtonPressed -= OnButtonPressed;
+            ViewManager.Instance.OnMove -= OnViewMove;
+            _typewriterBox.Dispose();
+        }
 
-		protected bool visible;
+        protected const DButtons ADVANCE_BUTTON = DButtons.Select;
 
-		protected bool nametagVisible;
+        protected const float LETTERBOX_HEIGHT = 14f;
 
-		protected bool arrowVisible;
+        protected const float LETTERBOX_SPEED = 0.2f;
 
-		protected bool textboxWaitForPlayer;
+        protected const float TEXTBOX_Y_OFFSET = 4f;
 
-		protected bool hideAdvanceArrow;
+        public const int DEPTH = 2147450880;
 
-		protected bool typewriterDone;
+        protected static Vector2 BOX_POSITION = new Vector2(51, 120f);
+        protected static Vector2 LETTERBOX_POSITION = BOX_POSITION - new Vector2(0f, -28f);
 
-		private TextBox.AnimationState state;
+        protected static Vector2 BOX_SIZE = new Vector2(230, 56f);
 
-		private float letterboxProgress;
+        protected static Vector2 TEXT_POSITION = new Vector2(TextBox.BOX_POSITION.X + 10f, TextBox.BOX_POSITION.Y + 8f);
 
-		private float topLetterboxY;
+        protected static Vector2 TEXT_SIZE = new Vector2(TextBox.BOX_SIZE.X - 31f, TextBox.BOX_SIZE.Y - 8f);
 
-		private float bottomLetterboxY;
+        protected static Vector2 NAMETAG_POSITION = new Vector2(TextBox.BOX_POSITION.X + 3f, TextBox.BOX_POSITION.Y - 14f);
 
-		private float textboxY;
+        protected static Vector2 NAMETEXT_POSITION = new Vector2(TextBox.NAMETAG_POSITION.X + 5f, TextBox.NAMETAG_POSITION.Y + 1f);
 
-		private bool canTransitionIn;
-
-		private bool canTransitionOut;
-
-		//private ScreenDimmer dimmer;
-
-		private enum AnimationState
-		{
-			SlideIn,
-			Textbox,
-			SlideOut,
-			Hide
-		}
-
-		public delegate void CompletionHandler();
-
-		public delegate void TypewriterCompletionHandler();
-	}
+        protected static Vector2 BUTTON_POSITION = new Vector2(TextBox.BOX_POSITION.X + TextBox.BOX_SIZE.X - 14f, TextBox.BOX_POSITION.Y + TextBox.BOX_SIZE.Y - 6f);
+    }
 }

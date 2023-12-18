@@ -64,7 +64,7 @@ namespace Mother4.GUI
 
 		private void CalculateSize()
 		{
-			_ = new Vector2(this.left.Size.X + this.nameText.Size.X + 2f + this.right.Size.X, this.left.Size.Y);
+			Size = new Vector2(this.left.Size.X + this.nameText.Size.X + 2f + this.right.Size.X, this.left.Size.Y);
 		}
 
 		public override void Draw(RenderTarget target)
@@ -97,7 +97,7 @@ namespace Mother4.GUI
 
 		private static readonly string RESOURCE_NAME = "nametag.dat";
 
-		private static readonly Vector2 TEXT_POSITION = new Vector2(5f, 1f);
+		private static readonly Vector2 TEXT_POSITION = new Vector2(4f, -4f);
 
 		private SpriteGraphic left;
 

@@ -26,7 +26,7 @@ public static partial class Engine {
     /// </summary>
     public static RenderTexture RenderTexture { get; private set; }
 
-	public static int FrameBufferScale { get; set; } = 3;
+	public static int FrameBufferScale { get; set; } = 5;
 
 	public static long Frame { get; private set; }
 
@@ -78,6 +78,7 @@ public static partial class Engine {
 	// gets shit going
 	static void InitializeGraphics (EngineConfigurationData config) {
 		InitializeFrameBuffer();
+		FrameBufferScale = config.DefaultBufferScale == 0 ? 3 : config.DefaultBufferScale;
 		SetWindow(config.Fullscreen, config.VSync);
 	}
 
@@ -169,6 +170,7 @@ public static partial class Engine {
 		OnWindowCreated?.Invoke();
 	}
 
+	
 	static void HandleClosingRequest (object sender, EventArgs e) {
 		RenderWindow renderWindow = (RenderWindow)sender;
 		renderWindow.Close();

@@ -32,6 +32,7 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 					Fullscreen = false,
 					VSync = true,
 					DebugMode = true,
+					DefaultBufferScale = 4,
 					StartScene = new DebugPlayground(true),
 					WrenTypes = WrenManager.FindWrenTypes(Assembly.GetExecutingAssembly()).ToList()
 				});

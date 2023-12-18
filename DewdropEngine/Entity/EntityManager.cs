@@ -1,6 +1,8 @@
 ﻿namespace DewDrop.Entities;
 
 public class EntityManager {
+	
+	public List<Entity> Entities => _entities;
 	readonly List<Entity> _entities;
 
 	// entities we gotta add

@@ -3,7 +3,10 @@
 using DewDrop.Graphics.Aseprite;
 using DewDrop.Utilities;
 using fNbt;
+using SFML.Graphics;
+using SFML.System;
 using System.Diagnostics;
+using Violet.Graphics;
 
 #endregion
 
@@ -228,29 +231,29 @@ public class TextureManager {
 
 	    return indexedTexture;
     }
-
-	/*public FullColorTexture UseFramebuffer()
-	{
+    
+    public FullColorTexture UseFramebuffer()
+    {
 	    int hashCode = Engine.Frame.GetHashCode();
 	    
-	    RenderStates states = new RenderStates(BlendMode.Alpha, Transform.Identity, Engine.FrameBuffer.Texture, null);
+	    RenderStates states = new RenderStates(BlendMode.Alpha, Transform.Identity, Engine.RenderTexture.Texture, null);
 	    VertexArray vertexArray = new VertexArray(PrimitiveType.Quads, 4U);
-	    vertexArray[0U] = new Vertex(new Vector2f(0f, 0f), new Vector2f(0f, Engine.SCREEN_HEIGHT));
-	    vertexArray[1U] = new Vertex(new Vector2f(Engine.SCREEN_WIDTH, 0f), Engine.SCREEN_SIZE);
-	    vertexArray[2U] = new Vertex(Engine.SCREEN_SIZE, new Vector2f(Engine.SCREEN_WIDTH, 0f));
-	    vertexArray[3U] = new Vertex(new Vector2f(0f, Engine.SCREEN_HEIGHT), new Vector2f(0f, 0f));
+	    vertexArray[0U] = new Vertex(new Vector2f(0f, 0f), new Vector2f(0f, Engine.ScreenSize.y));
+	    vertexArray[1U] = new Vertex(new Vector2f(Engine.ScreenSize.x, 0f), Engine.ScreenSize);
+	    vertexArray[2U] = new Vertex(Engine.ScreenSize, new Vector2f(Engine.ScreenSize.x, 0f));
+	    vertexArray[3U] = new Vertex(new Vector2f(0f, Engine.ScreenSize.x), new Vector2f(0f, 0f));
 
-	    RenderTexture renderTexture = new RenderTexture(Engine.SCREEN_WIDTH, Engine.SCREEN_HEIGHT);
+	    RenderTexture renderTexture = new RenderTexture((uint)Engine.ScreenSize.x, (uint)Engine.ScreenSize.y);
 	    renderTexture.Clear(Color.Black);
 	    renderTexture.Draw(vertexArray, states);
 	    Texture tex = new Texture(renderTexture.Texture);
 	    renderTexture.Dispose();
 	    vertexArray.Dispose();
 	    FullColorTexture fullColorTexture = new FullColorTexture(tex);
-	    this.instances.Add(hashCode, 1);
-	    this.textures.Add(hashCode, fullColorTexture);
+	    _instances.Add(hashCode, 1);
+	    _textures.Add(hashCode, fullColorTexture);
 	    return fullColorTexture;
-	}*/
+    }
 
 	/// <summary>
 	/// Unuses a collection of ITexture objects.

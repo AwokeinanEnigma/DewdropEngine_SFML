@@ -33,6 +33,7 @@ public class Player : RenderableEntity, ICollidable
     private RenderPipeline _pipeline;
     private CollisionManager _manager;
     public bool IsTrigger { get; set; }
+    public override string Name =>  "Player";
 
     public Player(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, RenderPipeline pipeline, CollisionManager manager, Color fillColor = default, Color outlineColor = default)
     {
@@ -86,7 +87,7 @@ public class Player : RenderableEntity, ICollidable
     public override void Update()
     {
         base.Update();
-        Velocity = Input.Instance.Axis * 2;
+        Velocity = ((Input.Instance.Axis) * 2);
         lastPosition = _position;
 
         if (Velocity!=Vector2.Zero)

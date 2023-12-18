@@ -36,5 +36,10 @@ public static class WrenContext {
 		TextBox.Reset(vm.GetSlotString(1), vm.GetSlotString(2), vm.GetSlotBool(3), vm.GetSlotBool(4));
 	}
 
+	[WrenMethod("AddText", "text", "name")]
+	public static void AddText(WrenVM vm) {
+		vm.EnsureSlots(2);
+		TextBox.RollingTextQueue.Enqueue( new TextBox.RollingText() { Text = vm.GetSlotString(1), Name = vm.GetSlotString(2) });
+	}
 }
 

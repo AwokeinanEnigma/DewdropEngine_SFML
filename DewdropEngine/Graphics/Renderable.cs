@@ -61,6 +61,7 @@ public abstract class Renderable : IRenderable {
 		set => _rotation = value;
 	}
 	public bool IsBeingDrawn { get; set; }
+	public bool DrawRegardlessOfVisibility { get; set; }
 
 	#endregion
 

@@ -19,6 +19,7 @@ using Mother4.GUI;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using System.Diagnostics;
 using Color = SFML.Graphics.Color;
 
 #endregion
@@ -71,6 +72,10 @@ namespace Prototype.Scenes
 
             TextBox = new TextBox(pipeline, 0);
             EntityManager.AddEntity(TextBox);
+            TextBox.OnTextboxComplete += () =>
+            {
+                TextBox.Hide();
+            };
             TextBox.Hide();
             WrenContext.TextBox = TextBox;
             #region Create Entities
@@ -125,33 +130,35 @@ namespace Prototype.Scenes
             {
                 SceneManager.Push(new DebugPlayground(false), true);
             }
-            if (key == Keyboard.Key.E) {
-                var lino = new LineRenderer(_playerEntity.Position, _playerEntity.Position + Vector2.Normalize(_playerEntity.CheckVector) * 25, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Magenta);
-                pipeline.Add(lino);
-                List<RaycastHit> intersectedCollidables = CollisionManager.RaycastAll(
-                    _playerEntity.Position, 
-                    Vector2.Normalize(_playerEntity.CheckVector) , 
-                    25);
-                
-                if (intersectedCollidables.Count > 0) {
-                
-                    Outer.Log($"""Found {intersectedCollidables.Count} collidables""");
+            if (!TextBox.Visible) {
+                if (key == Keyboard.Key.E) {
+                    RenderPNG();
+                    var lino = new LineRenderer(_playerEntity.Position, _playerEntity.Position + Vector2.Normalize(_playerEntity.CheckVector)*25, new Vector2(3000, 3000), new Vector2(0, 0), 10000, Color.Magenta);
+                    pipeline.Add(lino);
+                    List<RaycastHit> intersectedCollidables = CollisionManager.RaycastAll(
+                        _playerEntity.Position,
+                        Vector2.Normalize(_playerEntity.CheckVector),
+                        25);
+
+                    if (intersectedCollidables.Count > 0) {
+
+                        Outer.Log($"""Found {intersectedCollidables.Count} collidables""");
                         for (int i = 0; i < intersectedCollidables.Count; i++) {
-                        ICollidable collidable = intersectedCollidables[i].Collider;
-                        Outer.Log("Found collidable: " + collidable.GetType().FullName);
-                        if (collidable is Wrentity wrentity) {
-                            line.SetPositionB(intersectedCollidables[i].Point);
-                            wrentity.Interact();    
-                            break;
-                        }
-                        if (collidable is StaticCollider) {
-                            line.SetPositionB(intersectedCollidables[i].Point);
-                            break;
+                            ICollidable collidable = intersectedCollidables[i].Collider;
+                            Outer.Log("Found collidable: " + collidable.GetType().FullName);
+                            if (collidable is Wrentity wrentity) {
+                                line.SetPositionB(intersectedCollidables[i].Point);
+                                wrentity.Interact();
+                                break;
+                            }
+                            if (collidable is StaticCollider) {
+                                line.SetPositionB(intersectedCollidables[i].Point);
+                                break;
+                            }
                         }
                     }
                 }
             }
-
             if (key == Keyboard.Key.G){
                 Outer.Log("Checking collisions");
                 //draw floatrect
@@ -177,9 +184,25 @@ namespace Prototype.Scenes
         }
 
 
-        private void EngineOnRenderImGUI()
+        private void EngineOnRenderImGUI () {
+            try {
+                ImGui.Begin("entities");
+                for (int i = 0; i < EntityManager.Entities.Count; i++) {
+                    Outer.LogDebug(EntityManager.Entities[i]);
+                    ImGui.Text(EntityManager.Entities[i].Name);
+                }
+                ImGui.End();
+            }
+            catch (Exception e) {
+                Outer.LogError(e.Message, null);
+            }
+        }
+        public static void RenderPNG()
         {
-
+            SFML.Graphics.Image image3 = Engine.RenderTexture.Texture.CopyToImage();
+            string text = string.Format("screenshot{0}.png", Directory.GetFiles("./", "Screenshot*.png").Length);
+            image3.SaveToFile(text);
+            Outer.LogInfo("Screenshot saved as \"{0}\"", text);
         }
         
         public IList<TileChunk>  MakeTileChunks(uint palette, List<TileChunkData> groups)
@@ -235,9 +258,10 @@ namespace Prototype.Scenes
         {
             base.Focus();
  
-            
+            ViewManager.Instance.Reset();
             ViewManager.Instance.EntityFollow = _playerEntity;
             ViewManager.Instance.Center = new Vector2(160f, 90f);
+            ViewManager.Instance.Offset = new Vector2(0, (float)(-(float)((int)_playerEntity.AABB.Size.Y)/2));
         }
 
 

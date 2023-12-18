@@ -59,7 +59,7 @@ using SFML.Window;
 			this.advance = advance;
 			this.showBullets = showBullets;
 			this.textBlock = textBlock;
-			this.origTextSpeed = 1;
+			this.origTextSpeed = 0.5f;
 			this.textSpeed = this.origTextSpeed;
 			int num = (int)(size.Y / 18);
 			this.texts = new TextRenderer[num];
@@ -82,13 +82,21 @@ using SFML.Window;
 		{
 			if (this.showBullets)
 			{
+				if (this.bullets != null) {
+					foreach (var bullet in this.bullets) {
+						this.pipeline.Remove(bullet);
+						bullet.Dispose();
+					}
+				}
 				this.bulletVisibility = new bool[this.texts.Length];
 				this.bullets = new Graphic[this.texts.Length];
 				for (int i = 0; i < this.bullets.Length; i++)
 				{
 					this.bullets[i] = new SpriteGraphic("bullet.dat", "bullet", _position + new Vector2(8f, 26 * i), this.depth + 1);
-					this.pipeline.Add(this.bullets[i]);
+					this.pipeline.Add(this.bullets[i]); 
+					
 				}
+				
 				this.SetBulletVisibility();
 				return;
 			}
@@ -187,13 +195,11 @@ using SFML.Window;
 			{
 				return;
 			}
+			this.textSpeed = this.origTextSpeed;
 			if (Input.Instance[this.advance])
 			{
 				this.textSpeed = this.origTextSpeed + 0.5f;
-				return;
-			}
-			this.textSpeed = this.origTextSpeed;
-			
+			}	
 			this.SetBulletVisibility();
 			this.currentText.Length = Math.Min(this.textLen, this.textPos + 1);
 			if (!this.waiting)
@@ -287,6 +293,7 @@ using SFML.Window;
 					else if (textCommand is TextWait)
 					{
 						this.waiting = true;
+						Outer.Log("wait");
 						if (this.OnTextWait != null)
 						{
 							this.OnTextWait();

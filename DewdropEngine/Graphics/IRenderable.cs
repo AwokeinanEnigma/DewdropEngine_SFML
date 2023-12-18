@@ -34,6 +34,7 @@ public interface IRenderable : IDisposable {
 	///     Is this graphic being drawn by a renderpipeline?
 	/// </summary>
 	public bool IsBeingDrawn { get; set; }
-
+	
+	public bool DrawRegardlessOfVisibility { get; set; }
 	public void Draw (RenderTarget target);
 }

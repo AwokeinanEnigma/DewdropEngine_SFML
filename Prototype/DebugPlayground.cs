@@ -11,9 +11,11 @@ using DewDrop.Utilities;
 using DewDrop.Wren;
 using ImGuiNET;
 using Mother4.GUI;
+using Mother4.Scripts.Text;
 using Prototype.Scenes;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 
 namespace Prototype;
 
@@ -75,7 +77,6 @@ public class DebugPlayground : SceneBase
         public override void Focus()
         {
             base.Focus();
-            Outer.Log(GlobalData.GetString("fu"));
             if (!initialized) {
                 _pipeline = new RenderPipeline(Engine.RenderTexture);
                 List = new ScrollableList(new Vector2f(32f, 0), 0, new[] {
@@ -134,15 +135,13 @@ public class DebugPlayground : SceneBase
                 ViewManager.Instance.Center = Engine.HalfScreenSize;
                 TextBox box = new TextBox(_pipeline, 0);
                 //box.Reset("@wah wah wah wah wah wah wah wah wah wah wah wah wah wah", "gya", false, false);
-                box.Reset("@Honey!" + Environment.NewLine + 
-                    "@I'm home!" + Environment.NewLine + 
-                    "@AHHHHH IM GOOOOOONING!!!"+ Environment.NewLine + 
-                    "@STOP FUCKIN GOOONING!", "gya", false ,false);
+                //box.Reset("@You don't know me? I run the newspaper.\n@You know[p:15], the Archipelago Times?", "gya", false ,false);    
                 box.Show();
                 box.OnTypewriterComplete += () => {
                     //box.Reset("@sugma", "ligma", false, false);
                     
                 };
+                WrenContext.TextBox = box;
                 _entityManager.AddEntity(box);
                // ViewManager.Instance.Center = Engine.HalfScreenSize;
                 /*TextWriter writer = new TextWriter( .05f);
@@ -153,9 +152,9 @@ public class DebugPlayground : SceneBase
 //asflasfhasfkhasfkhaksfkhafsfashjkfhakshkjfsaj*/
 
                 // create wren 
-                //_wreno = WrenManager.MakeWreno(File.ReadAllText(Directory.GetCurrentDirectory() + "/test.wren"));
+                _wreno = WrenManager.MakeWreno(File.ReadAllText(Directory.GetCurrentDirectory() + "/wrenity.wren"));
                 // run the script
-                //_wreno.Run();
+                _wreno.Run();
                 // get the text renderer from wrenland
                 // add it to the render pipeline
                 //_pipeline.Add(_wreno.GetVariable<WrenTextRendererWrapper>("render").TextRenderer);
