@@ -1,12 +1,9 @@
 #region
 
-using DewDrop.Graphics.Aseprite;
 using DewDrop.Utilities;
 using fNbt;
 using SFML.Graphics;
 using SFML.System;
-using System.Diagnostics;
-using Violet.Graphics;
 
 #endregion
 
@@ -232,7 +229,7 @@ public class TextureManager {
 	    return indexedTexture;
     }
     
-    public FullColorTexture UseFramebuffer()
+    public TextureHolder UseFramebuffer()
     {
 	    int hashCode = Engine.Frame.GetHashCode();
 	    
@@ -249,7 +246,7 @@ public class TextureManager {
 	    Texture tex = new Texture(renderTexture.Texture);
 	    renderTexture.Dispose();
 	    vertexArray.Dispose();
-	    FullColorTexture fullColorTexture = new FullColorTexture(tex);
+	    TextureHolder fullColorTexture = new TextureHolder(tex);
 	    _instances.Add(hashCode, 1);
 	    _textures.Add(hashCode, fullColorTexture);
 	    return fullColorTexture;

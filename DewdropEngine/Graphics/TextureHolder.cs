@@ -2,12 +2,12 @@
 using SFML.Graphics;
 using System;
 
-namespace Violet.Graphics
+namespace DewDrop.Graphics
 {
 	/// <summary>
 	/// A texture that has a full range of colors
 	/// </summary>
-	public class FullColorTexture : ITexture, IDisposable
+	public class TextureHolder : ITexture, IDisposable
 	{
 		/// <summary>
 		/// The image assosicated with the texture
@@ -27,7 +27,7 @@ namespace Violet.Graphics
 		/// Creates a new texture from an image
 		/// </summary>
 		/// <param name="image">The image to create the texture image from</param>
-		public FullColorTexture(Image image)
+		public TextureHolder(Image image)
 		{
 			this.imageTex = new Texture(image);
 		}
@@ -37,12 +37,12 @@ namespace Violet.Graphics
 		/// Creates a new texture from a texture
 		/// </summary>
 		/// <param name="image">The texture to create the texture image from.</param>
-		public FullColorTexture(Texture tex)
+		public TextureHolder(Texture tex)
 		{
 			this.imageTex = new Texture(tex);
 		}
 
-		~FullColorTexture()
+		~TextureHolder()
 		{
 			this.Dispose(false);
 		}
