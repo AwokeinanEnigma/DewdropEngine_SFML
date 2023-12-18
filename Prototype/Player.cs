@@ -6,6 +6,7 @@ using DewDrop;
 using DewDrop.Collision;
 using DewDrop.Entities;
 using DewDrop.Graphics;
+using DewDrop.Inspector;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using Prototype;
@@ -55,6 +56,7 @@ public class Player : RenderableEntity, ICollidable
             outlineColor = Color.White;
         }
 
+        Color = fillColor;
         _shape = shape;
         _shape.FillColor = fillColor;
         _shape.OutlineColor = outlineColor;
@@ -82,12 +84,16 @@ public class Player : RenderableEntity, ICollidable
      public Vector2 CheckVector;
      Vector2 LastMoveVector;
      
-     public ICollidable[] collisionResults = new ICollidable[8]; 
+     public ICollidable[] collisionResults = new ICollidable[8];
+     [Tooltip("Player Color")]
+     public Color Color;
 
+     [Tooltip("Player Speed")]
+     public float Speed = 2f;
     public override void Update()
     {
         base.Update();
-        Velocity = ((Input.Instance.Axis) * 2);
+        Velocity = ((Input.Instance.Axis) * Speed);
         lastPosition = _position;
 
         if (Velocity!=Vector2.Zero)
@@ -99,7 +105,7 @@ public class Player : RenderableEntity, ICollidable
             //DDDebug.Log("Velocity: " + Velocity);
         }
 
-        if (_manager != null)
+        if (_manager != null && CanMove)
         {
 
 
@@ -158,12 +164,19 @@ public class Player : RenderableEntity, ICollidable
         ///Depth = Int32.MaxValue;
         //Console.WriteLine(_depth);
     }
+    
+    [Tooltip("Prints stuff to the console")]
+    [ButtonMethod("Genghis Khan")]
+    public void GenghisKhan(string khan)
+    {
+        Outer.Log(khan);
+    }
 
     public void HandleCollision(ICollidable[] collisionResults)
     {
     }
     
-    public bool move = true;
+    public bool CanMove = true;
     /// <summary>
     /// Handles the corner sliding behavior.
     /// </summary>
@@ -260,7 +273,7 @@ public class Player : RenderableEntity, ICollidable
     {
         if (!_disposed)
         {
-
+            FillColor = Color;
             _shape.Origin = Origin;
             Vector2 positionCopy = _position;
             positionCopy.y -= Size.y;

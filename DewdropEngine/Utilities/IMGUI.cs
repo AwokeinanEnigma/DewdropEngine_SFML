@@ -39,10 +39,10 @@ public class ImGuiSfml {
 		io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard; // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags.DockingEnable; // Enable Docking
-		// io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable; // Enable Multi-Viewport / Platform Windows
+		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
-
+		io.ConfigFlags |= ImGuiConfigFlags.IsSRGB;
 		// init keyboard mapping
 		io.KeyMap[(int)ImGuiKey.Tab] = (int)Keyboard.Key.Tab;
 		io.KeyMap[(int)ImGuiKey.LeftArrow] = (int)Keyboard.Key.Left;
@@ -382,7 +382,6 @@ public class ImGuiSfml {
 			ColorConvertFloat4ToU32(ToImColor(color).Value), rounding, (ImDrawCornerFlags)roundingCorners,
 			thickness);
 	}
-
 	static void DrawRectFilled (FloatRect rect, Color color, float rounding = 0.0f,
 	                            int roundingCorners = 0x0F) {
 		var drawList = ImGui.GetWindowDrawList();
@@ -391,38 +390,38 @@ public class ImGuiSfml {
 	}
 
 	static ImColor ToImColor (Color c) {
-		return new ImColor {
-			Value = new Vector4(c.R, c.G, c.B, c.A)
-		};
-	}
+	return new ImColor {
+		Value = new Vector4(c.R, c.G, c.B, c.A)
+	};
+}
 
-	static uint ColorConvertFloat4ToU32 (Vector4 c) {
-		var src = new[] {
-			(byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W
-		};
-		return BitConverter.ToUInt32(src, 0);
-	}
+static uint ColorConvertFloat4ToU32 (Vector4 c) {
+	var src = new[] {
+		(byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W
+	};
+	return BitConverter.ToUInt32(src, 0);
+}
 
-	static Vector2 GetTopLeftAbsolute (FloatRect rect) {
-		var pos = ImGui.GetCursorScreenPos();
-		return new Vector2(rect.Left + pos.X, rect.Top + pos.Y);
-	}
+static Vector2 GetTopLeftAbsolute (FloatRect rect) {
+	var pos = ImGui.GetCursorScreenPos();
+	return new Vector2(rect.Left + pos.X, rect.Top + pos.Y);
+}
 
-	static Vector2 GetDownRightAbsolute (FloatRect rect) {
-		var pos = ImGui.GetCursorScreenPos();
-		return new Vector2(rect.Left + rect.Width + pos.X, rect.Top + rect.Height + pos.Y);
-	}
+static Vector2 GetDownRightAbsolute (FloatRect rect) {
+	var pos = ImGui.GetCursorScreenPos();
+	return new Vector2(rect.Left + rect.Width + pos.X, rect.Top + rect.Height + pos.Y);
+}
 
-	static bool ImageButtonImpl (Texture texture, FloatRect textureRect, Vector2f size, int framePadding,
-	                             Color bgColor, Color tintColor) {
-		var textureSize = texture.Size;
+static bool ImageButtonImpl (Texture texture, FloatRect textureRect, Vector2f size, int framePadding,
+                             Color bgColor, Color tintColor) {
+	var textureSize = texture.Size;
 
-		var uv0 = new Vector2(textureRect.Left/textureSize.X, textureRect.Top/textureSize.Y);
-		var uv1 = new Vector2((textureRect.Left + textureRect.Width)/textureSize.X,
-			(textureRect.Top + textureRect.Height)/textureSize.Y);
+	var uv0 = new Vector2(textureRect.Left/textureSize.X, textureRect.Top/textureSize.Y);
+	var uv1 = new Vector2((textureRect.Left + textureRect.Width)/textureSize.X,
+		(textureRect.Top + textureRect.Height)/textureSize.Y);
 
-		var textureId = ConvertGlTextureHandleToImTextureId(texture.NativeHandle);
-		return ImGui.ImageButton(textureId, new Vector2(size.X, size.Y), uv0, uv1, framePadding,
-			ToImColor(bgColor).Value, ToImColor(tintColor).Value);
-	}
+	var textureId = ConvertGlTextureHandleToImTextureId(texture.NativeHandle);
+	return ImGui.ImageButton(textureId, new Vector2(size.X, size.Y), uv0, uv1, framePadding,
+		ToImColor(bgColor).Value, ToImColor(tintColor).Value);
+}
 }

@@ -4,6 +4,7 @@ using DewDrop.Scenes;
 using DewDrop.UserInput;
 using DewDrop.Wren;
 using Prototype;
+using Prototype.Scenes;
 using System.Reflection;
 
 namespace RotatingHelloWorldSfmlDotNetCoreCSharp

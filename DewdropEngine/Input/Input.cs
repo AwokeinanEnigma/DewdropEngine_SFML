@@ -1,5 +1,6 @@
 ﻿#region
 
+using DewDrop.GUI;
 using DewDrop.Utilities;
 using SFML.System;
 using SFML.Window;
@@ -264,7 +265,10 @@ public class Input {
 		return (Vector2)Mouse.GetPosition(Engine.Window)/Engine.FrameBufferScale;
 	}
 
-	void WindowOnMouseButtonPressed (object? sender, MouseButtonEventArgs e) {
+    public static Vector2 GetMouseWorldPosition () {
+	    return Engine.RenderTexture.MapPixelToCoords(Input.GetMousePosition(), ViewManager.Instance.View);
+    }
+    void WindowOnMouseButtonPressed (object? sender, MouseButtonEventArgs e) {
 		OnMouseClick?.Invoke(this, e);
 		if (e.Button == Mouse.Button.Left) {
 			_leftMousePressed = true;

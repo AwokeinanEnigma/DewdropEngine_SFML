@@ -93,7 +93,7 @@ public class TileScene : SceneBase
                             mousePosY >= tilePosY && mousePosY <= tilePosY + 8)
                         {
                             // Draw a border around the selected tile
-                            drawList.AddRect(new Vector2(tilePosX, tilePosY), new Vector2(tilePosX + 8, tilePosY + 8), ImGui.GetColorU32(ImGuiCol.Border), 0, ImDrawCornerFlags.All, 16);
+                            //drawList.AddRect(new Vector2(tilePosX, tilePosY), new Vector2(tilePosX + 8, tilePosY + 8), ImGui.GetColorU32(ImGuiCol.Border), 0, ImDrawCornerFlags.All, 16);
             
                             if (ImGui.IsItemHovered())
                             {

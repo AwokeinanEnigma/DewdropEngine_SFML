@@ -5,6 +5,7 @@ using DewDrop;
 using DewDrop.Collision;
 using DewDrop.Entities;
 using DewDrop.Graphics;
+using DewDrop.Inspector;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using DewDrop.Wren;
@@ -36,8 +37,8 @@ public class Wrentity : RenderableEntity, ICollidable
     public AABB AABB { get; }
     public Mesh Mesh { get; }
     public bool Solid { get; set; }
-    
-    
+
+    public Color Color;
     public VertexArray DebugVerts { get; set; }
     public Vector2 Velocity { get; set; }
 
@@ -59,13 +60,15 @@ public class Wrentity : RenderableEntity, ICollidable
 
     public CollisionManager CollisionManager { get; set; }
     public bool IsTrigger { get; set; }
-
+    public bool IsTalking;
     public Wrentity(string script, Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, RenderPipeline pipeline, CollisionManager collisionManager, Color fillColor = default, Color outlineColor = default)
     {
         RenderPosition = position;
         Size = size;
         Origin = origin;
         Depth = depth;
+        
+        Color = fillColor;
         
         IsTrigger = false;
         CollisionManager = collisionManager;
@@ -111,11 +114,9 @@ public class Wrentity : RenderableEntity, ICollidable
         //_pipeline.ForceSort();
         ///Depth = Int32.MaxValue;
         //Console.WriteLine(_depth);
+        IsTalking = WrenContext.TextBox.Visible;
         CollisionManager.Update(this, lastPosition, _position);
     }
-
-    public bool move = true;
-
     public override void BecomeVisible()
     {
         base.BecomeVisible();
@@ -128,6 +129,8 @@ public class Wrentity : RenderableEntity, ICollidable
         Outer.Log("It's joeover.");
     }
     
+    [Tooltip("Calls Wren code")]
+    [ButtonMethod("Interact")]
     public void Interact()
     {
         //WrenContext.TextBox.Reset(File.ReadAllText("totallynormaltext.txt"), "cumler", true, true);
@@ -147,6 +150,7 @@ public class Wrentity : RenderableEntity, ICollidable
 
     public override void Draw(RenderTarget target)
     {
+        _shape.FillColor = Color;
         _shape.Origin = Origin;
         Vector2 positionCopy = _position;
         positionCopy.y -= Size.y;

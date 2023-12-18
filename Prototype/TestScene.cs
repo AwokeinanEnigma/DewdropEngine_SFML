@@ -6,6 +6,7 @@ using DewDrop.Entities;
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
+using DewDrop.Inspector;
 using DewDrop.Maps;
 using DewDrop.Maps.MapData;
 using DewDrop.Scenes;
@@ -108,8 +109,8 @@ namespace Prototype.Scenes
             
             EntityManager.AddEntity(overlayEntity);
             pipeline.Add(overlayEntity);
-            
-            
+
+            new Inspector().Initialize(EntityManager, CollisionManager);
             
             #endregion
             line = new LineRenderer(_playerEntity.Position, _playerEntity.Position, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Yellow);
@@ -188,7 +189,6 @@ namespace Prototype.Scenes
             try {
                 ImGui.Begin("entities");
                 for (int i = 0; i < EntityManager.Entities.Count; i++) {
-                    Outer.LogDebug(EntityManager.Entities[i]);
                     ImGui.Text(EntityManager.Entities[i].Name);
                 }
                 ImGui.End();

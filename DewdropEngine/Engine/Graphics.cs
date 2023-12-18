@@ -4,6 +4,7 @@ using DewDrop.Resources;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using fNbt;
+using ImGuiNET;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -175,6 +176,7 @@ public static partial class Engine {
 		RenderWindow renderWindow = (RenderWindow)sender;
 		renderWindow.Close();
 		Outer.LogInfo("Window closed.");
+		ImGui.SaveIniSettingsToDisk("imgui.ini");
 		NbtFile file = new NbtFile(GlobalData.SerializeToNbt());
 		file.SaveToFile(ApplicationData.ConfigPath, NbtCompression.ZLib);
 	}
