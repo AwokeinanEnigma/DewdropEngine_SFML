@@ -35,12 +35,7 @@ public class Player : RenderableEntity, ICollidable
     private CollisionManager _manager;
     public bool IsTrigger { get; set; }
     public override string Name =>  "Player";
-    public enum ShapeGoo
-    {
-        Square,
-        Circle
-    }
-    public ShapeGoo Goo = ShapeGoo.Square;
+
 
     public Player(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, RenderPipeline pipeline, CollisionManager manager, Color fillColor = default, Color outlineColor = default)
     {
@@ -93,9 +88,16 @@ public class Player : RenderableEntity, ICollidable
 public string Username = "Joe";
      [Tooltip("Player Speed")]
      public float Speed = 2f;
-     [Tooltip("Might break")]
-     [ButtonMethod("EnumatorGoo")]
-     public void EnumatorGoo (ShapeGoo goo) {
+     
+     public enum EnumValue
+     {
+         One,
+         Two
+     }
+     public EnumValue Goo = EnumValue.One;
+     
+     [ButtonMethod("PrintEnumValue")]
+     public void EnumatorGoo (EnumValue goo) {
          Outer.Log(goo);
      }
      public override void Update()
@@ -174,21 +176,20 @@ public string Username = "Joe";
     }
     
     [Tooltip("Prints stuff to the console")]
-    [ButtonMethod("Genghis Khan")]
-    public void GenghisKhan(string khan)
+    [ButtonMethod("Print")]
+    public void Print(string print)
     {
-        
-        Outer.Log(khan);
+        Outer.Log(print);
     }
-  public Vector2 GenghisKhanVector = new Vector2(1, 2);
 
-    public string GenghisKhanString = "I get a little genghis khan";
-    
+    public Vector2 Vector = new Vector2(1, 2);
+    public string String = "This is a string.";
+    public bool CanMove = true;
+
     public void HandleCollision(ICollidable[] collisionResults)
     {
     }
     
-    public bool CanMove = true;
     /// <summary>
     /// Handles the corner sliding behavior.
     /// </summary>

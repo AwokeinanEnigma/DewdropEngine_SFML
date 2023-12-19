@@ -107,13 +107,13 @@ public class Inspector : IDisposable {
 	public void Paint () {
 		if (_selectedEntity != null) {
 			if (Keyboard.IsKeyPressed(Keyboard.Key.LControl) || Keyboard.IsKeyPressed(Keyboard.Key.RControl)) {
-				if (Keyboard.IsKeyPressed(Keyboard.Key.Z) && _clock.ElapsedTime.AsMilliseconds() > 300) {
+				if (Keyboard.IsKeyPressed(Keyboard.Key.Z) && _clock.ElapsedTime.AsMilliseconds() > 150) {
 					_clock.Restart();
 					_commandHistory.Undo();
 				}
 
 				// Check if Ctrl + Y is pressed for Redo
-				if (Keyboard.IsKeyPressed(Keyboard.Key.Y) && _clock.ElapsedTime.AsMilliseconds() > 300) {
+				if (Keyboard.IsKeyPressed(Keyboard.Key.Y) && _clock.ElapsedTime.AsMilliseconds() > 150) {
 					_clock.Restart();
 					_commandHistory.Redo();
 				}
@@ -125,7 +125,7 @@ public class Inspector : IDisposable {
 				ImGui.Text("Position: " + _selectedEntity.Position);
 				var vector2 = (System.Numerics.Vector2)_selectedEntity.Position;
 				if (ImGui.InputFloat2("Position", ref vector2)) {
-					_selectedEntity.Position = vector2;
+					_commandHistory.ExecuteCommand(new PaintVector2Command( _selectedEntity.GetType().GetProperty("Position"), (Utilities.Vector2)vector2, _selectedEntity));
 				}
 			}
 			ImGui.Separator();
@@ -180,9 +180,9 @@ public class Inspector : IDisposable {
 			PaintVector2(field, vector2, _selectedEntity);
 		}
 		if (value is IList list) {
-			
 			PaintList(field, list, _selectedEntity);
 		}
+		ImGui.Separator();
 	}
 	void PaintProperty (PropertyInfo property) {
 		// Don't use GetType() here, it'll cause a System Access Violation.
@@ -217,6 +217,7 @@ public class Inspector : IDisposable {
 			Outer.Log($"Painting list {property.Name}");
 			PaintList(property, list, _selectedEntity);
 		}
+		ImGui.Separator();
 	}
 	void PaintMethod (MethodInfo info) {
 		ButtonMethodAttribute button = info.GetCustomAttribute<ButtonMethodAttribute>();
@@ -316,6 +317,7 @@ public class Inspector : IDisposable {
 					Outer.Log($"Invoking method '{info.Name}'");
 					info.Invoke(_selectedEntity, aMP.Parameters);
 				}
+				ImGui.Separator();
 			}
 			// else we have no parameters, so just invoke the method with null params
 			else {
@@ -415,7 +417,7 @@ public class Inspector : IDisposable {
 		Vector4 numericalColor = ToNumericVector4(color);
 		PaintTooltip(info);
 		if (ImGui.ColorPicker4(info.Name, ref numericalColor)) {
-			_commandHistory.ExecuteCommand(new PaintColorCommand(info, color, entity));
+			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ToSFMLColor(numericalColor), entity));
 		}
 	}
 	void PaintIntegers (MemberInfo info, int integer, Entity entity) {
@@ -491,5 +493,15 @@ public class Inspector : IDisposable {
 		Engine.OnRenderImGui -= Paint;
 		_selectedEntity = null;
 		_fields = null;
+		_methods = null;
+		_properties = null;
+		_entityManager = null;
+		_collisionManager = null;
+		_clock.Dispose();
+		_clock = null;
+		//_commandHistory.Dispose();
+		_commandHistory = null;
+		_aMp = null;
+		_eMd = null;
 	}
 }

@@ -151,11 +151,11 @@ public static class SceneManager {
 	    Push(startScene);
 	    // even though we have no scenes, still set the scene state to Scene
 	    state = SceneManagerState.Transition;
-	    Engine.OnRenderImGui += () => {
+	    /*Engine.OnRenderImGui += () => {
 		    ImGui.Begin("Scene Manager");
 		    ImGui.Text($"Scene state: {state}");
 		    ImGui.End();
-	    };
+	    };*/
     }
 
     /// <summary>

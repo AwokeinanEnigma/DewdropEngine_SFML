@@ -30,6 +30,7 @@ public class DebugPlayground : SceneBase
          Wreno _wreno;
          EntityManager _entityManager;
          bool firsta;
+         
         public DebugPlayground(bool first = false)
         {
             #region Initialize
@@ -57,6 +58,7 @@ public class DebugPlayground : SceneBase
             }
             List = null;
             _pipeline = null;
+            Engine.OnRenderImGui -= EngineOnRenderImGUI;
            // _wreno = null;
             clock = null;
             base.Dispose(disposing);
@@ -64,13 +66,13 @@ public class DebugPlayground : SceneBase
 
         private void EngineOnRenderImGUI()
         {
-            ImGui.Begin("Dewdrop Debug Utilities");
-            ImGui.Text($"render pipeline viewer");
+           // ImGui.Begin("Dewdrop Debug Utilities");
+            //ImGui.Text($"render pipeline viewer");
             //foreach (var renderable in _pipeline.pIRenderables)
             {
              //   ImGui.Text($"{renderable.GetType().Name} : {renderable.Visible} : {renderable.IsBeingDrawn}");
             }
-            ImGui.End();
+           // ImGui.End();
         }
         
         bool initialized = false;

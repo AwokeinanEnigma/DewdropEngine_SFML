@@ -24,7 +24,7 @@ public static partial class Engine {
 	const float MaxDeltaTime = 0.25f;
 	static float _Accumulator;
 	const float SixtyFps = 0.016666668F;
-	const float TechnicallySixtyFps = 0.016949153F;
+	const float TechnicallySixtyFps = 0.016666668F;
 	static float _Time;
 	static float _LastTime;
 	public static event Action OnRenderImGui;

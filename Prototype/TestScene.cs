@@ -42,6 +42,7 @@ namespace Prototype.Scenes
         public List<TriggerArea> Triggers { get; private set; }
         public TextBox TextBox;
 
+        Inspector _inspector;
         public TestScene()
         {
             #region Initialize
@@ -109,8 +110,8 @@ namespace Prototype.Scenes
             
             EntityManager.AddEntity(overlayEntity);
             pipeline.Add(overlayEntity);
-
-            new Inspector().Initialize(EntityManager, CollisionManager);
+            _inspector = new Inspector();
+            _inspector.Initialize(EntityManager, CollisionManager);
             
             #endregion
             line = new LineRenderer(_playerEntity.Position, _playerEntity.Position, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Yellow);
@@ -307,6 +308,7 @@ namespace Prototype.Scenes
                 Triggers.ForEach(x => x.Dispose());
                 Triggers.Clear();
                 ViewManager.Instance.EntityFollow = null;
+                _inspector.Dispose();
                 disposed = true;
                 // dispose here
             }

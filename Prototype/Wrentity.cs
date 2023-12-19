@@ -37,8 +37,6 @@ public class Wrentity : RenderableEntity, ICollidable
     public AABB AABB { get; }
     public Mesh Mesh { get; }
     public bool Solid { get; set; }
-
-    public Color Color;
     public VertexArray DebugVerts { get; set; }
     public Vector2 Velocity { get; set; }
 
@@ -67,8 +65,6 @@ public class Wrentity : RenderableEntity, ICollidable
         Size = size;
         Origin = origin;
         Depth = depth;
-        
-        Color = fillColor;
         
         IsTrigger = false;
         CollisionManager = collisionManager;
@@ -150,7 +146,6 @@ public class Wrentity : RenderableEntity, ICollidable
 
     public override void Draw(RenderTarget target)
     {
-        _shape.FillColor = Color;
         _shape.Origin = Origin;
         Vector2 positionCopy = _position;
         positionCopy.y -= Size.y;
