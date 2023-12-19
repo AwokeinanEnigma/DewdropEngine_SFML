@@ -35,6 +35,12 @@ public class Player : RenderableEntity, ICollidable
     private CollisionManager _manager;
     public bool IsTrigger { get; set; }
     public override string Name =>  "Player";
+    public enum ShapeGoo
+    {
+        Square,
+        Circle
+    }
+    public ShapeGoo Goo = ShapeGoo.Square;
 
     public Player(Shape shape, Vector2 position, Vector2 size, Vector2 origin, int depth, RenderPipeline pipeline, CollisionManager manager, Color fillColor = default, Color outlineColor = default)
     {
@@ -55,8 +61,7 @@ public class Player : RenderableEntity, ICollidable
         {
             outlineColor = Color.White;
         }
-
-        Color = fillColor;
+        
         _shape = shape;
         _shape.FillColor = fillColor;
         _shape.OutlineColor = outlineColor;
@@ -85,17 +90,20 @@ public class Player : RenderableEntity, ICollidable
      Vector2 LastMoveVector;
      
      public ICollidable[] collisionResults = new ICollidable[8];
-     [Tooltip("Player Color")]
-     public Color Color;
-
+public string Username = "Joe";
      [Tooltip("Player Speed")]
      public float Speed = 2f;
-    public override void Update()
+     [Tooltip("Might break")]
+     [ButtonMethod("EnumatorGoo")]
+     public void EnumatorGoo (ShapeGoo goo) {
+         Outer.Log(goo);
+     }
+     public override void Update()
     {
         base.Update();
         Velocity = ((Input.Instance.Axis) * Speed);
         lastPosition = _position;
-
+       // Outer.Log(Goo);
         if (Velocity!=Vector2.Zero)
         {
             this.direction = Vector2.VectorToDirection(Velocity);
@@ -169,9 +177,13 @@ public class Player : RenderableEntity, ICollidable
     [ButtonMethod("Genghis Khan")]
     public void GenghisKhan(string khan)
     {
+        
         Outer.Log(khan);
     }
+  public Vector2 GenghisKhanVector = new Vector2(1, 2);
 
+    public string GenghisKhanString = "I get a little genghis khan";
+    
     public void HandleCollision(ICollidable[] collisionResults)
     {
     }
@@ -273,7 +285,6 @@ public class Player : RenderableEntity, ICollidable
     {
         if (!_disposed)
         {
-            FillColor = Color;
             _shape.Origin = Origin;
             Vector2 positionCopy = _position;
             positionCopy.y -= Size.y;
@@ -289,7 +300,12 @@ public class Player : RenderableEntity, ICollidable
     public Mesh Mesh { get; }
     public bool Solid { get; set; }
     
-    
+    public List<int> Integers = new List<int>();
+    public List<string> Strings = new List<string>();
+    public List<float> Floats = new List<float>();
+    public List<Vector2> Vectors = new List<Vector2>();
+    public List<Color> Colors = new List<Color>();
+    public string[] ArrayOfStrings = new string[5];
     public VertexArray DebugVerts { get; set; }
     
     public void OnTriggerStay (ICollidable context) { throw new NotImplementedException(); }

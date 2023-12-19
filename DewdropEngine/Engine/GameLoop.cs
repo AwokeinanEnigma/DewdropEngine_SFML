@@ -27,7 +27,7 @@ public static partial class Engine {
 	const float TechnicallySixtyFps = 0.016949153F;
 	static float _Time;
 	static float _LastTime;
-	public static event Action RenderImGUI;
+	public static event Action OnRenderImGui;
 	static double _Fps;
 	public static void StartGameLoop () {
 		_DeltaTimeClock = new Clock();
@@ -151,7 +151,7 @@ public static partial class Engine {
 		RenderTexture.Display();
 		Window.Clear(Color.Black);
 		if (_debugMode) {
-			RenderImGUI?.Invoke();
+			OnRenderImGui?.Invoke();
 		}
 
 		Window.Draw(frameBufferVertexArray, frameBufferState);

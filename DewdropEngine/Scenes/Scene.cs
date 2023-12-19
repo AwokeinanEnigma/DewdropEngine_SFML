@@ -62,7 +62,6 @@ public abstract class SceneBase : IDisposable {
 		if (!disposed) {
 		}
 		GC.Collect();
-		Outer.Log("GCS");
 		disposed = true;
 	}
 

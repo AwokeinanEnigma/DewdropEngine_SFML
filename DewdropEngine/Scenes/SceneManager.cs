@@ -151,7 +151,7 @@ public static class SceneManager {
 	    Push(startScene);
 	    // even though we have no scenes, still set the scene state to Scene
 	    state = SceneManagerState.Transition;
-	    Engine.RenderImGUI += () => {
+	    Engine.OnRenderImGui += () => {
 		    ImGui.Begin("Scene Manager");
 		    ImGui.Text($"Scene state: {state}");
 		    ImGui.End();
@@ -311,7 +311,6 @@ public static class SceneManager {
 			if (Transition.Progress > 0.5f && !cleanupFlag) {
 				// TextureManager.Instance.Purge();
 				GC.Collect();
-				Outer.Log("GCSMe");
 				// transition.Destroy();
 				cleanupFlag = true;
 			}

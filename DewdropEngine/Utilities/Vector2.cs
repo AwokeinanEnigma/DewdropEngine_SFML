@@ -360,9 +360,19 @@ public struct Vector2 {
 	public static implicit operator Vector2f (Vector2 v) {
 		return v.Vector2f;
 	}
+	public static implicit operator Vector2 (Vector2u v) {
+		return new Vector2(v.X, v.Y);
+	}
+
+	public static implicit operator Vector2u (Vector2 v) {
+		return new Vector2u((uint)v.X, (uint)v.Y);
+	}
 
 	public static implicit operator System.Numerics.Vector2 (Vector2 v) {
 		return new System.Numerics.Vector2(v.X, v.Y);
+	}
+	public static implicit operator Vector2 (System.Numerics.Vector2 v) {
+		return new Vector2(v.X, v.Y);
 	}
 
 	#endregion

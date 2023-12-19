@@ -33,7 +33,7 @@ public static partial class Engine {
 			ImGuiSfml.Init(Window);
 			ImGui.LoadIniSettingsFromDisk("imgui.ini");
 			OnFocusGained += () => TextureManager.Instance.ReloadTextures();
-			RenderImGUI += OnRenderImGUI;
+			OnRenderImGui += OnRenderImGUI;
 			//Rendersc
 		}
 	}
@@ -68,7 +68,7 @@ public static partial class Engine {
 		}
 		if (ImGui.Button("Purge Textures")) TextureManager.Instance.Purge();
 		if (ImGui.Button("Reload Textures")) TextureManager.Instance.ReloadTextures();
-		
+		//ImGui.ShowStyleEditor();
 		ImGui.End();
 
 		//throw new NotImplementedException();

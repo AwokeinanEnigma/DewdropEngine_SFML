@@ -1,5 +1,6 @@
 ﻿#region
 
+using DewDrop.Utilities;
 using ImGuiNET;
 using SFML.Graphics;
 using SFML.System;
@@ -7,6 +8,7 @@ using SFML.Window;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Vector2 = System.Numerics.Vector2;
 
 #endregion
 
@@ -128,11 +130,13 @@ public class ImGuiSfml {
 	}
 
 	static void OnKeyPressed (object sender, KeyEventArgs args) {
+		if (args.Code == Keyboard.Key.Unknown) return;	
 		var io = ImGui.GetIO();
 		io.KeysDown[(int)args.Code] = true;
 	}
 
 	static void OnKeyReleased (object sender, KeyEventArgs args) {
+		if (args.Code == Keyboard.Key.Unknown) return;	
 		var io = ImGui.GetIO();
 		io.KeysDown[(int)args.Code] = false;
 	}

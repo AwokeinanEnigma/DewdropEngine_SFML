@@ -116,7 +116,7 @@ namespace Prototype.Scenes
             line = new LineRenderer(_playerEntity.Position, _playerEntity.Position, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Yellow);
             pipeline.Add(line);
 
-            Engine.RenderImGUI += EngineOnRenderImGUI;
+            Engine.OnRenderImGui += EngineOnRenderImGUI;
             Input.OnKeyPressed += InstanceOnOnKeyPressed;
 
         }
@@ -310,7 +310,7 @@ namespace Prototype.Scenes
                 disposed = true;
                 // dispose here
             }
-            Engine.RenderImGUI -= EngineOnRenderImGUI;
+            Engine.OnRenderImGui -= EngineOnRenderImGUI;
             Input.OnKeyPressed -= InstanceOnOnKeyPressed;
             ViewManager.Instance.Center = new Vector2(0, 0);
 

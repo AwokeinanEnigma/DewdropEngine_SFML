@@ -131,7 +131,7 @@ public class DebugPlayground : SceneBase
                 //var renderer = new TextRenderer(new Vector2(box.RenderPosition.x + 10, box.RenderPosition.y + 10), 2000, "");
                 //_pipeline.Add(renderer);
                 
-                Engine.RenderImGUI += EngineOnRenderImGUI;
+                Engine.OnRenderImGui += EngineOnRenderImGUI;
                 ViewManager.Instance.Center = Engine.HalfScreenSize;
                 TextBox box = new TextBox(_pipeline, 0);
                 //box.Reset("@wah wah wah wah wah wah wah wah wah wah wah wah wah wah", "gya", false, false);

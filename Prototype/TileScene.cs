@@ -55,7 +55,7 @@ public class TileScene : SceneBase
         uint xSize = texture.Size.X;
         Sprite sprite = new(texture);
         bool[,] selectedTiles = new bool[xSize, ySize];  
-        Engine.RenderImGUI += () =>
+        Engine.OnRenderImGui += () =>
         {
             ImGui.Begin("Tile Scene", ImGuiWindowFlags.HorizontalScrollbar); //if (ImGui.Begin("Tile Scene"))
             {
