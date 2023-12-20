@@ -1,70 +1,77 @@
-﻿using DewDrop.Graphics;
-using SFML.Graphics;
-using System;
+﻿using SFML.Graphics;
 
-namespace DewDrop.Graphics
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Global
+namespace DewDrop.Graphics;
+
+/// <summary>
+/// Represents a texture holder that manages a texture with a full range of colors.
+/// </summary>
+public class TextureHolder : ITexture
 {
 	/// <summary>
-	/// A texture that has a full range of colors
+	/// Gets the image associated with the texture.
 	/// </summary>
-	public class TextureHolder : ITexture, IDisposable
+	public Texture Image
 	{
-		/// <summary>
-		/// The image assosicated with the texture
-		/// </summary>
-		public Texture Image
+		get
 		{
-			get
-			{
-				return this.imageTex;
-			}
+			return this._imageTex;
 		}
-		public void Reload () {
-			// do nothing
-		}
-
-		/// <summary>
-		/// Creates a new texture from an image
-		/// </summary>
-		/// <param name="image">The image to create the texture image from</param>
-		public TextureHolder(Image image)
+		set
 		{
-			this.imageTex = new Texture(image);
+			this._imageTex = value;
 		}
+	}
 
+	Texture _imageTex;
+	bool _disposed;
+	
 
-		/// <summary>
-		/// Creates a new texture from a texture
-		/// </summary>
-		/// <param name="image">The texture to create the texture image from.</param>
-		public TextureHolder(Texture tex)
+	/// <summary>
+	/// Initializes a new instance of the TextureHolder class with a specified image.
+	/// </summary>
+	/// <param name="image">The image to create the texture image from.</param>
+	public TextureHolder(Image image)
+	{
+		this._imageTex = new Texture(image);
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the TextureHolder class with a specified texture.
+	/// </summary>
+	/// <param name="tex">The texture to create the texture image from.</param>
+	public TextureHolder(Texture tex)
+	{
+		this._imageTex = new Texture(tex);
+	}
+
+	/// <summary>
+	/// Disposes of the TextureHolder and its resources.
+	/// </summary>
+	public virtual void Dispose()
+	{
+		this.Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+	/// <summary>
+	/// Reloads the texture.
+	/// </summary>
+	public void Reload()
+	{
+		// do nothing
+	}
+	
+	/// <summary>
+	/// Disposes of the TextureHolder and its resources.
+	/// </summary>
+	/// <param name="disposing">Indicates whether the TextureHolder is currently being disposed.</param>
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!this._disposed && disposing)
 		{
-			this.imageTex = new Texture(tex);
+			this._imageTex.Dispose();
 		}
-
-		~TextureHolder()
-		{
-			this.Dispose(false);
-		}
-
-		public virtual void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!this.disposed && disposing)
-			{
-				this.imageTex.Dispose();
-			}
-			this.disposed = true;
-		}
-
-		private Texture imageTex;
-
-		private bool disposed;
-		Texture ITexture.Image { get; set; }
+		this._disposed = true;
 	}
 }

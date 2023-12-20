@@ -83,7 +83,7 @@ public class DebugPlayground : SceneBase
                 _pipeline = new RenderPipeline(Engine.RenderTexture);
                 List = new ScrollableList(new Vector2f(32f, 0), 0, new[] {
                         new ScrollableList.SelectAction() {
-                            OnSelect = (list) => {
+                            Select = (list) => {
                                 if (!SceneManager.IsTransitioning) {
                                     SceneManager.Transition = new ColorFuckTransition(0.45f, new [] {
                                         Color.Red,
@@ -99,7 +99,7 @@ public class DebugPlayground : SceneBase
                             Text = "Go to play scene."
                         },
                         new ScrollableList.SelectAction() {
-                            OnSelect = (list) => {
+                            Select = (list) => {
 
                                // _wreno.Call("blue");
                                 return false;
@@ -107,14 +107,14 @@ public class DebugPlayground : SceneBase
                             Text = "Blue!"
                         },
                         new ScrollableList.SelectAction() {
-                            OnSelect = (list) => {
+                            Select = (list) => {
                                 _wreno.Call("red");
                                 return false;
                             },
                             Text = "Red!"
                         },
                         new ScrollableList.SelectAction() {
-                            OnSelect = (list) => {
+                            Select = (list) => {
                                 _wreno.Call("green");
                                 return false;
                             },

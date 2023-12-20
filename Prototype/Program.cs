@@ -29,7 +29,7 @@ namespace RotatingHelloWorldSfmlDotNetCoreCSharp
 					// 640x360
 					// 960x540
 					
-					EnableImGui = false,
+					EnableImGui = true,
 					ScreenSize = new Vector2(320, 180),
 					Fullscreen = false,
 					VSync = true,

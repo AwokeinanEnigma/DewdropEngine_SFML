@@ -1,5 +1,6 @@
 ﻿#region
 
+using DewDrop.GUI;
 using DewDrop.Resources;
 using DewDrop.Scenes;
 using DewDrop.UserInput;
@@ -24,14 +25,14 @@ public static partial class Engine {
 	// ReSharper disable once MemberCanBePrivate.Global
 	public static Clock SessionTimer;
     internal static EngineConfigurationData.ApplicationData ApplicationData;
-    internal static EngineConfigurationData ConfigurationData;
+    static EngineConfigurationData _ConfigurationData;
     /// <summary>
     /// Initializes the DewDrop engine with the provided configuration data.
     /// </summary>
     /// <param name="config">The configuration data for the DewDrop engine.</param>
     public static void Initialize (EngineConfigurationData config) {
 	    ApplicationData = config.Application;
-	    ConfigurationData = config;
+	    _ConfigurationData = config;
 	    
 	    // if we haven't initialized yet
 		if (!_Initialized) {
@@ -59,6 +60,10 @@ public static partial class Engine {
 			// this is located in EngineGraphics.cs
 			InitializeGraphics(config);
 			CreateDebugPipeline(config);
+			
+			// ReSharper disable once ObjectCreationAsStatement
+			new ViewManager();
+			// initialize the view manager after the graphics are initialized but before the scenes are initialized
 			
 			SceneManager.Initialize(config.StartScene);
 			_Initialized = true;

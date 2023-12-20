@@ -140,7 +140,7 @@ public static partial class Engine {
 		if (_DebugMode) {
 			DebugPipeline.Draw();
 			
-			if (ConfigurationData.EnableImGui)
+			if (_ConfigurationData.EnableImGui)
 				ImGuiSfml.Update(Window, _DeltaTimeFloat);
 		}
 		
@@ -164,13 +164,13 @@ public static partial class Engine {
 	{
 		RenderTexture.Display();
 		Window.Clear(Color.Black);
-		if (_DebugMode && ConfigurationData.EnableImGui) {
+		if (_DebugMode && _ConfigurationData.EnableImGui) {
 			OnRenderImGui?.Invoke();
 		}
 
 		Window.Draw(_FrameBufferVertexArray, _FrameBufferState);
 
-		if (_DebugMode && ConfigurationData.EnableImGui) {
+		if (_DebugMode && _ConfigurationData.EnableImGui) {
 			ImGuiSfml.Render();
 		}
 
