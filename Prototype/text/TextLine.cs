@@ -4,40 +4,29 @@ namespace Mother4.Scripts.Text;
 
 public class TextLine
 {
+	readonly string _text;
+	readonly bool _bullet;
+	readonly ITextCommand[] _commands;
+
 	public string Text
 	{
-		get
-		{
-			return this.text;
-		}
+		get => _text;
 	}
 
 	public bool HasBullet
 	{
-		get
-		{
-			return this.bullet;
-		}
+		get => _bullet;
 	}
 
 	public ITextCommand[] Commands
 	{
-		get
-		{
-			return this.commands;
-		}
+		get => _commands;
 	}
 
 	public TextLine(bool bullet, ITextCommand[] commands, string text)
 	{
-		this.bullet = bullet;
-		this.commands = commands;
-		this.text = text;
+		this._bullet = bullet;
+		this._commands = commands;
+		this._text = text;
 	}
-
-	private string text;
-
-	private bool bullet;
-
-	private ITextCommand[] commands;
 }

@@ -299,11 +299,9 @@ public class Input {
 		if (!_recieveInput)
 			return;
 
-		if (_controllerType == ControllerType.Xbox360) {
-			if (_controllertoDButtonsMap.TryGetValue(e.Button, out DButtons value)) {
+		if (_controllerType == ControllerType.Xbox360 && _controllertoDButtonsMap.TryGetValue(e.Button, out DButtons value)) {
 				OnButtonReleased?.Invoke(this, value);
-
-			}
+			
 		}
 
 	}
@@ -311,10 +309,9 @@ public class Input {
 	void WindowOnJoystickButtonPressed (object? sender, JoystickButtonEventArgs e) {
 		if (!_recieveInput)
 			return;
-		if (_controllerType == ControllerType.Xbox360) {
-			if (_controllertoDButtonsMap.TryGetValue(e.Button, out DButtons value)) {
+		if (_controllerType == ControllerType.Xbox360 && _controllertoDButtonsMap.TryGetValue(e.Button, out DButtons value)) {
 				OnButtonPressed?.Invoke(this, value);
-			}
+			
 		}
 	}
 

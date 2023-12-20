@@ -18,7 +18,7 @@ public class TextWriter : RenderableEntity
 	private bool _writing;
 	List<string> _lines = new();
 	int _currentLine = 0;
-	int lineLength = 45;
+	const int LineLength = 45;
 	public TextWriter(Vector2 position, float textSpeed = 0.05f)
 	{
 		Position = position;
@@ -35,10 +35,9 @@ public class TextWriter : RenderableEntity
 		_text = text;
 		// split the text into lines containing 45 characters each
 		_lines = new List<string>();
-		int lineLength = 45;
-		for (int i = 0; i < _text.Length; i += lineLength)
+		for (int i = 0; i < _text.Length; i += LineLength)
 		{
-			_lines.Add(_text.Substring(i, Math.Min(lineLength, _text.Length - i)));
+			_lines.Add(_text.Substring(i, Math.Min(LineLength, _text.Length - i)));
 		}
 		_writing = true;
 		CurrentCharacterIndex = 0;

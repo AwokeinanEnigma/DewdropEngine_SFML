@@ -3434,11 +3434,7 @@ public sealed class NbtFile {
 		FileName = null;
 
 		// detect compression, based on the first byte
-		if (compression == NbtCompression.AutoDetect) {
-			FileCompression = DetectCompression(stream);
-		} else {
-			FileCompression = compression;
-		}
+		FileCompression = compression == NbtCompression.AutoDetect ? DetectCompression(stream) : compression;
 
 		// prepare to count bytes read
 		long startOffset = 0;

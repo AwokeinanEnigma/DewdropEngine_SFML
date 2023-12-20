@@ -6,30 +6,19 @@ public class TextTrigger : ITextCommand
 {
 	public int Position
 	{
-		get
-		{
-			return this.position;
-		}
-		set
-		{
-			this.position = value;
-		}
+		get => position;
+		set => position = value;
 	}
 
 	public int Type
 	{
-		get
-		{
-			return this.type;
-		}
+		get => type;
 	}
 
 	public string[] Data
 	{
-		get
-		{
-			return this.data;
-		}
+		get => this.data;
+		
 	}
 
 	public TextTrigger(int position, int type, string[] data)

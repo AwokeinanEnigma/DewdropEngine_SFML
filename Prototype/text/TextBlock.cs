@@ -7,16 +7,11 @@ public class TextBlock
 {
 	public List<TextLine> Lines
 	{
-		get
-		{
-			return this.lines;
-		}
+		get => _lines;
 	}
-
+	readonly List<TextLine> _lines;
 	public TextBlock(List<TextLine> lines)
 	{
-		this.lines = new List<TextLine>(lines);
+		this._lines = new List<TextLine>(lines);
 	}
-
-	private List<TextLine> lines;
 }

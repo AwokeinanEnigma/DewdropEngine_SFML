@@ -52,7 +52,7 @@ public class Inspector : IDisposable {
 		typeof(Enum)
 	};
 	CommandHistory _commandHistory = new CommandHistory();
-	List<CustomPainter> _customPainters;
+	List<ICustomPainter> _customPainters;
 	struct AssociatedEnumData {
 		public string[] EnumOptions;
 		public string EnumName;
@@ -66,7 +66,7 @@ public class Inspector : IDisposable {
 	public void Initialize (EntityManager entityManager, CollisionManager collisionManager) {
 		_aMp = new();
 		_eMd = new();
-		_customPainters =new List<CustomPainter>();
+		_customPainters =new List<ICustomPainter>();
 		_entityManager = entityManager;
 		_collisionManager = collisionManager;
 		_clock = new Clock();
@@ -82,7 +82,7 @@ public class Inspector : IDisposable {
 	/// <remarks>
 	/// This method allows the addition of custom painters to the Inspector. Custom painters are used to customize the way certain fields or properties are displayed and edited in the Inspector. Once added, the custom painter will be used whenever a field or property of the type it supports is encountered.
 	/// </remarks>
-	public void AddCustomPainter (CustomPainter painter) {
+	public void AddCustomPainter (ICustomPainter painter) {
 		if (painter == null) {
 			throw new ArgumentNullException(nameof(painter));
 		}

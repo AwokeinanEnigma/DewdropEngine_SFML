@@ -11,7 +11,7 @@ using SFML.System;
 namespace DewDrop.Maps;
 
 public class MapLoader {
-	string _mapName;
+	readonly string _mapName;
 
 	public MapLoader (string mapName) {
 		_mapName = mapName;

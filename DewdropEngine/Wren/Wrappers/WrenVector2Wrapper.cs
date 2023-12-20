@@ -18,14 +18,11 @@ public class WrenVector2Wrapper : IDisposable {
 	private const string print = "print() {\nSystem.print(\"Vector (%(x), %(y))\")\n}";
 
 	double X {
-		get {
-			return Vector.x;
-		}
+		get => Vector.x;
+		
 	}
 	double Y {
-		get {
-			return Vector.y;
-		}
+		get => Vector.y;
 	}
 
 	public WrenVector2Wrapper (Vector2 vector) {

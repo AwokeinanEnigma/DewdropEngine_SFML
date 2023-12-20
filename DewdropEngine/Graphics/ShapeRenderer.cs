@@ -119,13 +119,10 @@ public class ShapeRenderer : Renderable {
 	}
 
 	protected override void Dispose (bool disposing) {
-		if (!_disposed) {
-			if (disposing && _shape != null) {
-				_shape.Dispose();
-			}
 
+		if (!_disposed && disposing && _shape != null) {
+			_shape.Dispose();
 		}
-
 		_disposed = true;
 	}
 }

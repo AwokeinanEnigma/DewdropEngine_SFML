@@ -99,11 +99,7 @@ public class DebugPlayground : SceneBase
                             Text = "Go to play scene."
                         },
                         new ScrollableList.SelectAction() {
-                            Select = (list) => {
-
-                               // _wreno.Call("blue");
-                                return false;
-                            },
+                            Select = (list) => false,
                             Text = "Blue!"
                         },
                         new ScrollableList.SelectAction() {

@@ -113,7 +113,6 @@ public abstract class Renderable : IRenderable {
 	///     Disposes of all managed and unmanaged resources.
 	/// </summary>
 	public void Dispose () {
-		//
 		Dispose(true);
 
 		// we manually disposed, we don't need to finalize

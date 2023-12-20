@@ -8,22 +8,20 @@ public abstract class InspectorCommand : ICommand {
 	protected Entity _entity;
 	
 	protected void SetValue (Entity entity, object value) {
-		switch (_member) {
-		case PropertyInfo property:
+		if (_member is PropertyInfo property) {
 			property.SetValue(entity, value);
-			break;
-		case FieldInfo field:
+		} else if (_member is FieldInfo field) {
 			field.SetValue(entity, value);
-			break;
 		}
 	}
 
 	protected object GetValue (Entity entity) {
-		return _member switch {
-			PropertyInfo property => property.GetValue(entity),
-			FieldInfo field => field.GetValue(entity),
-			_ => null
-		};
+		if (_member is PropertyInfo property) {
+			return property.GetValue(entity);
+		} else if (_member is FieldInfo field) {
+			return field.GetValue(entity);
+		}
+		return null;
 	}
 	public abstract void Execute ();
 	public abstract void Undo ();

@@ -29,8 +29,7 @@ internal class TextProcessor
     private const string CMD_LEO = "leo";
     private const string CMD_ZACK = "zack";
     private const string CMD_RENEE = "renee";
-    private static readonly char[] _PauseChars = new[]
-    {
+    private static readonly char[] _PauseChars = {
         ',',
         '?'
     };

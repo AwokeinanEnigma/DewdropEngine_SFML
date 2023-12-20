@@ -478,11 +478,11 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 		}
 
 		if (index < 0 || index > orderedKeys.Count) {
-			throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+			throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 		}
 
 		if (count < 0) {
-			throw new IndexOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
+			throw new ArgumentOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
 		}
 
 		if (index + count > orderedKeys.Count) {
@@ -521,11 +521,11 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 		}
 
 		if (index < 0 || index > orderedKeys.Count) {
-			throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+			throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 		}
 
 		if (count < 0) {
-			throw new IndexOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
+			throw new ArgumentOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
 		}
 
 		if (index + count > orderedKeys.Count) {
@@ -548,7 +548,7 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 		}
 
 		if (index < 0 || index > orderedKeys.Count) {
-			throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+			throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 		}
 
 		values.Add(key, value);
@@ -565,7 +565,7 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 		}
 
 		if (index < 0 || index > orderedKeys.Count) {
-			throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+			throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 		}
 
 		foreach (var kvp in collection) {
@@ -580,7 +580,7 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 		}
 
 		if (index < 0 || index > orderedKeys.Count) {
-			throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+			throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 		}
 
 		var key = orderedKeys[index];
@@ -594,11 +594,11 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 		}
 
 		if (index < 0 || index > orderedKeys.Count) {
-			throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+			throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 		}
 
 		if (count < 0) {
-			throw new IndexOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
+			throw new ArgumentOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
 		}
 
 		if (index + count > orderedKeys.Count) {
@@ -624,11 +624,11 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 		}
 
 		if (index < 0 || index > orderedKeys.Count) {
-			throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+			throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 		}
 
 		if (count < 0) {
-			throw new IndexOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
+			throw new ArgumentOutOfRangeException("Count cannot be less than zero." + Environment.NewLine + "Parameter name: count");
 		}
 
 		if (index + count > orderedKeys.Count) {
@@ -658,7 +658,7 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 			}
 
 			if (index < 0 || index >= orderedKeys.Count) {
-				throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+				throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 			}
 
 			return values[orderedKeys[index]];
@@ -669,7 +669,7 @@ public class IniSection : IEnumerable<KeyValuePair<string, IniValue>>, IDictiona
 			}
 
 			if (index < 0 || index >= orderedKeys.Count) {
-				throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
+				throw new ArgumentOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
 			}
 
 			var key = orderedKeys[index];

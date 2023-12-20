@@ -130,31 +130,29 @@ public class TestScene : SceneBase
         {
             SceneManager.Push(new DebugPlayground(false), true);
         }
-        if (!TextBox.Visible) {
-            if (key == Keyboard.Key.E) {
-                RenderPNG();
-                var lino = new LineRenderer(_playerEntity.Position, _playerEntity.Position + Vector2.Normalize(_playerEntity.CheckVector)*25, new Vector2(3000, 3000), new Vector2(0, 0), 10000, Color.Magenta);
-                pipeline.Add(lino);
-                List<RaycastHit> intersectedCollidables = CollisionManager.RaycastAll(
-                    _playerEntity.Position,
-                    Vector2.Normalize(_playerEntity.CheckVector),
-                    25);
+        if (!TextBox.Visible && key == Keyboard.Key.E) {
+            RenderPNG();
+            var lino = new LineRenderer(_playerEntity.Position, _playerEntity.Position + Vector2.Normalize(_playerEntity.CheckVector)*25, new Vector2(3000, 3000), new Vector2(0, 0), 10000, Color.Magenta);
+            pipeline.Add(lino);
+            List<RaycastHit> intersectedCollidables = CollisionManager.RaycastAll(
+                _playerEntity.Position,
+                Vector2.Normalize(_playerEntity.CheckVector),
+                25);
 
-                if (intersectedCollidables.Count > 0) {
+            if (intersectedCollidables.Count > 0) {
 
-                    Outer.Log($"""Found {intersectedCollidables.Count} collidables""");
-                    for (int i = 0; i < intersectedCollidables.Count; i++) {
-                        ICollidable collidable = intersectedCollidables[i].Collider;
-                        Outer.Log("Found collidable: " + collidable.GetType().FullName);
-                        if (collidable is Wrentity wrentity) {
-                            line.SetPosition(0, intersectedCollidables[i].Point);
-                            wrentity.Interact();
-                            break;
-                        }
-                        if (collidable is StaticCollider) {
-                            line.SetPosition(0, intersectedCollidables[i].Point);
-                            break;
-                        }
+                Outer.Log($"""Found {intersectedCollidables.Count} collidables""");
+                for (int i = 0; i < intersectedCollidables.Count; i++) {
+                    ICollidable collidable = intersectedCollidables[i].Collider;
+                    Outer.Log("Found collidable: " + collidable.GetType().FullName);
+                    if (collidable is Wrentity wrentity) {
+                        line.SetPosition(0, intersectedCollidables[i].Point);
+                        wrentity.Interact();
+                        break;
+                    }
+                    if (collidable is StaticCollider) {
+                        line.SetPosition(0, intersectedCollidables[i].Point);
+                        break;
                     }
                 }
             }
@@ -221,14 +219,7 @@ public class TestScene : SceneBase
                 if (tileID >= 0)
                 {
                     ushort tileModifier;
-                    if (tileIndex + 1 < group.Tiles.Length)
-                    {
-                        tileModifier = group.Tiles[tileIndex + 1];
-                    }
-                    else
-                    {
-                        tileModifier = 0;
-                    }
+                    tileModifier = tileIndex + 1 < group.Tiles.Length ? group.Tiles[tileIndex + 1] : (ushort)0;
                     int tileY = group.Width * 8;
                     Vector2f position = new(tileX * 8L % tileY, tileX * 8L / tileY * 8L);
                     bool flipHoriz = (tileModifier & 1) > 0;

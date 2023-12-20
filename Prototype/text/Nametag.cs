@@ -11,26 +11,14 @@ public class Nametag : Renderable
 {
 	public override Vector2 RenderPosition
 	{
-		get
-		{
-			return _position;
-		}
-		set
-		{
-			this.Reposition(value);
-		}
+		get => _position;
+		set => Reposition(value);
 	}
 
 	public string Name
 	{
-		get
-		{
-			return this.nameText.Text;
-		}
-		set
-		{
-			this.SetName(value);
-		}
+		get => nameText.Text;
+		set => SetName(value);
 	}
 
 	public Nametag(string nameString, Vector2 position, int depth)

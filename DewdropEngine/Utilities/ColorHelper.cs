@@ -19,12 +19,13 @@ public static class ColorHelper {
 	/// <returns>A Color object that represents the color of the hexadecimal string.</returns>
 	public static Color? FromHexString (string hexString) {
 		Color? result; 
-		try {
-			int color = int.Parse(hexString, NumberStyles.HexNumber);
-			result = FromInt(color);
-		} catch (Exception) {
-			result = Color.White;
+		if (Int16.TryParse(hexString, NumberStyles.HexNumber, null, out short shortColor)) {
+			result = FromInt((uint)shortColor);
 		}
+		else {
+			result = Color.Black;
+		}
+
 
 		return result;
 	}
