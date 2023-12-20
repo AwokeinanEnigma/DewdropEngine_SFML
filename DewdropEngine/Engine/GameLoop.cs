@@ -139,12 +139,11 @@ public static partial class Engine {
 		// Draw over our scene.
 		if (_DebugMode) {
 			DebugPipeline.Draw();
+			
+			if (ConfigurationData.EnableImGui)
+				ImGuiSfml.Update(Window, _DeltaTimeFloat);
 		}
-
-		if (_DebugMode) {
-			ImGuiSfml.Update(Window, _DeltaTimeFloat);
-		}
-
+		
 		ViewManager.Instance.UseDefault();
 
 		_HasFocus = Window.HasFocus();
@@ -165,13 +164,13 @@ public static partial class Engine {
 	{
 		RenderTexture.Display();
 		Window.Clear(Color.Black);
-		if (_DebugMode) {
+		if (_DebugMode && ConfigurationData.EnableImGui) {
 			OnRenderImGui?.Invoke();
 		}
 
 		Window.Draw(_FrameBufferVertexArray, _FrameBufferState);
 
-		if (_DebugMode) {
+		if (_DebugMode && ConfigurationData.EnableImGui) {
 			ImGuiSfml.Render();
 		}
 

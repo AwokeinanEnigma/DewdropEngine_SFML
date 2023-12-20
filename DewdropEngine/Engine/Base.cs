@@ -24,14 +24,16 @@ public static partial class Engine {
 	// ReSharper disable once MemberCanBePrivate.Global
 	public static Clock SessionTimer;
     internal static EngineConfigurationData.ApplicationData ApplicationData;
+    internal static EngineConfigurationData ConfigurationData;
     /// <summary>
     /// Initializes the DewDrop engine with the provided configuration data.
     /// </summary>
     /// <param name="config">The configuration data for the DewDrop engine.</param>
     public static void Initialize (EngineConfigurationData config) {
 	    ApplicationData = config.Application;
-
-		// if we haven't initialized yet
+	    ConfigurationData = config;
+	    
+	    // if we haven't initialized yet
 		if (!_Initialized) {
 			Outer.Initialize();
 			WrenManager.Initialize(config);	
@@ -65,6 +67,9 @@ public static partial class Engine {
 			SessionTimer.Restart();
 
 			StartGameLoop();
+		}
+		else {
+			Outer.LogError("Engine already initialized.", new Exception());
 		}
 	}
 }
