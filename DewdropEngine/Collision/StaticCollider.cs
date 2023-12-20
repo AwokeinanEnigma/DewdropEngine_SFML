@@ -7,14 +7,22 @@ using SFML.Graphics;
 namespace DewDrop.Collision;
 
 /// <summary>
-///     A static object that is static (unmoving)
+/// Represents a static collider used for collision detection.
 /// </summary>
 public class StaticCollider : ICollidable {
-    /// <summary>
-    ///     Creates a new solid static object from a mesh
-    /// </summary>
-    /// <param name="mesh"></param>
-    public StaticCollider (Mesh mesh) {
+	public List<ICollidable> CollidingWith { get; } = new List<ICollidable>();
+	public bool IsTrigger { get; set; }
+	public Vector2 Position { get; set; }
+	public AABB AABB { get; }
+	public Mesh Mesh { get; }
+	public bool Solid { get; set; }
+	public VertexArray DebugVerts { get; }
+	public Vector2 Velocity { get; set; }
+	/// <summary>
+	/// Initializes a new instance of the StaticCollider class with a specified mesh.
+	/// </summary>
+	/// <param name="mesh">The mesh of the StaticCollider.</param>
+	public StaticCollider (Mesh mesh) {
 		Mesh = mesh;
 		AABB = mesh.AABB;
 		Position = new Vector2(0f, 0f);
@@ -28,21 +36,14 @@ public class StaticCollider : ICollidable {
 		vertexArray[(uint)mesh.Vertices.Count] = new Vertex(mesh.Vertices[0], Color.Red);
 		DebugVerts = vertexArray;
 	}
-
-    public bool IsTrigger { get; set; }
-	public Vector2 Position { get; set; }
-
-	public AABB AABB { get; }
-
-	public Mesh Mesh { get; }
-
-	public bool Solid { get; set; }
-
-	public VertexArray DebugVerts { get; }
-	public Vector2 Velocity { get; set; }
-
-	public void OnTriggerStay (ICollidable context) { throw new NotImplementedException(); }
-	public void OnTriggerEnter (ICollidable context) { throw new NotImplementedException(); }
-	public void OnTriggerExit (ICollidable context) { throw new NotImplementedException(); }
-	public List<ICollidable> CollidingWith { get; }
+	
+	public void OnTriggerStay (ICollidable context) {
+		Outer.LogError("A StaticCollider should not be a trigger.", new Exception());
+	}
+	public void OnTriggerEnter (ICollidable context) {
+		Outer.LogError("A StaticCollider should not be a trigger.", new Exception());
+	}
+	public void OnTriggerExit (ICollidable context) {
+		Outer.LogError("A StaticCollider should not be a trigger.", new Exception());
+	}
 }

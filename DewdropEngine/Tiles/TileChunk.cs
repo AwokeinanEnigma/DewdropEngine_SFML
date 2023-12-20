@@ -5,7 +5,10 @@ using DewDrop.Resources;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.Graphics.Glsl;
-using System.Security.Cryptography.X509Certificates;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable MergeIntoPattern
+// ReSharper disable ForCanBeConvertedToForeach
+// ReSharper disable PossibleLossOfFraction
 
 #endregion
 
@@ -37,7 +40,7 @@ public class TileChunk : Renderable {
 
 	#region Fields
 
-	static readonly Shader TileGroupShader = new Shader(EmbeddedResourcesHandler.GetResourceStream("pal.vert"), null, EmbeddedResourcesHandler.GetResourceStream("pal.frag"));
+	static readonly Shader _TileGroupShader = new Shader(EmbeddedResourcesHandler.GetResourceStream("pal.vert"), null, EmbeddedResourcesHandler.GetResourceStream("pal.frag"));
 
 	Vertex[] _vertices;
 	AnimatedTile[] _tileAnimations;
@@ -67,19 +70,13 @@ public class TileChunk : Renderable {
 		_position = position;
 		_depth = depth;
 		// Set the render state for the chunk
-		_renderState = new RenderStates(BlendMode.Alpha, Transform.Identity, TilesetSpritesheet.Image, TileGroupShader);
+		_renderState = new RenderStates(BlendMode.Alpha, Transform.Identity, TilesetSpritesheet.Image, _TileGroupShader);
 		// Set the animation enabled flag
 		AnimationEnabled = enableAnimations;
-		if (blendColor != default) 
-		{
-			// If a blend color is provided, create a new Vec4 object with the blend color
-			_blendColor = new Vec4(blendColor);
-		} 
-		else 
-		{
+		// If a blend color is provided, create a new Vec4 object with the blend color
+		_blendColor = blendColor != default ? new Vec4(blendColor) :
 			// If no blend color is provided, create a new Vec4 object with the default white color
-			_blendColor = new Vec4(Color.White);
-		}
+			new Vec4(Color.White);
 		// Create animations based on the sprite definitions from the spritesheet
 		CreateAnimations(TilesetSpritesheet.GetSpriteDefinitions());
 		// Create the vertex array for the tiles
@@ -127,7 +124,7 @@ public class TileChunk : Renderable {
 	/// <param name="id">The tile ID.</param>
 	/// <param name="tx">The x-coordinate of the texture.</param>
 	/// <param name="ty">The y-coordinate of the texture.</param>
-	void TileIDToTextureCoords(uint id, out uint tx, out uint ty)
+	void TileIdToTextureCoords(uint id, out uint tx, out uint ty)
 	{
 		// Calculate the x-coordinate of the texture
 		tx = id * 8U % TilesetSpritesheet.Image.Size.X;
@@ -198,8 +195,6 @@ public class TileChunk : Renderable {
 		_vertices = new Vertex[tiles.Count * 4];
 
 		// these are declared OUTSIDE of the loop to avoid allocating extra memory 
-		uint textureX = 0U;
-		uint textureY = 0U;
 
 		Vector2 v = default;
 		Vector2 v2 = default;
@@ -223,7 +218,7 @@ public class TileChunk : Renderable {
 				ptr2[3].Position.X = x;
 				ptr2[3].Position.Y = y + 8f;
 
-				TileIDToTextureCoords(tile.ID, out textureX, out textureY);
+				TileIdToTextureCoords(tile.Id, out uint textureX, out uint textureY);
 
 				// normal tile
 				if (!tile.FlipHorizontal && !tile.FlipVertical) {
@@ -312,9 +307,9 @@ public class TileChunk : Renderable {
 			// Calculate the current frame based on animation speed
 			float frame = Engine.Frame * tileAnimation.AnimationSpeed;
 			// Get the tile ID for the current frame
-			uint tileID = (uint)tileAnimation.Tiles[(int)frame % tileAnimation.Tiles.Length];
+			uint tileId = (uint)tileAnimation.Tiles[(int)frame % tileAnimation.Tiles.Length];
 			// Get the texture coordinates for the tile ID
-			TileIDToTextureCoords(tileID - 1U, out uint tileX, out uint tileY);
+			TileIdToTextureCoords(tileId - 1U, out uint tileX, out uint tileY);
 			// Update the texture coordinates for each vertex index
 			fixed (Vertex* ptr = _vertices)
 			{
@@ -336,12 +331,12 @@ public class TileChunk : Renderable {
 		}
 	}
 	public override void Draw (RenderTarget target) {
-		TileGroupShader.SetUniform("image", TilesetSpritesheet.Image);
-		TileGroupShader.SetUniform("palette", TilesetSpritesheet.Palette);
-		TileGroupShader.SetUniform("palIndex", TilesetSpritesheet.CurrentPaletteFloat);
-		TileGroupShader.SetUniform("palSize", TilesetSpritesheet.PaletteSize);
-		TileGroupShader.SetUniform("blend", _blendColor);
-		TileGroupShader.SetUniform("blendMode", 1f);
+		_TileGroupShader.SetUniform("image", TilesetSpritesheet.Image);
+		_TileGroupShader.SetUniform("palette", TilesetSpritesheet.Palette);
+		_TileGroupShader.SetUniform("palIndex", TilesetSpritesheet.CurrentPaletteFloat);
+		_TileGroupShader.SetUniform("palSize", TilesetSpritesheet.PaletteSize);
+		_TileGroupShader.SetUniform("blend", _blendColor);
+		_TileGroupShader.SetUniform("blendMode", 1f);
 
 		UpdateAnimations();
 		target.Draw(_vertices, PrimitiveType.Quads, _renderState);

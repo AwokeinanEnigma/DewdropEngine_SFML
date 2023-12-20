@@ -4,90 +4,124 @@ using DewDrop.Entities;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
+// ReSharper disable MemberCanBePrivate.Global
 
 #endregion
 
 namespace DewDrop.GUI;
 
+/// <summary>
+/// Manages the views in the game.
+/// </summary>
 public class ViewManager {
-	public static ViewManager Instance {
-		get {
-			if (instance == null) {
-				instance = new ViewManager();
-			}
-
-			return instance;
-		}
+	public enum MoveMode {
+		Linear,
+		Smoothed,
+		ExpIn,
+		ExpOut
 	}
+    /// <summary>
+    /// Gets the instance of the ViewManager.
+    /// </summary>
+    public static ViewManager Instance { get; private set; }
 
-	public event OnMoveHandler OnMove;
+    /// <summary>
+    /// Event that is invoked when the view is moved.
+    /// </summary>
+    public event MoveHandler OnMove;
 
-	public event OnMoveToCompleteHandler OnMoveToComplete;
+    /// <summary>
+    /// Event that is invoked when the view has completed moving to a target.
+    /// </summary>
+    public event MoveToCompleteHandler OnMoveToComplete;
 
-	public View View { get; }
+    /// <summary>
+    /// Gets the current view.
+    /// </summary>
+    public View View { get; }
 
-	public FloatRect Viewrect {
-		get {
-			SetViewRect();
-			return _viewRect;
-		}
-	}
+    /// <summary>
+    /// Gets the rectangle representing the view's position and size.
+    /// </summary>
+    public FloatRect Viewrect {
+        get {
+            SetViewRect();
+            return _viewRect;
+        }
+    }
 
-	public Vector2 FinalCenter => GetCenter();
+    /// <summary>
+    /// Gets the final center of the view.
+    /// </summary>
+    public Vector2 FinalCenter => GetCenter();
 
-	public Vector2 FinalTopLeft => GetCenter() - Engine.ScreenSize/2;
+    /// <summary>
+    /// Gets the final top left position of the view.
+    /// </summary>
+    public Vector2 FinalTopLeft => GetCenter() - Engine.ScreenSize/2;
 
-	public Vector2 Center {
-		get => _viewCenter;
-		set {
-			_previousViewCenter = _viewCenter;
-			_viewCenter = value;
-			if (_previousViewCenter != _viewCenter && OnMove != null) {
-				OnMove(this, new Vector2(View.Center));
-			}
-		}
-	}
+    /// <summary>
+    /// Gets or sets the center of the view.
+    /// </summary>
+    public Vector2 Center {
+        get => _viewCenter;
+        set {
+            _previousViewCenter = _viewCenter;
+            _viewCenter = value;
+            if (_previousViewCenter != _viewCenter && OnMove != null) {
+                OnMove(this, new Vector2(View.Center));
+            }
+        }
+    }
 
-	public Vector2 TopLeft => _viewCenter - (Engine.ScreenSize/2);
+    /// <summary>
+    /// Gets the top left position of the view.
+    /// </summary>
+    public Vector2 TopLeft => _viewCenter - (Engine.ScreenSize/2);
 
-	public Entity EntityFollow { get; set; }
+    /// <summary>
+    /// Gets or sets the entity that the view is following.
+    /// </summary>
+    public Entity EntityFollow { get; set; }
 
-	public Vector2 Offset { get; set; }
+    /// <summary>
+    /// Gets or sets the offset of the view from the entity it is following.
+    /// </summary>
+    public Vector2 Offset { get; set; }
 
-	public MoveMode MoveToMode { get; set; }
-
-
-	static ViewManager instance;
-
-	readonly RenderTarget window;
+    /// <summary>
+    /// Gets or sets the mode of movement when moving to a target.
+    /// </summary>
+    public MoveMode MoveToMode { get; set; }
+	
+	readonly RenderTarget _window;
 
 	FloatRect _viewRect;
-
 	Vector2 _previousViewCenter;
-
 	Vector2 _viewCenter;
 
 	Vector2 _shakeOffset;
-
 	Vector2 _shakeIntensity;
 
 	int _shakeDuration;
-
 	int _shakeProgress;
 
 	bool _isMovingTo;
-
-	Vector2 _moveFromPosition;
-
-	Vector2 _moveToPosition;
-
 	float _moveToSpeed;
 
+	Vector2 _moveFromPosition;
+	Vector2 _moveToPosition;
+	
+	public delegate void MoveHandler (ViewManager sender, Vector2 newCenter);
+	public delegate void MoveToCompleteHandler (ViewManager sender);
 
-	ViewManager () {
-		window = Engine.RenderTexture;
+	public ViewManager () {
+		Instance = this;
+		MoveToMode = MoveMode.Linear;
+		
+		_window = Engine.RenderTexture;
 		View = new View(new Vector2f(0f, 0f), Engine.ScreenSize);
-		window.SetView(View);
+		_window.SetView(View);
 		_viewCenter = Vector2.Zero;
 		Offset = Vector2.Zero;
 		_shakeOffset = Vector2.Zero;
@@ -163,13 +197,23 @@ public class ViewManager {
 		}
 	}
 
+	/// <summary>
+	/// Moves the view to a specified entity at a specified speed.
+	/// </summary>
+	/// <param name="entity">The entity to move to.</param>
+	/// <param name="speed">The speed at which to move.</param>
 	public void MoveTo (Entity entity, float speed) {
 		if (entity != null) {
 			EntityFollow = entity;
-			MoveTo(entity, speed);
+			MoveTo(entity.Position, speed);
 		}
 	}
 
+	/// <summary>
+	/// Moves the view to a specified position at a specified speed.
+	/// </summary>
+	/// <param name="position">The position to move to.</param>
+	/// <param name="speed">The speed at which to move.</param>
 	public void MoveTo (Vector2 position, float speed) {
 		if (speed > 0f) {
 			_moveFromPosition = _viewCenter;
@@ -186,20 +230,35 @@ public class ViewManager {
 		_isMovingTo = false;
 	}
 
+	/// <summary>
+	/// Moves the view to a specified position at a specified speed.
+	/// </summary>
+	/// <param name="x">The x-coordinate of the position to move to.</param>
+	/// <param name="y">The y-coordinate of the position to move to.</param>
+	/// <param name="speed">The speed at which to move.</param>
 	public void MoveTo (float x, float y, float speed) {
 		MoveTo(new Vector2(x, y), speed);
 	}
 
+	/// <summary>
+	/// Cancels the current move to operation.
+	/// </summary>
 	public void CancelMoveTo () {
 		_isMovingTo = false;
 	}
 
+	/// <summary>
+	/// Moves the view by a specified offset.
+	/// </summary>
 	public void Move (float x, float y) {
 		Move(new Vector2(x, y));
 	}
 
+	/// <summary>
+	/// Moves the view by a specified offset.
+	/// </summary>
 	public void Move (Vector2 offset) {
-		View.Move(offset.TranslateToV2F());
+		View.Move(offset);
 	}
 
 	public void UseView () {
@@ -207,11 +266,11 @@ public class ViewManager {
 		// THIS IS THE CAUSE!
 		// THERE'S NOTHING YOU CAN DO ABOUT IT!
 		// BOTHER SFML DEVS!
-		window.SetView(View);
+		_window.SetView(View);
 	}
 
 	public void UseDefault () {
-		window.SetView(window.DefaultView);
+		_window.SetView(_window.DefaultView);
 	}
 
 	public void Reset () {
@@ -220,21 +279,15 @@ public class ViewManager {
 		_shakeOffset = Vector2.Zero;
 	}
 
+	/// <summary>
+	/// Shakes the view with a specified intensity and duration.
+	/// </summary>
+	/// <param name="intensity">The intensity of the shake.</param>
+	/// <param name="duration">How long the shake should last.</param>
 	public void Shake (Vector2 intensity, float duration) {
 		_shakeIntensity = intensity;
 		_shakeDuration = (int)(duration*60f);
 		_shakeProgress = 0;
 		_shakeOffset = Vector2.Zero;
 	}
-
-	public enum MoveMode {
-		Linear,
-		Smoothed,
-		ExpIn,
-		ExpOut
-	}
-
-	public delegate void OnMoveHandler (ViewManager sender, Vector2 newCenter);
-
-	public delegate void OnMoveToCompleteHandler (ViewManager sender);
 }

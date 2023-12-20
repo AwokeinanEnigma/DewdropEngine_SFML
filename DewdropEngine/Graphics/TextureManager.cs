@@ -10,7 +10,7 @@ using SFML.System;
 namespace DewDrop.Graphics;
 
 /// <summary>
-///     Class that manages all loaded textures
+/// Manages all loaded textures in the game.
 /// </summary>
 public class TextureManager {
     /// <summary>
@@ -47,8 +47,8 @@ public class TextureManager {
 	/// Loads a spritesheet texture from an NBT tag.
 	/// </summary>
 	/// <param name="root">The root NBT compound tag.</param>
+	/// <param name="spriteFile">The file path of the sprite.</param>
 	/// <returns>The loaded SpritesheetTexture.</returns>
-
 	SpritesheetTexture LoadFromNbtTag (NbtCompound root, string spriteFile) {
 		// this code is all dave/carbine code therefore i wil not look at it!
 		NbtTag paletteTag = root.Get("pal");
@@ -72,8 +72,7 @@ public class TextureManager {
 				if (potentialSprite is NbtCompound spriteCompound) {
 					string text = spriteCompound.Name.ToLowerInvariant();
 
-					NbtIntArray dummyIntArray;
-					int[] coordinatesArray = spriteCompound.TryGet("crd", out dummyIntArray) ? dummyIntArray.IntArrayValue : new int[2];
+					int[] coordinatesArray = spriteCompound.TryGet("crd", out NbtIntArray dummyIntArray) ? dummyIntArray.IntArrayValue : new int[2];
 					int[] boundsArray = spriteCompound.TryGet("bnd", out dummyIntArray) ? dummyIntArray.IntArrayValue : new int[2];
 					int[] originArray = spriteCompound.TryGet("org", out dummyIntArray) ? dummyIntArray.IntArrayValue : new int[2];
 
@@ -121,13 +120,17 @@ public class TextureManager {
 		return new SpritesheetTexture(intValue, list.ToArray(), byteArrayValue, spriteDefinitions, spriteDefinition, spriteFile);
 	}
 
+	/// <summary>
+	/// Retrieves raw spritesheet data.
+	/// </summary>
+	/// <param name="spriteFile">The file path of the sprite.</param>
+	/// <returns>A tuple containing the byte array of the spritesheet and an array of palette data.</returns>
 	public Tuple<byte[], int[][]> GetRawSpritesheetData (string spriteFile) {
 		NbtFile nbtFile = new NbtFile(spriteFile);
 		NbtCompound root = nbtFile.RootTag;
 		NbtTag paletteTag = root.Get("pal");
 		IEnumerable<NbtTag> palettes = paletteTag as NbtList ?? ((NbtCompound)paletteTag).Tags;
 
-		uint intValue = (uint)root.Get<NbtInt>("w").IntValue;
 		byte[] byteArrayValue = root.Get<NbtByteArray>("img").ByteArrayValue;
 		List<int[]> list = new List<int[]>();
 		foreach (NbtTag palette in palettes) {
@@ -139,12 +142,16 @@ public class TextureManager {
 		return data;
 	}
 
+	/// <summary>
+	/// Reloads all textures.
+	/// </summary>
+	/// <remarks>
+	/// Uses a lot of memory, so only use this when you need to. Probably best to only use this during development rather than release.
+	/// </remarks>
 	public void ReloadTextures () {
 		foreach (KeyValuePair<int, ITexture> keyValuePair in _textures) {
-			int key = keyValuePair.Key;
 			ITexture value = keyValuePair.Value;
 			value.Reload();
-			
 		}
 	}
 
@@ -191,12 +198,12 @@ public class TextureManager {
 	    return indexedTexture;
     }
     
-    /// <summary>
-    /// Retrieves or creates an AsepriteTexture from a sprite file.
-    /// </summary>
-    /// <param name="spriteFile">The path to the sprite file.</param>
-    /// <returns>An AsepriteTexture instance.</returns>
-    public AsepriteTexture UseAsepriteTexture (string spriteFile) {
+	/// <summary>
+	/// Retrieves or creates an AsepriteTexture from a sprite file.
+	/// </summary>
+	/// <param name="spriteFile">The path to the sprite file.</param>
+	/// <returns>An AsepriteTexture instance.</returns>
+	public AsepriteTexture UseAsepriteTexture (string spriteFile) {
 	    // Create hash so we can fetch it later
 	    int num = spriteFile.GetHashCode(); //Hash.Get(spriteFile);
 
@@ -228,8 +235,12 @@ public class TextureManager {
 
 	    return indexedTexture;
     }
-    
-    public TextureHolder UseFramebuffer()
+	
+	/// <summary>
+	/// Creates a TextureHolder from the framebuffer.
+	/// </summary>
+	/// <returns>A TextureHolder made from the framebuffer.</returns>
+	public TextureHolder UseFramebuffer()
     {
 	    int hashCode = Engine.Frame.GetHashCode();
 	    
@@ -285,6 +296,9 @@ public class TextureManager {
 		}
 	}
 
+	/// <summary>
+	/// Removes unused textures from memory.
+	/// </summary>
 	public void Purge () {
 		List<int> list = new List<int>();
 		foreach (KeyValuePair<int, ITexture> keyValuePair in _textures) {
@@ -309,6 +323,9 @@ public class TextureManager {
 		}
 	}
 
+	/// <summary>
+	/// Dumps every loaded texture to a log file.
+	/// </summary>
 	public void DumpEveryLoadedTexture () {
 		List<string> textures = new List<string>();
 		foreach (KeyValuePair<string, int> keyntex in _allFilenameHashes) {
@@ -321,7 +338,7 @@ public class TextureManager {
 	}
 
 	/// <summary>
-	/// Dump the loaded textures to a log file.
+	/// Dumps the loaded textures to a log file.
 	/// </summary>
 	public void DumpLoadedTextures () {
 		List<string> textures = new List<string>();

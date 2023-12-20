@@ -9,27 +9,23 @@ using ImGuiNET;
 namespace DewDrop;
 
 public static partial class Engine {
+	// ReSharper disable once MemberCanBePrivate.Global
 	public static RenderPipeline DebugPipeline { get; private set; }
 
 	public static bool DebugMode {
-		get => _debugMode;
+		get => _DebugMode;
 		set {
-			_debugMode = value;
-			if (value)
-				Outer.LogWarning("Enabling debug mode!");
-			else
-				Outer.LogWarning("Disabling debug mode!");
+			_DebugMode = value;
+			Outer.LogWarning(value ? "Enabling debug mode!" : "Disabling debug mode!");
 		}
 	}
+	static bool _DebugMode;
+	static bool _ShowTextures;
 
-
-	public const bool RenderImgui = true;
-	static bool _debugMode;
-
-	public static void CreateDebugPipeline (EngineConfigurationData config) {
-		_debugMode = config.DebugMode;
+	static void CreateDebugPipeline (EngineConfigurationData config) {
+		_DebugMode = config.DebugMode;
 		DebugPipeline = new RenderPipeline(RenderTexture);
-		if (RenderImgui) {
+		if (config.EnableImGui) {
 			ImGuiSfml.Init(Window);
 			ImGui.LoadIniSettingsFromDisk("imgui.ini");
 			OnFocusGained += () => TextureManager.Instance.ReloadTextures();
@@ -38,7 +34,6 @@ public static partial class Engine {
 		}
 	}
 
-	static bool _showTextures;
 	static void OnRenderImGUI () {
 		ImGui.Begin("Dewdrop Debug Utilities");
 		
@@ -60,8 +55,8 @@ public static partial class Engine {
 		ImGui.Text("Textures//");
 		ImGui.Separator();
 		ImGui.Text("Loaded Textures:");
-		if (ImGui.Button("Show Textures"))_showTextures = !_showTextures;
-		if (_showTextures) {
+		if (ImGui.Button("Show Textures"))_ShowTextures = !_ShowTextures;
+		if (_ShowTextures) {
 			foreach (var texture in TextureManager.Instance.ActiveTextures) {
 				ImGui.Text($"{texture.Value} : {TextureManager.Instance.Instances[texture.Key]}");
 			}

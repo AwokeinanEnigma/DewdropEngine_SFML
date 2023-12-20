@@ -4,6 +4,8 @@ using DewDrop.Utilities;
 using SFML.Graphics;
 using System.Runtime.InteropServices;
 using System.Security;
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 #endregion
 
@@ -18,8 +20,13 @@ public class SpritesheetTexture : ITexture {
 	static extern unsafe void sfTexture_updateFromPixels (IntPtr texture, byte* pixels, uint width, uint height, uint x, uint y);
 
 	#region Properties
-
+	/// <summary>
+	/// Gets or sets the image associated with the texture.
+	/// </summary>
 	public Texture Image { get; set; }
+	/// <summary>
+	/// Reloads the texture.
+	/// </summary>
 	public unsafe void Reload () {
 		Tuple<byte[], int[][]> result = TextureManager.Instance.GetRawSpritesheetData(_fileName);
 		int[][] palettes = result.Item2;
@@ -50,8 +57,8 @@ public class SpritesheetTexture : ITexture {
 		}
 
 		fixed (Color* ptr = totalColors) {
-			byte* b_pixels = (byte*)ptr;
-			sfTexture_updateFromPixels(Palette.CPointer, b_pixels, PaletteSize, PaletteCount, 0, 0);
+			byte* bPixels = (byte*)ptr;
+			sfTexture_updateFromPixels(Palette.CPointer, bPixels, PaletteSize, PaletteCount, 0, 0);
 		}
 
 		fixed (Color* ptr2 = uncoloredPixels) {
@@ -59,18 +66,28 @@ public class SpritesheetTexture : ITexture {
 			sfTexture_updateFromPixels(Image.CPointer, pixels2, (uint)_size.x, (uint)_size.y, 0, 0);
 		}
 	}
-
+	/// <summary>
+	/// Gets the palette of the texture.
+	/// </summary>
 	public Texture Palette { get; private set;}
-
+	/// <summary>
+	/// Gets or sets the current palette.
+	/// </summary>
 	public uint CurrentPalette {
 		get => _currentPal;
 		set => _currentPal = Math.Min(PaletteCount, value);
 	}
-
+	/// <summary>
+	/// Gets the current palette as a float.
+	/// </summary>
 	public float CurrentPaletteFloat => _currentPal/(float)PaletteCount;
-
+	/// <summary>
+	/// Gets the count of palettes.
+	/// </summary>
 	public uint PaletteCount { get; private set; }
-
+	/// <summary>
+	/// Gets the size of the palette.
+	/// </summary>
 	public uint PaletteSize { get;private set; }
 
 	#endregion
@@ -80,32 +97,45 @@ public class SpritesheetTexture : ITexture {
 	readonly SpriteDefinition _defaultDefinition;
 	readonly Dictionary<int, SpriteDefinition> _definitions;
 
+	/// <summary>
+	/// Retrieves a sprite definition by name.
+	/// </summary>
+	/// <param name="name">The name of the sprite definition.</param>
+	/// <returns>The sprite definition.</returns>
 	public SpriteDefinition GetSpriteDefinition (string name) {
 
 		int hashCode = name.GetHashCode();
 		return GetSpriteDefinition(hashCode);
 	}
 
+	/// <summary>
+	/// Retrieves a sprite definition by hash.
+	/// </summary>
+	/// <param name="hash">The hash of the sprite definition.</param>
+	/// <returns>The sprite definition.</returns>
 	public SpriteDefinition GetSpriteDefinition (int hash) {
-		SpriteDefinition result;
-		if (!_definitions.TryGetValue(hash, out result)) {
+		if (!_definitions.TryGetValue(hash, out SpriteDefinition result)) {
 			result = default;
 		}
 
 		return result;
 	}
-
+	
+	/// <summary>
+	/// Retrieves all sprite definitions.
+	/// </summary>
+	/// <returns>A collection of sprite definitions.</returns>
 	public ICollection<SpriteDefinition> GetSpriteDefinitions () {
 		return _definitions.Values;
 	}
 
+	/// <summary>
+	/// Retrieves the default sprite definition.
+	/// </summary>
+	/// <returns>The default sprite definition.</returns>
 	public SpriteDefinition GetDefaultSpriteDefinition () {
 		return _defaultDefinition;
 	}
-
-	#endregion
-
-	#region Textures
 
 	#endregion
 
@@ -117,8 +147,18 @@ public class SpritesheetTexture : ITexture {
 
 
 	bool _disposed;
-	string _fileName;
-	Vector2 _size;
+	readonly string _fileName;
+	readonly Vector2 _size;
+
+	/// <summary>
+	/// Initializes a new instance of the SpritesheetTexture class with specified image width, palettes, image, sprite definitions, default definition, and file name.
+	/// </summary>
+	/// <param name="imageWidth">The width of the image.</param>
+	/// <param name="palettes">The palettes of the image.</param>
+	/// <param name="image">The image data.</param>
+	/// <param name="definitions">The sprite definitions.</param>
+	/// <param name="defaultDefinition">The default sprite definition.</param>
+	/// <param name="fileName">The file name of the sprite.</param>
 	public unsafe SpritesheetTexture (uint imageWidth, int[][] palettes, byte[] image, Dictionary<int, SpriteDefinition> definitions, SpriteDefinition defaultDefinition, string fileName) {
 		// create palette
 		PaletteCount = (uint)palettes.Length;
@@ -151,8 +191,8 @@ public class SpritesheetTexture : ITexture {
 		}
 
 		fixed (Color* ptr = totalColors) {
-			byte* b_pixels = (byte*)ptr;
-			sfTexture_updateFromPixels(Palette.CPointer, b_pixels, PaletteSize, PaletteCount, 0, 0);
+			byte* bPixels = (byte*)ptr;
+			sfTexture_updateFromPixels(Palette.CPointer, bPixels, PaletteSize, PaletteCount, 0, 0);
 		}
 
 		fixed (Color* ptr2 = uncoloredPixels) {
@@ -168,7 +208,10 @@ public class SpritesheetTexture : ITexture {
 		Dispose(false);
 	}
 
-	public void ToFullColorTexture () {
+	/// <summary>
+	/// Converts the spritesheet texture to an image.
+	/// </summary>
+	public void ConvertToImageFile () {
 		uint x1 = Image.Size.X;
 		uint y1 = Image.Size.Y;
 		Image image1 = new Image(x1, y1);
@@ -187,6 +230,9 @@ public class SpritesheetTexture : ITexture {
 		image3.SaveToFile("palette.png");
 	}
 
+	/// <summary>
+	/// Disposes of the SpritesheetTexture and its resources.
+	/// </summary>
 	public virtual void Dispose () {
 		Dispose(true);
 		GC.SuppressFinalize(this);

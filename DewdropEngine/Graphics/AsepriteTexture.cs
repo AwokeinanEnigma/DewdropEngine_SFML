@@ -86,7 +86,7 @@ public class AsepriteTexture : ITexture {
 		Dispose(false);
 	}
 
-	public void ToFullColorTexture () {
+	public void ConvertToImageFile () {
 
 		Image a = Image.CopyToImage();
 		a.SaveToFile("test.png");

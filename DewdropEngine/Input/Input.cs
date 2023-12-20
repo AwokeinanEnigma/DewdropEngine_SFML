@@ -4,6 +4,7 @@ using DewDrop.GUI;
 using DewDrop.Utilities;
 using SFML.System;
 using SFML.Window;
+using static SFML.Window.Keyboard;
 
 #endregion
 
@@ -34,8 +35,8 @@ public class Input {
 
 	#region Private
 
-	Dictionary<Keyboard.Key, bool> _keyStatuses;
-	Dictionary<DButtons, bool> _buttonStatuses;
+	readonly Dictionary<Key, bool> _keyStatuses;
+	readonly Dictionary<DButtons, bool> _buttonStatuses;
 	bool _recieveInput = true;
 	ControllerType _controllerType = ControllerType.Keyboard;
 	bool _leftMousePressed;
@@ -47,12 +48,12 @@ public class Input {
     /// <summary>
     ///     Called when a keyboard key is pressed.
     /// </summary>
-    public static event EventHandler<Keyboard.Key> OnKeyPressed;
+    public static event EventHandler<Key> OnKeyPressed;
 
     /// <summary>
     ///     Called when a keyboard key is released.
     /// </summary>
-    public static event EventHandler<Keyboard.Key> OnKeyReleased;
+    public static event EventHandler<Key> OnKeyReleased;
 
     /// <summary>
     ///     Called when a recognized button is pressed.
@@ -79,7 +80,7 @@ public class Input {
 	#region Indexers
 
 	// I could change this to a static class if C# would fucking allow static indexers.
-	public bool this [Keyboard.Key key] {
+	public bool this [Key key] {
 		get => _keyStatuses[key];
 		set => _keyStatuses[key] = value;
 	}
@@ -93,16 +94,16 @@ public class Input {
 
 	#region Dictionaries
 
-	public readonly Dictionary<Keyboard.Key, DButtons> SFMLtoDButtonsMap = new Dictionary<Keyboard.Key, DButtons> {
+	readonly Dictionary<Key, DButtons> _sfmLtoDButtonsMap = new Dictionary<Key, DButtons> {
 		{
-			Keyboard.Key.E, DButtons.Select
+			Key.E, DButtons.Select
 		}, {
-			Keyboard.Key.Escape, DButtons.Back
+			Key.Escape, DButtons.Back
 		}
 	};
 
 	//https://en.sfml-dev.org/forums/index.php?topic=16748.msg120279#msg120279
-	public readonly Dictionary<uint, DButtons> ControllertoDButtonsMap = new Dictionary<uint, DButtons> {
+	readonly Dictionary<uint, DButtons> _controllertoDButtonsMap = new Dictionary<uint, DButtons> {
 		{
 			0, DButtons.Select
 		}, {
@@ -117,7 +118,7 @@ public class Input {
 	/// <summary>
 	///     Contains various directions.
 	/// </summary>
-	public enum InputDirection {
+	enum InputDirection {
 		Up,
 		Down,
 		Left,
@@ -125,7 +126,7 @@ public class Input {
 	}
 
 	// contains the mapping of keys to directions
-	readonly Dictionary<Keyboard.Key, InputDirection> _axisMap;
+	readonly Dictionary<Key, InputDirection> _axisMap;
 	// contains the state of each direction, if it's pressed or not
 	readonly Dictionary<InputDirection, bool> _axisState;
 
@@ -142,12 +143,12 @@ public class Input {
 	/// <summary>
 	///     This event is invoked before the axis is updated with the previous axis value.
 	/// </summary>
-	public static event Action<Vector2> PreAxisChanged;
+	public static event Action<Vector2> OnPreAxisChanged;
 
 	/// <summary>
 	///     This event is invoked after the axis is updated with the new axis value.
 	/// </summary>
-	public static event Action PostAxisChanged;
+	public static event Action OnPostAxisChanged;
 
 	#endregion
 	public Input () {
@@ -155,40 +156,54 @@ public class Input {
 			throw new Exception("Input already exists!");
 		}
 
-		_keyStatuses = new Dictionary<Keyboard.Key, bool>();
+		_keyStatuses = new Dictionary<Key, bool>();
 		_buttonStatuses = new Dictionary<DButtons, bool>();
 
 		// add keys
-		foreach (Keyboard.Key key in Enum.GetValues(typeof(Keyboard.Key)))
+		foreach (Key? key in Enum.GetValues(typeof(Key)))
 			// for some reason, semicolons throw a duplicate key exception
 			// this is to prevent that
 		{
-			if (!_keyStatuses.ContainsKey(key))
-				_keyStatuses.Add(key, false);
+			if (key != null)
+				_keyStatuses.TryAdd(key.Value, false);
 		}
 
-		foreach (DButtons key in Enum.GetValues(typeof(DButtons))) {
-			if (!_buttonStatuses.ContainsKey(key))
-				_buttonStatuses.Add(key, false);
+		foreach (DButtons? key in Enum.GetValues(typeof(DButtons))) {
+			if (key != null) 
+				_buttonStatuses.TryAdd(key.Value, false);
 		}
 
-		_axisMap = new Dictionary<Keyboard.Key, InputDirection>();
-
-		_axisMap.Add(Keyboard.Key.W, InputDirection.Up);
-		_axisMap.Add(Keyboard.Key.S, InputDirection.Down);
-		_axisMap.Add(Keyboard.Key.A, InputDirection.Left);
-		_axisMap.Add(Keyboard.Key.D, InputDirection.Right);
-
-		_axisMap.Add(Keyboard.Key.Up, InputDirection.Up);
-		_axisMap.Add(Keyboard.Key.Down, InputDirection.Down);
-		_axisMap.Add(Keyboard.Key.Left, InputDirection.Left);
-		_axisMap.Add(Keyboard.Key.Right, InputDirection.Right);
-
+		_axisMap = new Dictionary<Key, InputDirection> {
+			{
+				Key.W, InputDirection.Up
+			},
+			{
+				Key.S, InputDirection.Down
+			},
+			{
+				Key.A, InputDirection.Left
+			},
+			{
+				Key.D, InputDirection.Right
+			},
+			{
+				Key.Up, InputDirection.Up
+			},
+			{
+				Key.Down, InputDirection.Down
+			},
+			{
+				Key.Left, InputDirection.Left
+			},
+			{
+				Key.Right, InputDirection.Right
+			}
+		};
 		_axisState = new Dictionary<InputDirection, bool>();
 
-		foreach (InputDirection direction in Enum.GetValues(typeof(InputDirection))) {
-			if (!_axisState.ContainsKey(direction))
-				_axisState.Add(direction, false);
+		foreach (InputDirection? direction in Enum.GetValues(typeof(InputDirection))) {
+			if (direction != null) 
+				_axisState.TryAdd(direction.Value, false);
 		}
 
 		_axis = new Vector2(0, 0);
@@ -225,7 +240,6 @@ public class Input {
 		window.JoystickDisconnected -= WindowOnJoystickDisconnected;
 		window.JoystickButtonPressed -= WindowOnJoystickButtonPressed;
 		window.JoystickButtonReleased -= WindowOnJoystickButtonReleased;
-		;
 		window.MouseButtonPressed -= WindowOnMouseButtonPressed;
 		window.MouseButtonReleased -= WindowOnMouseButtonReleased;
 	}
@@ -255,13 +269,6 @@ public class Input {
 		// the mouse position is not relative to the game's window
 		// what is (69, 69) in game space is not the same in monitor space
 		// this function is translating monitor space to window space.
-		/*if (Engine.Fullscreen) {
-		    VideoMode desktopMode;
-		    desktopMode = VideoMode.DesktopMode;
-		    float fullScreenMin = Math.Min(desktopMode.Width / Engine.SCREEN_WIDTH, desktopMode.Height / Engine.SCREEN_HEIGHT);
-		    return (Vector2f)Mouse.GetPosition(Engine.Window) / fullScreenMin;
-		}*/
-
 		return (Vector2)Mouse.GetPosition(Engine.Window)/Engine.FrameBufferScale;
 	}
 
@@ -293,9 +300,9 @@ public class Input {
 
 		Outer.Log("button released");
 		if (_controllerType == ControllerType.Xbox360) {
-			if (ControllertoDButtonsMap.ContainsKey(e.Button)) {
-				Outer.Log(ControllertoDButtonsMap[e.Button]);
-				OnButtonReleased?.Invoke(this, ControllertoDButtonsMap[e.Button]);
+			if (_controllertoDButtonsMap.ContainsKey(e.Button)) {
+				Outer.Log(_controllertoDButtonsMap[e.Button]);
+				OnButtonReleased?.Invoke(this, _controllertoDButtonsMap[e.Button]);
 
 			}
 		}
@@ -308,9 +315,9 @@ public class Input {
 
 		Outer.Log("button pressed");
 		if (_controllerType == ControllerType.Xbox360) {
-			if (ControllertoDButtonsMap.ContainsKey(e.Button)) {
-				Outer.Log(ControllertoDButtonsMap[e.Button]);
-				OnButtonPressed?.Invoke(this, ControllertoDButtonsMap[e.Button]);
+			if (_controllertoDButtonsMap.ContainsKey(e.Button)) {
+				Outer.Log(_controllertoDButtonsMap[e.Button]);
+				OnButtonPressed?.Invoke(this, _controllertoDButtonsMap[e.Button]);
 			}
 		}
 	}
@@ -340,8 +347,8 @@ public class Input {
 		OnKeyReleased?.Invoke(this, e.Code);
 		_keyStatuses[e.Code] = false;
 
-		if (SFMLtoDButtonsMap.ContainsKey(e.Code)) {
-			OnButtonReleased?.Invoke(this, SFMLtoDButtonsMap[e.Code]);
+		if (_sfmLtoDButtonsMap.TryGetValue(e.Code, out DButtons dButton)) {
+			OnButtonReleased?.Invoke(this, dButton);
 		}
 		
 		if (_axisMap.TryGetValue(e.Code, out InputDirection value)) {
@@ -357,8 +364,8 @@ public class Input {
 		OnKeyPressed?.Invoke(this, e.Code);
 		_keyStatuses[e.Code] = true;
 
-		if (SFMLtoDButtonsMap.ContainsKey(e.Code)) {
-			OnButtonPressed?.Invoke(this, SFMLtoDButtonsMap[e.Code]);
+		if (_sfmLtoDButtonsMap.TryGetValue(e.Code, out DButtons dButton)) {
+			OnButtonPressed?.Invoke(this, dButton);
 		}
 		
 
@@ -370,7 +377,7 @@ public class Input {
 	
 	// update our axis
 	void RemapAxis () {
-		PreAxisChanged?.Invoke(_axis);
+		OnPreAxisChanged?.Invoke(_axis);
 
 		_horizontalAxis = (_axisState[InputDirection.Left] ? -1 : 0) + (_axisState[InputDirection.Right] ? 1 : 0);
 		_verticalAxis = (_axisState[InputDirection.Up] ? -1 : 0) + (_axisState[InputDirection.Down] ? 1 : 0);
@@ -378,7 +385,7 @@ public class Input {
 		_axis.X = _horizontalAxis;
 		_axis.Y = _verticalAxis;
 
-		PostAxisChanged?.Invoke();
+		OnPostAxisChanged?.Invoke();
 	}
 
 	#endregion

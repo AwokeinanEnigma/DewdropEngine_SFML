@@ -259,13 +259,13 @@ public string Username = "Joe";
             }
         }
     }
-    public override void BecomeVisible()
+    protected override void BecomeVisible()
     {
         base.BecomeVisible();
         Outer.Log("We're barack.");
     }
-    
-    public override void BecomeInvisible()
+
+    protected override void BecomeInvisible()
     {
         base.BecomeInvisible();
         Outer.Log("It's joeover.");

@@ -96,7 +96,9 @@ namespace Mother4.GUI
             _pipeline.Add(_topLetterbox);
             _bottomLetterbox = new ShapeRenderer(new RectangleShape(size), new Vector2(0f, _bottomLetterboxY), size, Vector2.Zero, 2147450878);
             _bottomLetterbox.FillColor = Color.Black;
-            _bottomLetterbox.OutlineColor = Color.White;            _bottomLetterbox.Visible = false;
+            _bottomLetterbox.OutlineColor = Color.White;
+            _bottomLetterbox.DrawRegardlessOfVisibility = true;
+            _bottomLetterbox.Visible = false;
             _pipeline.Add(_bottomLetterbox);
             _typewriterBox = new TypewriterBox(pipeline, new Vector2(Vector2.X + TextBox.TEXT_POSITION.X, Vector2.Y + TextBox.TEXT_POSITION.Y), TextBox.TEXT_SIZE, 2147450880, DButtons.Select, true, new TextBlock(new List<TextLine>()));
             _window = new WindowBox("window.gdat",

@@ -1,4 +1,6 @@
-﻿namespace DewDrop.Graphics;
+﻿// ReSharper disable InconsistentNaming
+// ReSharper disable MemberCanBePrivate.Global
+namespace DewDrop.Graphics;
 
 /// <summary>
 ///     An abstract class for animated graphics
@@ -8,30 +10,30 @@ public abstract class AnimatedRenderable : Renderable {
     ///     How many frames this animated graphic has
     /// </summary>
     public int Frames {
-		get => frames;
-		protected set => frames = value;
+		get => _frames;
+		protected set => _frames = value;
 	}
     /// <summary>
     ///     The frame this animated graphic is on
     /// </summary>
     public float Frame {
-		get => frame;
-		set => frame = Math.Max(0f, Math.Min(frames, value));
+		get => _frame;
+		set => _frame = Math.Max(0f, Math.Min(_frames, value));
 	}
     /// <summary>
     ///     The duration of various frames
     /// </summary>
     public float[] Speeds {
-		get => speeds;
-		protected set => speeds = value;
+		get => _speeds;
+		protected set => _speeds = value;
 	}
 
     /// <summary>
     ///     Speed modifier ( this is multiplied by the current speed )
     /// </summary>
     public float SpeedModifier {
-		get => speedModifier;
-		set => speedModifier = value;
+		get => _speedModifier;
+		set => _speedModifier = value;
 	}
     /// <summary>
     ///     Invoked when the renderable has finished an animation.
@@ -42,11 +44,11 @@ public abstract class AnimatedRenderable : Renderable {
 		OnAnimationComplete?.Invoke(this);
 	}
 
-	protected int frames;
-	protected float frame;
-	protected float speedIndex;
-	protected float[] speeds;
-	protected float speedModifier;
+	protected int _frames;
+	protected float _frame;
+	protected float _speedIndex;
+	protected float[] _speeds;
+	protected float _speedModifier;
 
 	public delegate void AnimationCompleteHandler (AnimatedRenderable renderable);
 }

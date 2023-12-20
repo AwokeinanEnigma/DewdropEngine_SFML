@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using System.Drawing;
+// ReSharper disable MemberHidesStaticFromOuterClass
 
 // Gist from:
 // https://gist.github.com/NoelFB/778d190e5d17f1b86ebf39325346fcc5
