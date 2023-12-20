@@ -16,6 +16,8 @@ using Color = SFML.Graphics.Color;
 
 namespace DewDrop.Graphics.Aseprite;
 
+// Stolen from: https://github.com/isadorasophia/murder/blob/main/src/Murder.Editor/Importers/AsepriteImporter.cs
+// Thanks!
 public partial class AsepriteImporter
 {
 

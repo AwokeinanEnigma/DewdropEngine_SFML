@@ -2,6 +2,7 @@
 
 using DewDrop.Utilities;
 using SFML.Graphics;
+// ReSharper disable InconsistentNaming
 
 #endregion
 

@@ -17,12 +17,8 @@ public class LineRenderer : Renderable{
 		_line.Append(new Vertex(positionB, color));
 	}
 	
-	public void SetPositionA(Vector2 positionA) {
-		_line[0] = new Vertex(positionA, _line[0].Color);
-	}
-	
-	public void SetPositionB(Vector2 positionB) {
-		_line[1] = new Vertex(positionB, _line[1].Color);
+	public void SetPosition(int index, Vector2 position){
+		_line[(uint)index] = new Vertex(position);
 	}
 	
 	public override void Draw (RenderTarget target) {

@@ -3,11 +3,15 @@
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
+// ReSharper disable InconsistentNaming
 
 #endregion
 
 namespace DewDrop.Graphics;
 
+/// <summary>
+/// Graphic is a class that represents a graphical object which can use any ITexture. Can be animated
+/// </summary>
 public class Graphic : AnimatedRenderable {
 	#region Properties
 
@@ -15,73 +19,73 @@ public class Graphic : AnimatedRenderable {
     ///     The color of this graphic
     /// </summary>
     public virtual Color Color {
-		get => sprite.Color;
-		set => sprite.Color = value;
+		get => _sprite.Color;
+		set => _sprite.Color = value;
 	}
     /// <summary>
     ///     The scale of the graphic, dictates how big it is.
     /// </summary>
     public virtual Vector2f Scale {
-		get => scale;
-		set => scale = value;
+		get => _scale;
+		set => _scale = value;
 	}
     /// <summary>
     ///     Keeps information about the texture.
     /// </summary>
     public IntRect TextureRect {
-		get => sprite.TextureRect;
+		get => _sprite.TextureRect;
 		set {
-			sprite.TextureRect = value;
+			_sprite.TextureRect = value;
 			Size = new Vector2(value.Width, value.Height);
-			startTextureRect = value;
-			frame = 0f;
+			_startTextureRect = value;
+			_frame = 0f;
 		}
 	}
     /// <summary>
     ///     The texture assosicated with the graphic
     /// </summary>
-    public ITexture Texture => texture;
+    public ITexture Texture => _texture;
 
 	#endregion
 
 	#region Fields
 
-	protected Sprite sprite;
-	protected ITexture texture;
-	protected IntRect startTextureRect;
-	protected Vector2f scale;
-	protected Vector2f finalScale;
+	protected  Sprite _sprite;
+	protected ITexture _texture;
+	protected IntRect _startTextureRect;
+	protected Vector2f _scale;
+	protected Vector2f _finalScale;
 
 	#endregion
 
-    /// <summary>
-    ///     Creates a new graphic
-    /// </summary>
-    /// <param name="resource">The name of the ITexture to pull from the TextureManager</param>
-    /// <param name="position">the position of the sprite relative to the graphic</param>
-    /// <param name="textureRect">Information about the texture's integer coordinates</param>
-    /// <param name="origin">Origin of the texture relative to the graphic</param>
-    /// <param name="depth">The depth of this object</param>
+	/// <summary>
+	/// Creates a new graphic.
+	/// </summary>
+	/// <param name="resource">The name of the ITexture to pull from the TextureManager</param>
+	/// <param name="position">The position of the sprite relative to the graphic</param>
+	/// <param name="textureRect">Information about the texture's integer coordinates</param>
+	/// <param name="origin">Origin of the texture relative to the graphic</param>
+	/// <param name="depth">The depth of this object</param>
     public Graphic (string resource, Vector2 position, IntRect textureRect, Vector2 origin, int depth) {
 		// this.texture = TextureManager.Instance.UseUnprocessed(resource);
-		sprite = new Sprite(texture.Image);
-		sprite.TextureRect = textureRect;
-		startTextureRect = textureRect;
+		_sprite = new Sprite(_texture.Image);
+		_sprite.TextureRect = textureRect;
+		_startTextureRect = textureRect;
 		_position = position;
-		Origin = origin;
-		Size = new Vector2(textureRect.Width, textureRect.Height);
-		Depth = depth;
-		Rotation = 0f;
-		scale = new Vector2f(1f, 1f);
-		finalScale = scale;
-		speedModifier = 1f;
-		sprite.Position = _position.Vector2f;
-		sprite.Origin = Origin.Vector2f;
-		speeds = new[] {
+		_origin = origin;
+		_size = new Vector2(textureRect.Width, textureRect.Height);
+		_depth = depth;
+		_rotation = 0f;
+		_scale = new Vector2f(1f, 1f);
+		_finalScale = _scale;
+		_speedModifier = 1f;
+		_sprite.Position = _position.Vector2f;
+		_sprite.Origin = _origin.Vector2f;
+		_speeds = new[] {
 			1f
 		};
-		speedIndex = 0f;
-		Visible = true;
+		_speedIndex = 0f;
+		_visible = true;
 	}
 
 	protected Graphic () {
@@ -91,15 +95,15 @@ public class Graphic : AnimatedRenderable {
     ///     Pushes the animation forward
     /// </summary>
     protected void UpdateAnimation () {
-		int num = startTextureRect.Left + (int)frame*(int)_size.X;
-		int left = num%(int)sprite.Texture.Size.X;
-		int top = startTextureRect.Top + num/(int)sprite.Texture.Size.X*(int)_size.Y;
-		sprite.TextureRect = new IntRect(left, top, (int)_size.X, (int)_size.Y);
-		if (frame + GetFrameSpeed() >= Frames) {
+		int num = _startTextureRect.Left + (int)_frame*(int)_size.X;
+		int left = num%(int)_sprite.Texture.Size.X;
+		int top = _startTextureRect.Top + num/(int)_sprite.Texture.Size.X*(int)_size.Y;
+		_sprite.TextureRect = new IntRect(left, top, (int)_size.X, (int)_size.Y);
+		if (_frame + GetFrameSpeed() >= Frames) {
 			AnimationComplete();
 		}
 
-		speedIndex = (speedIndex + GetFrameSpeed())%speeds.Length;
+		_speedIndex = (_speedIndex + GetFrameSpeed())%_speeds.Length;
 		IncrementFrame();
 	}
 
@@ -107,7 +111,7 @@ public class Graphic : AnimatedRenderable {
     ///     Pushes the current frame forward
     /// </summary>
     protected virtual void IncrementFrame () {
-		frame = (frame + GetFrameSpeed())%Frames;
+		_frame = (_frame + GetFrameSpeed())%Frames;
 	}
 
     /// <summary>
@@ -115,7 +119,7 @@ public class Graphic : AnimatedRenderable {
     /// </summary>
     /// <returns>The animation speed</returns>
     protected float GetFrameSpeed () {
-		return speeds[(int)speedIndex%speeds.Length]*speedModifier;
+		return _speeds[(int)_speedIndex%_speeds.Length]*_speedModifier;
 	}
 
 	public void Translate (Vector2f v) {
@@ -142,22 +146,22 @@ public class Graphic : AnimatedRenderable {
 				UpdateAnimation();
 			}
 
-			sprite.Position = _position.Vector2f;
-			sprite.Origin = Origin.Vector2f;
-			sprite.Rotation = Rotation;
-			finalScale = scale;
-			sprite.Scale = finalScale;
-			target.Draw(sprite);
+			_sprite.Position = _position.Vector2f;
+			_sprite.Origin = Origin.Vector2f;
+			_sprite.Rotation = Rotation;
+			_finalScale = _scale;
+			_sprite.Scale = _finalScale;
+			target.Draw(_sprite);
 		}
 	}
 
 	protected override void Dispose (bool disposing) {
 		if (!_disposed) {
-			if (disposing && sprite != null) {
-				sprite.Dispose();
+			if (disposing && _sprite != null) {
+				_sprite.Dispose();
 			}
 
-			TextureManager.Instance.Unuse(texture);
+			TextureManager.Instance.Unuse(_texture);
 
 		}
 

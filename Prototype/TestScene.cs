@@ -149,12 +149,12 @@ namespace Prototype.Scenes
                             ICollidable collidable = intersectedCollidables[i].Collider;
                             Outer.Log("Found collidable: " + collidable.GetType().FullName);
                             if (collidable is Wrentity wrentity) {
-                                line.SetPositionB(intersectedCollidables[i].Point);
+                                line.SetPosition(0, intersectedCollidables[i].Point);
                                 wrentity.Interact();
                                 break;
                             }
                             if (collidable is StaticCollider) {
-                                line.SetPositionB(intersectedCollidables[i].Point);
+                                line.SetPosition(0, intersectedCollidables[i].Point);
                                 break;
                             }
                         }
@@ -271,7 +271,7 @@ namespace Prototype.Scenes
             base.Update();
             EntityManager.Update();
             CollisionManager.UpdateTriggers();
-            line.SetPositionA(_playerEntity.Position);
+            line.SetPosition(1, _playerEntity.Position);
   
         }
 

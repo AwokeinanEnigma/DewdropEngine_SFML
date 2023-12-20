@@ -37,7 +37,7 @@ public class DebugPlayground : SceneBase
             firsta = first; ;
 
             // save it to a file
-            Type type = typeof(TextBox);
+            Type type = typeof(LineRenderer);
             string code =  WrenWrapperGenerator.GenerateWrapper(type) ;
             File.WriteAllText(Directory.GetCurrentDirectory() + $"/{WrenWrapperGenerator.GetWrapperClassName(type)}.cs", code);
             

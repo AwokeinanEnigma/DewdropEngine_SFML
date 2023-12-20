@@ -211,7 +211,7 @@ public class SpritesheetTexture : ITexture {
 	/// <summary>
 	/// Converts the spritesheet texture to an image.
 	/// </summary>
-	public void ConvertToImage () {
+	public void ConvertToImageFile () {
 		uint x1 = Image.Size.X;
 		uint y1 = Image.Size.Y;
 		Image image1 = new Image(x1, y1);
