@@ -69,10 +69,8 @@ public class AsepriteTexture : ITexture {
 	string _path;
 	public unsafe AsepriteTexture (string path) {
 		_path = path;
-		//
+		
 		AsepriteImporter sprite = new AsepriteImporter(path);
-		;
-		//
 		Image = new Texture((uint)sprite.Width, (uint)sprite.Height);
 		fixed (Color* ptr2 = sprite.Frames[0].Pixels) {
 			byte* pixels2 = (byte*)ptr2;

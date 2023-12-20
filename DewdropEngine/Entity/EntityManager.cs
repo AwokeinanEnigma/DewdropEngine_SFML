@@ -6,10 +6,10 @@ public class EntityManager {
 	readonly List<Entity> _entities;
 
 	// entities we gotta add
-	readonly Stack<Entity> _entitiesToRemove = new Stack<Entity>();
+	readonly Stack<Entity> _entitiesToRemove;
 
 	// entities we gotta remove
-	readonly Stack<Entity> _entitiesToAdd = new Stack<Entity>();
+	readonly Stack<Entity> _entitiesToAdd;
 
 	public EntityManager () {
 		// initialize lists

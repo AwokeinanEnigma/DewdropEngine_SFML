@@ -66,10 +66,7 @@ public class TextRenderer : Renderable {
 	/// </summary>
 	public int Index
 	{
-		get
-		{
-			return _index;
-		}
+		get => _index;
 		set
 		{
 			if (value != _index)

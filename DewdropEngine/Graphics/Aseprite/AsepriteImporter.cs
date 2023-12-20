@@ -93,7 +93,7 @@ public partial class AsepriteImporter
                 // Magic number (0xA5E0)
                 var magic = WORD();
                 if (magic != 0xA5E0)
-                    throw new Exception("File is not in .ase format");
+                    throw new ArgumentOutOfRangeException(file, "File is not in .ase format");
 
                 // Frames / Width / Height / Color Mode
                 FrameCount = WORD();
@@ -518,12 +518,12 @@ public partial class AsepriteImporter
     // Copied from Aseprite's source code:
     // https://github.com/aseprite/aseprite/blob/master/src/doc/blend_funcs.cpp
 
-    private delegate void Blend(ref Color dest, Color src, byte opacity);
+    private delegate void Blend(Color src, byte opacity, ref Color dest);
 
     private readonly static Blend[] _blendModes = new Blend[]
     {
         // 0 - NORMAL
-        (ref Color dest, Color src, byte opacity) =>
+        (Color src, byte opacity, ref Color dest) =>
         {
             int r, g, b, a;
 
@@ -647,7 +647,7 @@ public partial class AsepriteImporter
                 if (framePosition.X < 0 || framePosition.Y < 0 || framePosition.X >= frame.Sprite.Width || framePosition.Y >= frame.Sprite.Height)
                     continue;
 
-                blend(ref frame.Pixels[framePosition.X + framePosition.Y * frame.Sprite.Width], cel.Pixels[cx + cy * cel.Width], opacity);
+                blend(cel.Pixels[cx + cy * cel.Width], opacity, ref frame.Pixels[framePosition.X + framePosition.Y * frame.Sprite.Width]);
             }
         }
     }
@@ -675,7 +675,7 @@ public partial class AsepriteImporter
                 if (framePosition.X < 0 || framePosition.Y < 0 || framePosition.X >= width || framePosition.Y >= height)
                     continue;
 
-                blend(ref targetArray[framePosition.X + framePosition.Y * width], source.Pixels[cx + cy * source.Width], opacity);
+                blend(source.Pixels[cx + cy * source.Width], opacity, ref targetArray[framePosition.X + framePosition.Y * width]);
             }
         }
 

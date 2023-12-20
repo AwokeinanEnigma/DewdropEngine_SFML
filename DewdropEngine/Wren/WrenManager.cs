@@ -1,5 +1,4 @@
-﻿using DewDrop.Utilities;
-using IronWren;
+﻿using IronWren;
 using IronWren.AutoMapper;
 using System.Reflection;
 
@@ -17,14 +16,6 @@ public static class WrenManager {
 	static List<Type> _TypesList;
 	static Type[] _TypesArray;
 	static WrenConfig _Config;
-
-	/// <summary>
-	/// An event that is invoked when the WrenManager collects types that have the WrenClassAttribute.
-	/// </summary>
-	/// <remarks>
-	/// This event allows for additional types to be added to the list of types that will be exposed to the Wren scripts.
-	/// </remarks>
-	public static Action<List<Type>> CollectTypes;
 	
 	/// <summary>
 	/// Initializes the WrenManager with the provided configuration data.
@@ -32,12 +23,11 @@ public static class WrenManager {
 	/// <param name="configurationData">The configuration data for the WrenManager.</param>
 	internal static void Initialize (EngineConfigurationData configurationData) {
 		_TypesList = new();
-		_TypesList.AddRange(FindWrenTypes(Assembly.GetExecutingAssembly()));
+		_TypesList.AddRange(FindWrenTypes(Engine.Assembly));
 		
 		if (configurationData.WrenTypes != null) 
 			_TypesList.AddRange(configurationData.WrenTypes);
 		
-		CollectTypes?.Invoke(_TypesList);
 		_TypesArray = _TypesList.ToArray();
 		
 		_Config = new WrenConfig();
@@ -49,8 +39,7 @@ public static class WrenManager {
 	/// <param name="script">The script to be executed by the Wreno instance.</param>
 	/// <returns>A new Wreno instance.</returns>
 	public static Wreno MakeWreno(string script) {
-		WrenConfig config = new WrenConfig();
-		Wreno wreno = new Wreno(config, script);
+		Wreno wreno = new Wreno(_Config, script);
 		wreno.Automap(_TypesArray);
 		return wreno;
 	}

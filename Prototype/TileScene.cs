@@ -150,12 +150,6 @@ public class TileScene : SceneBase
         //ViewManager.Instance.Center = new Vector2(160f, 90f);    
     }
 
-    public override void Unfocus()
-    {
-        base.Unfocus();
-
-    }
-    
     public override void Update()
     {
         base.Update();

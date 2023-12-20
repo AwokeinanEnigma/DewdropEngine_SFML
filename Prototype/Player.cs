@@ -310,9 +310,9 @@ public string Username = "Joe";
     public string[] ArrayOfStrings = new string[5];
     public VertexArray DebugVerts { get; set; }
     
-    public void OnTriggerStay (ICollidable context) { throw new NotImplementedException(); }
+    public void OnTriggerStay (ICollidable context) { ; }
 
-    public void OnTriggerEnter (ICollidable context) { throw new NotImplementedException(); }
-    public void OnTriggerExit (ICollidable context) { throw new NotImplementedException(); }
+    public void OnTriggerEnter (ICollidable context) { ; }
+    public void OnTriggerExit (ICollidable context) { ; }
     public List<ICollidable> CollidingWith { get; }
 }

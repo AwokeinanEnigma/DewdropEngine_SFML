@@ -9,21 +9,20 @@
 // Note: I didn't test with with Indexed or Grayscale colors
 // Only implemented the stuff I needed / wanted, other stuff is ignored
 
-namespace DewDrop.Graphics.Aseprite
+namespace DewDrop.Graphics.Aseprite; 
+
+public partial class AsepriteImporter
 {
-    public partial class AsepriteImporter
+    public class Tileset
     {
-        public class Tileset
-        {
-            public string Name = string.Empty;
-            public int dataLength;
-            public Color[] Pixels = null!;
-            internal uint Id;
-            internal ushort TileWidth;
-            internal ushort TileHeight;
+        public string Name = string.Empty;
+        public int dataLength;
+        public Color[] Pixels = null!;
+        internal uint Id;
+        internal ushort TileWidth;
+        internal ushort TileHeight;
 
-            public int TileCount { get; internal set; }
-        }
-
+        public int TileCount { get; internal set; }
     }
+
 }

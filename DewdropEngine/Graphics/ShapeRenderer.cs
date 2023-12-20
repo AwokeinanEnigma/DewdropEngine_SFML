@@ -15,15 +15,14 @@ public class ShapeRenderer : Renderable {
 	/// <summary>
 	/// Gets the SFML _shape.
 	/// </summary>
-	Shape _shape;
+	readonly Shape _shape;
 
 	/// <summary>
 	/// Gets or sets the position of the ShapeRenderer.
 	/// </summary>
 	public override Vector2 RenderPosition {
-		get {
-			return _position;
-		}
+		get =>
+			_position;
 		set {
 			_shape.Position = value;
 			_position = value;

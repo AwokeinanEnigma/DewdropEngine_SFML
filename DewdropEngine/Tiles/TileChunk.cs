@@ -149,7 +149,7 @@ public class TileChunk : Renderable {
 			if (tileId >= 0)
 			{
 				// Check if the sprite definition has data
-				if (spriteDefinition.Data != null && spriteDefinition.Data.Length > 0)
+				if (spriteDefinition.Data?.Length > 0)
 				{
 					// Get the data and speed from the sprite definition
 					int[] data = spriteDefinition.Data;

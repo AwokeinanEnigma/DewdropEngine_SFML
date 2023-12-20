@@ -1,44 +1,43 @@
 ﻿using System;
 
-namespace Mother4.Scripts.Text
+namespace Mother4.Scripts.Text; 
+
+public class TextLine
 {
-	public class TextLine
+	public string Text
 	{
-		public string Text
+		get
 		{
-			get
-			{
-				return this.text;
-			}
+			return this.text;
 		}
-
-		public bool HasBullet
-		{
-			get
-			{
-				return this.bullet;
-			}
-		}
-
-		public ITextCommand[] Commands
-		{
-			get
-			{
-				return this.commands;
-			}
-		}
-
-		public TextLine(bool bullet, ITextCommand[] commands, string text)
-		{
-			this.bullet = bullet;
-			this.commands = commands;
-			this.text = text;
-		}
-
-		private string text;
-
-		private bool bullet;
-
-		private ITextCommand[] commands;
 	}
+
+	public bool HasBullet
+	{
+		get
+		{
+			return this.bullet;
+		}
+	}
+
+	public ITextCommand[] Commands
+	{
+		get
+		{
+			return this.commands;
+		}
+	}
+
+	public TextLine(bool bullet, ITextCommand[] commands, string text)
+	{
+		this.bullet = bullet;
+		this.commands = commands;
+		this.text = text;
+	}
+
+	private string text;
+
+	private bool bullet;
+
+	private ITextCommand[] commands;
 }

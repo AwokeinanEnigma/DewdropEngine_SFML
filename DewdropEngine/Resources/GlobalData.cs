@@ -85,6 +85,9 @@ namespace DewDrop.Resources
 				case NbtString nbtString:
 					_Data.Add(tag.Name, nbtString.Value);
 					break;
+				default:
+					Outer.LogError($"Unknown tag type {tag.GetType().Name} in GlobalData!", null);
+					break;
 				}
 			}
 		}

@@ -77,7 +77,7 @@ public class CollisionManager {
 	/// Removes all collidable objects from the spatial hash.
 	/// </summary>
 	public void Purge () {
-		_collidables.ForEach(x => _spatialHash.Remove(x));
+		_collidables.ForEach(_spatialHash.Remove);
 		//collidables.ForEach(x => x.Mesh.Destroy());
 		_collidables.Clear();
 		_collidables = null;
@@ -89,7 +89,7 @@ public class CollisionManager {
 	/// </summary>
 	public void Filter () {
 		List<ICollidable> itemToRemove = _collidables.FindAll(r => r == null);
-		itemToRemove.ForEach(x => _spatialHash.Remove(x));
+		itemToRemove.ForEach(_spatialHash.Remove);
 		List<ICollidable> result = _collidables.Except(itemToRemove).ToList();
 		_collidables = result;
 

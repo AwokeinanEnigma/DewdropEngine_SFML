@@ -127,7 +127,6 @@ public struct IniValue {
 		if (Value == null) {
 			result = default;
 			return false;
-			;
 		}
 
 		if (TryParseDouble(Value.Trim(), out result)) {
@@ -151,7 +150,7 @@ public struct IniValue {
 		}
 
 		var trimmed = Value.Trim();
-		if (allowOuterQuotes && trimmed.Length >= 2 && trimmed[0] == '"' && trimmed[trimmed.Length - 1] == '"') {
+		if (allowOuterQuotes && trimmed.Length >= 2 && trimmed[0] == '"' && trimmed[^1] == '"') {
 			var inner = trimmed.Substring(1, trimmed.Length - 2);
 			return preserveWhitespace ? inner : inner.Trim();
 		}
@@ -261,7 +260,7 @@ public class IniFile : IEnumerable<KeyValuePair<string, IniSection>>, IDictionar
 	}
 
 	public void Load (StreamReader reader, bool ordered = false) {
-		IniSection section = null;
+		IniSection? section = null;
 
 		while (!reader.EndOfStream) {
 			var line = reader.ReadLine();

@@ -104,23 +104,17 @@ public class Inspector : IDisposable {
 					_fields = localEntity.GetType().GetFields();
 					_methods = localEntity.GetType().GetMethods();
 					_properties = localEntity.GetType().GetProperties();
-					if (!_eMd.ContainsKey(localEntity)) {
-						_eMd.Add(localEntity, new());
-					}
-					if (!_aMp.ContainsKey(localEntity)) {
-						_aMp.Add(localEntity, new());
-					}
+		
+					_eMd.TryAdd(localEntity, new List<AssociatedEnumData>());
+					_aMp.TryAdd(localEntity, new List<AssociatedMethodParameter>());
 				} else if (_selectedEntity == null) {
 					_selectedEntity = localEntity;
 					_fields = localEntity.GetType().GetFields();
 					_methods = localEntity.GetType().GetMethods();
 					_properties = localEntity.GetType().GetProperties();
-					if (!_eMd.ContainsKey(localEntity)) {
-						_eMd.Add(localEntity, new());
-					}
-					if (!_aMp.ContainsKey(localEntity)) {
-						_aMp.Add(localEntity, new());
-					}
+				
+					_eMd.TryAdd(localEntity, new List<AssociatedEnumData>());
+					_aMp.TryAdd(localEntity, new List<AssociatedMethodParameter>());
 				}
 			}
 		}

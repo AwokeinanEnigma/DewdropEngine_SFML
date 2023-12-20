@@ -41,9 +41,9 @@ public class Wrentity : RenderableEntity, ICollidable
     public VertexArray DebugVerts { get; set; }
     public Vector2 Velocity { get; set; }
 
-    public void OnTriggerStay (ICollidable context) { throw new NotImplementedException(); }
-    public void OnTriggerEnter (ICollidable context) { throw new NotImplementedException(); }
-    public void OnTriggerExit (ICollidable context) { throw new NotImplementedException(); }
+    public void OnTriggerStay (ICollidable context) { ; }
+    public void OnTriggerEnter (ICollidable context) { ; }
+    public void OnTriggerExit (ICollidable context) { ; }
     public List<ICollidable> CollidingWith { get; }
     private Vector2 lastPosition;
     public override string Name => "Wrentity";

@@ -87,7 +87,7 @@ public static partial class Engine {
 						SceneManager.Push(new ErrorScene(value), true);
 						
 						StreamWriter streamWriter = new StreamWriter("error.log", true);
-						streamWriter.WriteLine(format: "At {0}:", arg0: DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss:fff"));
+						streamWriter.WriteLine(format: "At {0}:", arg0: DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss:fff"));
 						streamWriter.WriteLine(value);
 						streamWriter.WriteLine();
 						streamWriter.Close();

@@ -17,8 +17,8 @@ public static class ColorHelper {
 	/// </summary>
 	/// <param name="hexString">The hexadecimal color string.</param>
 	/// <returns>A Color object that represents the color of the hexadecimal string.</returns>
-	public static Color FromHexString (string hexString) {
-		Color result;
+	public static Color? FromHexString (string hexString) {
+		Color? result; 
 		try {
 			int color = int.Parse(hexString, NumberStyles.HexNumber);
 			result = FromInt(color);

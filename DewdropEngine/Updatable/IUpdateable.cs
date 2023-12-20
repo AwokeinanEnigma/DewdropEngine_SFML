@@ -4,7 +4,7 @@
 /// Defines an interface for objects that can be updated each frame or tick.
 /// </summary>
 /// <remarks>
-/// This interface is typically used in game development or similar applications where objects have an `Update` method that is called every frame or tick.
+/// This interface is typically used when you have objects that aren't entities or renderables.
 /// </remarks>
 public interface IUpdateable
 {
@@ -12,6 +12,5 @@ public interface IUpdateable
     /// <summary>
     /// Updates the state of the object.
     /// </summary>
-    /// <param name="deltaTime">The time elapsed since the last update.</param>
     void Update();
 }
