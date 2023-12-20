@@ -41,6 +41,7 @@ public class Inspector : IDisposable {
 	static readonly List<string> _Blacklist = new List<string> {
 		"Position"
 	};
+	// Contains all the types that the inspector supports
 	static readonly List<Type> _SupportedTypes = new List<Type> {
 		typeof(int),
 		typeof(float),
@@ -51,6 +52,7 @@ public class Inspector : IDisposable {
 		typeof(Enum)
 	};
 	CommandHistory _commandHistory = new CommandHistory();
+	List<CustomPainter> _customPainters;
 	struct AssociatedEnumData {
 		public string[] EnumOptions;
 		public string EnumName;
@@ -64,13 +66,36 @@ public class Inspector : IDisposable {
 	public void Initialize (EntityManager entityManager, CollisionManager collisionManager) {
 		_aMp = new();
 		_eMd = new();
+		_customPainters =new List<CustomPainter>();
 		_entityManager = entityManager;
 		_collisionManager = collisionManager;
 		_clock = new Clock();
 		Input.OnMouseClick += OnMouseClick;
 		Engine.OnRenderImGui += Paint;
+		
 	}
-	 void OnMouseClick (object? sender, MouseButtonEventArgs e) {
+	
+	/// <summary>
+	/// Adds a custom painter to the Inspector.
+	/// </summary>
+	/// <param name="painter">The CustomPainter object to be added to the Inspector.</param>
+	/// <remarks>
+	/// This method allows the addition of custom painters to the Inspector. Custom painters are used to customize the way certain fields or properties are displayed and edited in the Inspector. Once added, the custom painter will be used whenever a field or property of the type it supports is encountered.
+	/// </remarks>
+	public void AddCustomPainter (CustomPainter painter) {
+		if (painter == null) {
+			throw new ArgumentNullException(nameof(painter));
+		}
+		if (_customPainters.Contains(painter)) {
+			throw new ArgumentException("This painter has already been added to the inspector.", nameof(painter));
+		}
+		if (painter.Type == null) {
+			throw new ArgumentException("The painter's type cannot be null.", nameof(painter));
+		}
+		_customPainters.Add(painter);
+	}
+	
+	void OnMouseClick (object? sender, MouseButtonEventArgs e) {
 		foreach (var entity in _collisionManager.ObjectsAtPosition(Input.GetMouseWorldPosition())) {
 			Entity localEntity = _entityManager.Find(x => x == entity);
 			if (localEntity != null) {
@@ -149,10 +174,34 @@ public class Inspector : IDisposable {
 					PaintMethod(method);
 				}
 			}
+			ImGui.Separator();
+			if (ImGui.CollapsingHeader("Inspector Info ")) {
+				if (ImGui.CollapsingHeader("Command History")) {
+					// start at 1 so it makes sense to the user
+					int i = 1;
+					foreach (var command in _commandHistory.UndoStack) {
+						ImGui.Text($"Command {i}: {command}");
+						i++;
+					}
+					if (_commandHistory.UndoStack.Count == 0) {
+						ImGui.Text("No undo commands have been added :(");
+					}
+				}
+				if (ImGui.CollapsingHeader("Custom Painters")) {
+					// go through each custom painter and draw it
+					foreach (var painter in _customPainters) {
+						ImGui.Text(painter.ToString());
+					}
+					if (_customPainters.Count == 0) {
+						ImGui.Text("No custom painters have been added :(");
+					}
+				}
+			}
+
 			ImGui.End();
 		}
 	}
-		void PaintField (FieldInfo field) {
+	void PaintField (FieldInfo field) {
 		object value = field.GetValue(_selectedEntity);
 		// Daily reminder never to use GetType() in a loop. It may not cause a System Access Violation, but it'll still stall the program and crash it.
 		if (_Blacklist.Contains(field.Name)) {
@@ -182,39 +231,53 @@ public class Inspector : IDisposable {
 		if (value is IList list) {
 			PaintList(field, list, _selectedEntity);
 		}
+		if (_customPainters.Count > 0) {
+			foreach (var painter in _customPainters) {
+				if (painter.Type == field.FieldType) {
+					painter.PaintField(field, value, _selectedEntity, this, _commandHistory);
+				}
+			}
+		}
 		ImGui.Separator();
 	}
 	void PaintProperty (PropertyInfo property) {
 		// Don't use GetType() here, it'll cause a System Access Violation.
 		object value = property.GetValue(_selectedEntity);
 		bool canWrite = property.GetSetMethod() != null;
-		if (!canWrite || _Blacklist.Contains(property.Name)) {
+		if (_Blacklist.Contains(property.Name)) {
 			return;
 		}
 		if (value is Color color) {
-			PaintColor(property, color, _selectedEntity);
+			PaintColor(property, color, _selectedEntity, canWrite);
 		}
 		if (value is int integer) {
-			PaintIntegers(property, integer, _selectedEntity);
+			PaintIntegers(property, integer, _selectedEntity, canWrite);
 		}
 		if (value is float floatValue) {
-			PaintFloat(property, floatValue, _selectedEntity);
+			PaintFloat(property, floatValue, _selectedEntity,canWrite);
 		}
 		if (value is bool boolean) {
-			PaintBool(property, boolean, _selectedEntity);
+			PaintBool(property, boolean, _selectedEntity, canWrite);
 		}
 		if (value is string str) {
-			PaintString(property, str, _selectedEntity);
+			PaintString(property, str, _selectedEntity, canWrite);
 		}
 		if (value is Enum enumValue) {
-			PaintEnum(property, enumValue, _selectedEntity);
+			PaintEnum(property, enumValue, _selectedEntity, canWrite);
 		}
 		if (value is Vector2 vector2) {
-			PaintVector2(property, vector2, _selectedEntity);
+			PaintVector2(property, vector2, _selectedEntity, canWrite);
 		}
 		// check if list contains a supported type
 		if (value is IList list) {
 			PaintList(property, list, _selectedEntity);
+		}
+		if (_customPainters.Count > 0) {
+			foreach (var painter in _customPainters) {
+				if (painter.Type == property.PropertyType) {
+					painter.PaintProperty(property, value, _selectedEntity, this, _commandHistory);
+				}
+			}
 		}
 		ImGui.Separator();
 	}
@@ -340,6 +403,15 @@ public class Inspector : IDisposable {
 
 			if (!isArray) {
 				if (ImGui.Button("Add Element : " + info.Name)) {
+					// check if our custom painter supports this type
+					if (_customPainters.Count > 0) {
+						foreach (var painter in _customPainters) {
+							if (painter.Type == elementType) {
+								painter.AddListElement(list, entity, this, _commandHistory);
+								return;
+							}
+						}
+					}
 					_commandHistory.ExecuteCommand(
 						elementType == typeof(string) ? new AddListCommand(list, "") 
 							: new AddListCommand(list, Activator.CreateInstance(elementType)));
@@ -389,14 +461,26 @@ public class Inspector : IDisposable {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, ToSfmlColor(numericalColor), i));
 					}
 				}
+				if (_customPainters.Count > 0) {
+					foreach (var painter in _customPainters) {
+						if (painter.Type == elementType) {
+							painter.PaintList(list, i, entity, this, _commandHistory);
+						}
+					}
+				}
 			}
 
 			ImGui.PopItemWidth();
 			ImGui.Unindent();
 		}
 	}
-	void PaintFloat (MemberInfo info, float floatValue, Entity entity) {
+	void PaintFloat (MemberInfo info, float floatValue, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Float");
+		if (!canWrite) {
+			ImGui.Text("Value: " + floatValue);
+			ImGui.Text("Can't set this property.");
+			return;
+		}
 		FloatRangeAttribute range = info.GetCustomAttribute<FloatRangeAttribute>();
 		PaintTooltip(info);
 		if (range != null) {
@@ -409,16 +493,27 @@ public class Inspector : IDisposable {
 			}
 		}
 	}
-	void PaintColor (MemberInfo info, Color color, Entity entity) {
+	void PaintColor (MemberInfo info, Color color, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Color");
 		Vector4 numericalColor = ToNumericVector4(color);
+		if (!canWrite) {
+			// i don't think there's any way to display a color without using a color picker
+			ImGui.ColorPicker4(info.Name, ref numericalColor);
+			ImGui.Text("Can't set this property.");
+			return;
+		}
 		PaintTooltip(info);
 		if (ImGui.ColorPicker4(info.Name, ref numericalColor)) {
 			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ToSfmlColor(numericalColor), entity));
 		}
 	}
-	void PaintIntegers (MemberInfo info, int integer, Entity entity) {
+	void PaintIntegers (MemberInfo info, int integer, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Integer");
+		if (!canWrite) {
+			ImGui.Text("Value: " + integer);
+			ImGui.Text("Can't set this property.");
+			return;
+		}
 		IntegerRangeAttribute range = info.GetCustomAttribute<IntegerRangeAttribute>();
 		PaintTooltip(info);
 		if (range != null) {
@@ -431,22 +526,37 @@ public class Inspector : IDisposable {
 			}
 		}
 	}
-	void PaintString (MemberInfo info, string str, Entity entity) {
+	void PaintString (MemberInfo info, string str, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : String");
+		if (!canWrite) {
+			ImGui.Text("Value: " + str);
+			ImGui.Text("Can't set this property.");
+			return;
+		}
 		PaintTooltip(info);
 		if (ImGui.InputText(info.Name, ref str, 100)) {
 			_commandHistory.ExecuteCommand(new PaintStringCommand( info, str, entity));
 		}
 	}
-	void PaintBool (MemberInfo info, bool boolean, Entity entity) {
+	void PaintBool (MemberInfo info, bool boolean, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Boolean");
+		if (!canWrite) {
+			ImGui.Text("Value: " + boolean);
+			ImGui.Text("Can't set this property.");
+			return;
+		}
 		PaintTooltip(info);
 		if (ImGui.Checkbox(info.Name, ref boolean)) {
 			_commandHistory.ExecuteCommand(new PaintBoolCommand(info, boolean, entity));
 		}
 	}
-	void PaintEnum (MemberInfo info, object enumValue, Entity entity) {
+	void PaintEnum (MemberInfo info, object enumValue, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Enum");
+		if (!canWrite) {
+			ImGui.Text("Value: " + enumValue);
+			ImGui.Text("Can't set this property.");
+			return;
+		}
 		PaintTooltip(info);
 		AssociatedEnumData aEd =  _eMd[entity].Find(x => x.EnumName == enumValue.GetType().Name);
 		if (aEd.EnumName == null) {
@@ -461,10 +571,16 @@ public class Inspector : IDisposable {
 			//info.SetValue(entity, enumValue);
 		}
 	}
-	void PaintVector2 (MemberInfo info, Vector2 vector, Entity entity) {
+	void PaintVector2 (MemberInfo info, Vector2 vector, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Vector2");
-		PaintTooltip(info);
 		var vector2 = (System.Numerics.Vector2)vector;
+		if (!canWrite) {
+			// like the color, i don't think there's any way to display a vector without using inputfloat2	
+			ImGui.InputFloat2(info.Name, ref vector2);
+			ImGui.Text("Can't set this property.");
+			return;
+		}
+		PaintTooltip(info);
 		if (ImGui.InputFloat2(info.Name, ref vector2)) {
 			_commandHistory.ExecuteCommand(new PaintVector2Command( info, vector2, entity));
 			//info.SetValue(entity,  (Utilities.Vector2)vector2);
@@ -487,6 +603,8 @@ public class Inspector : IDisposable {
 	public void Dispose () {
 		Input.OnMouseClick -= OnMouseClick;
 		Engine.OnRenderImGui -= Paint;
+		_customPainters.ForEach(x => x.Dispose());
+		_customPainters = null;
 		_selectedEntity = null;
 		_fields = null;
 		_methods = null;
