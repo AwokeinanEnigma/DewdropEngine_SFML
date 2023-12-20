@@ -15,10 +15,11 @@ public abstract class InspectorCommand : ICommand {
 		}
 	}
 
-	protected object GetValue (Entity entity) {
+	protected object? GetValue (Entity entity) {
 		if (_member is PropertyInfo property) {
 			return property.GetValue(entity);
-		} else if (_member is FieldInfo field) {
+		} 
+		if (_member is FieldInfo field) {
 			return field.GetValue(entity);
 		}
 		return null;

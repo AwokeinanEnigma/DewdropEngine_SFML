@@ -29,14 +29,12 @@ namespace Prototype.Scenes;
 
 public class TestScene : SceneBase
 {
-    private Player _playerEntity;
-    public Text funnyText;
-    private ShapeEntity2 overlayEntity;
+    readonly Player _playerEntity;
+    readonly Text _funnyText;
     //private Wrentity wren;
 
-    private RenderPipeline pipeline;
-    LineRenderer line;
-    private TextRenderer title;
+    private readonly RenderPipeline _pipeline;
+    readonly LineRenderer _line;
     public EntityManager EntityManager { get; private set; }
     public CollisionManager CollisionManager { get; private set; }
     public List<TriggerArea> Triggers { get; private set; }
@@ -46,13 +44,10 @@ public class TestScene : SceneBase
     public TestScene()
     {
         #region Initialize
-
-        funnyText = new Text("swag", new FontData().Font);
-        funnyText.FillColor = Color.Red;
-
-        pipeline = new RenderPipeline(Engine.RenderTexture);
+        
+        _pipeline = new RenderPipeline(Engine.RenderTexture);
         EntityManager = new EntityManager();
-        WrenPipelineWrapper.Pipeline = pipeline;
+        WrenPipelineWrapper.Pipeline = _pipeline;
             
         #endregion
 
@@ -62,7 +57,7 @@ public class TestScene : SceneBase
         Map mapFile = loader.Load();
         Triggers = new List<TriggerArea>();
         CollisionManager = new CollisionManager(mapFile.Width, mapFile.Height);
-        pipeline.AddAll(MakeTileChunks(0, mapFile.TileChunkData));
+        _pipeline.AddAll(MakeTileChunks(0, mapFile.TileChunkData));
         foreach (var trigger in mapFile.Triggers)
         {
             Triggers.Add(new TriggerArea(trigger.Position, trigger.Points, trigger.Flag, trigger.Script));
@@ -72,7 +67,7 @@ public class TestScene : SceneBase
         mapFile.Collisions.ForEach(x => CollisionManager.Add( new StaticCollider(x)));
         #endregion
 
-        TextBox = new TextBox(pipeline, 0);
+        TextBox = new TextBox(_pipeline, 0);
         EntityManager.AddEntity(TextBox);
         TextBox.OnTextboxComplete += () => TextBox.Hide();
             
@@ -85,35 +80,35 @@ public class TestScene : SceneBase
             new RectangleShape(new Vector2f(11, 20)),
             new Vector2(160, 90),
             new Vector2(11, 20),
-            new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Green, Color.Green);
+            new Vector2(0, 0), 90000, _pipeline, CollisionManager, Color.Green, Color.Green);
         EntityManager.AddEntity(_playerEntity);
-        pipeline.Add(_playerEntity);
+        _pipeline.Add(_playerEntity);
         CollisionManager.Add(_playerEntity);
 
         Wrentity wren = new Wrentity(File.ReadAllText(Directory.GetCurrentDirectory() + "/wrenity.wren"), new RectangleShape(new Vector2f(11, 20)),
             new Vector2(160, 90),
             new Vector2(11, 20),
-            new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Blue, Color.Blue);
+            new Vector2(0, 0), 90000, _pipeline, CollisionManager, Color.Blue, Color.Blue);
         EntityManager.AddEntity(wren);
-        pipeline.Add(wren);
+        _pipeline.Add(wren);
         CollisionManager.Add(wren);
             
-        overlayEntity = new ShapeEntity2(
+        var overlayEntity = new ShapeEntity2(
             new RectangleShape(new Vector2f(1, 1)),
             new Vector2(160, 90),
             new Vector2(20, 20),
-            new Vector2(0, 0), 90000, pipeline, Color.Blue, Color.Blue);
+            new Vector2(0, 0), 90000, _pipeline, Color.Blue, Color.Blue);
             
             
             
         EntityManager.AddEntity(overlayEntity);
-        pipeline.Add(overlayEntity);
+        _pipeline.Add(overlayEntity);
         _inspector = new Inspector();
         _inspector.Initialize(EntityManager, CollisionManager);
             
         #endregion
-        line = new LineRenderer(_playerEntity.Position, _playerEntity.Position, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Yellow);
-        pipeline.Add(line);
+        _line = new LineRenderer(_playerEntity.Position, _playerEntity.Position, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Yellow);
+        _pipeline.Add(_line);
 
         Engine.OnRenderImGui += EngineOnRenderImGUI;
         Input.OnKeyPressed += InstanceOnOnKeyPressed;
@@ -133,7 +128,7 @@ public class TestScene : SceneBase
         if (!TextBox.Visible && key == Keyboard.Key.E) {
             RenderPNG();
             var lino = new LineRenderer(_playerEntity.Position, _playerEntity.Position + Vector2.Normalize(_playerEntity.CheckVector)*25, new Vector2(3000, 3000), new Vector2(0, 0), 10000, Color.Magenta);
-            pipeline.Add(lino);
+            _pipeline.Add(lino);
             List<RaycastHit> intersectedCollidables = CollisionManager.RaycastAll(
                 _playerEntity.Position,
                 Vector2.Normalize(_playerEntity.CheckVector),
@@ -146,12 +141,12 @@ public class TestScene : SceneBase
                     ICollidable collidable = intersectedCollidables[i].Collider;
                     Outer.Log("Found collidable: " + collidable.GetType().FullName);
                     if (collidable is Wrentity wrentity) {
-                        line.SetPosition(0, intersectedCollidables[i].Point);
+                        _line.SetPosition(0, intersectedCollidables[i].Point);
                         wrentity.Interact();
                         break;
                     }
                     if (collidable is StaticCollider) {
-                        line.SetPosition(0, intersectedCollidables[i].Point);
+                        _line.SetPosition(0, intersectedCollidables[i].Point);
                         break;
                     }
                 }
@@ -162,7 +157,7 @@ public class TestScene : SceneBase
             //draw floatrect
             FloatRect rect = new FloatRect( -15f, -15f, 30, 30);
             FloatRectDrawer drawer = new FloatRectDrawer(rect, _playerEntity.Position);
-            pipeline.Add(drawer);
+            _pipeline.Add(drawer);
                 
             List<ICollidable> overlap = CollisionManager.OverlapBoxAll(_playerEntity.Position, rect);
             Outer.Log(overlap.Count - 1);
@@ -256,7 +251,7 @@ public class TestScene : SceneBase
         base.Update();
         EntityManager.Update();
         CollisionManager.UpdateTriggers();
-        line.SetPosition(1, _playerEntity.Position);
+        _line.SetPosition(1, _playerEntity.Position);
   
     }
 
@@ -274,11 +269,10 @@ public class TestScene : SceneBase
 
     public override void Draw()
     {
-        pipeline.Draw();
-        Engine.RenderTexture.Draw(funnyText);
+        _pipeline.Draw();
         if (Engine.DebugMode)
         {
-            CollisionManager.Draw(pipeline.Target);
+            CollisionManager.Draw(_pipeline.Target);
         }      base.Draw();
     }
 
@@ -288,7 +282,7 @@ public class TestScene : SceneBase
         {
             CollisionManager.Clear();
             EntityManager.ClearEntities();
-            pipeline.Clear(true);
+            _pipeline.Clear(true);
             TextureManager.Instance.Purge();
             Triggers.ForEach(x => x.Dispose());
             Triggers.Clear();
