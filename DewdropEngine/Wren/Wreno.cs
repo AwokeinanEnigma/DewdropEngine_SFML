@@ -9,8 +9,11 @@ namespace DewDrop.Wren;
 
 /// <summary>
 /// A quick and easy WrenVM wrapper.
-/// Tip: Don't initalize these in your Scene's constructor, use TransitionIn instead!
 /// </summary>
+/// <remarks>
+/// This class is responsible for managing the Wren virtual machine, 
+/// handling function calls, logging, automapping, running scripts, and disposing resources.
+/// </remarks>
 public class Wreno : IDisposable {
 	readonly WrenVM _wren;
 	readonly Dictionary<string, WrenFunctionHandle> _handles;
@@ -30,11 +33,10 @@ public class Wreno : IDisposable {
 	/// </summary>
 	/// <param name="config">The WrenConfig to use for initialization.</param>
 	/// <param name="script">The Wren script to run.</param>
+	/// <param name="callerFilePath">The file path of the caller. This is used for logging purposes.</param>
 	public Wreno (WrenConfig config, string script, [CallerFilePath] string callerFilePath = "",
 	              [CallerLineNumber] int callerLineNumber = 0) {
 		try {
-
-
 			_wren = new WrenVM(config);
 			//_wren.BindForeignClass += OnVmOnBindForeignClass;
 			_handles = new Dictionary<string, WrenFunctionHandle>();
@@ -56,21 +58,7 @@ public class Wreno : IDisposable {
 			Outer.LogError("Wreno failed to initialize!", ex);
 		}
 	}
-	bool _generatedAllocator = false;
-	 WrenForeignClassMethods OnVmOnBindForeignClass (WrenVM vm, string module, string className) {
-		var result = _generatedAllocator ? new WrenForeignClassMethods {
-				Allocate = alloc
-			}
-			: null;
-		_generatedAllocator = true;
-		return result;
-	}
-	private static void alloc(WrenVM vm)
-	{
-		Console.WriteLine("Allocator called!");
-		vm.SetSlotNewForeign(0, 1);
-	}
-	
+
 	void GenerateEventHandlers () {
 		Regex gex = new Regex(@"e_(\w+)");
 		MatchCollection matches = gex.Matches(_script);
@@ -159,6 +147,7 @@ public class Wreno : IDisposable {
 		_wren.Call(handle);
 		
 	}
+	
 	/// <summary>
 	/// Calls a Wren function with an array of values.
 	/// </summary>
@@ -200,7 +189,7 @@ public class Wreno : IDisposable {
 
 	void Write (WrenVM vm, string text) {
 		if (!string.IsNullOrWhiteSpace(text) && !string.IsNullOrWhiteSpace(text)) 
-			Outer.LogESL(text);
+			Outer.LogEsl(text);
 	}
 	void WriteError(WrenVM vm, WrenErrorType type, string module, int line, string message) {
 		Outer.LogError($"Wren Error: {message} at {module}:{line}", new Exception(message));

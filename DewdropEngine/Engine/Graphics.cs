@@ -17,15 +17,15 @@ namespace DewDrop;
 public static partial class Engine {
 	#region Properties
 
-    /// <summary>
-    ///     The main Render Window the game is using.
-    /// </summary>
-    public static RenderWindow Window { get; private set; }
+	/// <summary>
+	/// The main Render Window the game is using.
+	/// </summary>
+	public static RenderWindow Window { get; private set; }
 
-    /// <summary>
-    ///     The Render Texture that the game is rendering.
-    /// </summary>
-    public static RenderTexture RenderTexture { get; private set; }
+	/// <summary>
+	/// The Render Texture that the game is rendering.
+	/// </summary>
+	public static RenderTexture RenderTexture { get; private set; }
 
 	public static int FrameBufferScale { get; set; } = 5;
 
@@ -49,15 +49,21 @@ public static partial class Engine {
 
 	// hard to explain but basically when rendering to a render target, this defines settings for rendering to said render target
 	// like blend mode, shader, and other stuff
-	public static RenderStates frameBufferState;
+	static RenderStates _FrameBufferState;
 
 	// i'm tired of explaining
 	// https://www.sfml-dev.org/tutorials/2.5/graphics-vertex-array.php
 	// it defines a shape, dude.
-	public static VertexArray frameBufferVertexArray;
+	static VertexArray _FrameBufferVertexArray;
 
-	// size of the screen
+	/// <summary>
+	/// The size of the screen.
+	/// </summary>
 	public static Vector2 ScreenSize { get; private set; }
+	
+	/// <summary>
+	/// Half the size of the screen.
+	/// </summary>
 	public static Vector2 HalfScreenSize { get; private set; }
 
 	#endregion
@@ -89,22 +95,22 @@ public static partial class Engine {
 		RenderTexture = new RenderTexture((uint)ScreenSize.x, (uint)ScreenSize.y);
 
 		// now make our frame buffer states using the frame buffer's texture
-		frameBufferState = new RenderStates(BlendMode.Alpha, Transform.Identity, RenderTexture.Texture, null);
+		_FrameBufferState = new RenderStates(BlendMode.Alpha, Transform.Identity, RenderTexture.Texture, null);
 
 		// This throws an error ( for obvious reasons )
 		//frameBufferState.Shader.SetUniform("texture", frameBufferState.Texture);
 		// make a square
-		frameBufferVertexArray = new VertexArray(PrimitiveType.Quads, 4U);
+		_FrameBufferVertexArray = new VertexArray(PrimitiveType.Quads, 4U);
 
 		// now, actually make the square
 		// postition coord: -180, -90 || tex coord: 0,0 
-		frameBufferVertexArray[0U] = new Vertex(new Vector2f(-HalfScreenSize.x, -HalfScreenSize.y), new Vector2f(0f, 0f));
+		_FrameBufferVertexArray[0U] = new Vertex(new Vector2f(-HalfScreenSize.x, -HalfScreenSize.y), new Vector2f(0f, 0f));
 		// postition coord: 180, -90 || tex coord: 320,0 
-		frameBufferVertexArray[1U] = new Vertex(new Vector2f(HalfScreenSize.x, -HalfScreenSize.y), new Vector2f(ScreenSize.x, 0f));
+		_FrameBufferVertexArray[1U] = new Vertex(new Vector2f(HalfScreenSize.x, -HalfScreenSize.y), new Vector2f(ScreenSize.x, 0f));
 		// postition coord: 180,90 || tex coord: 320,180
-		frameBufferVertexArray[2U] = new Vertex(new Vector2f(HalfScreenSize.x, HalfScreenSize.y), new Vector2f(ScreenSize.x, ScreenSize.y));
+		_FrameBufferVertexArray[2U] = new Vertex(new Vector2f(HalfScreenSize.x, HalfScreenSize.y), new Vector2f(ScreenSize.x, ScreenSize.y));
 		// postition coord: -180, 90 || tex coord: 0,180
-		frameBufferVertexArray[3U] = new Vertex(new Vector2f(-HalfScreenSize.x, HalfScreenSize.y), new Vector2f(0f, ScreenSize.y));
+		_FrameBufferVertexArray[3U] = new Vertex(new Vector2f(-HalfScreenSize.x, HalfScreenSize.y), new Vector2f(0f, ScreenSize.y));
 	}
 
 	static void SetWindow (bool goFullscreen, bool vsync) {
@@ -139,7 +145,7 @@ public static partial class Engine {
 			int width = (int)(HalfScreenSize.x*fullScreenMin);
 			int height = (int)(HalfScreenSize.y*fullScreenMin);
 
-			frameBufferState.Transform = new Transform(cos*fullScreenMin, sin, fullscreenWidth + width, -sin, cos*fullScreenMin, fullscreenHeight + height, 0f, 0f, 1f);
+			_FrameBufferState.Transform = new Transform(cos*fullScreenMin, sin, fullscreenWidth + width, -sin, cos*fullScreenMin, fullscreenHeight + height, 0f, 0f, 1f);
 		} else {
 
 			int halfWidthScale = (int)(HalfScreenSize.x*FrameBufferScale);
@@ -147,7 +153,7 @@ public static partial class Engine {
 			style = Styles.Close;
 			desktopMode = new VideoMode((uint)ScreenSize.x*(uint)FrameBufferScale, (uint)ScreenSize.y*(uint)FrameBufferScale);
 
-			frameBufferState.Transform = new Transform(cos*FrameBufferScale, sin*FrameBufferScale, halfWidthScale, -sin*FrameBufferScale, cos*FrameBufferScale, halfHeightScale, 0f, 0f, 1f);
+			_FrameBufferState.Transform = new Transform(cos*FrameBufferScale, sin*FrameBufferScale, halfWidthScale, -sin*FrameBufferScale, cos*FrameBufferScale, halfHeightScale, 0f, 0f, 1f);
 		}
 
 
@@ -184,9 +190,9 @@ public static partial class Engine {
 	public static void TakeScreenshot () {
 		Image snapshot = RenderTexture.Texture.CopyToImage();
 
-		string fileName = string.Format("screenshot{0}.png", Directory.GetFiles("./", "screenshot*.png").Length);
+		string fileName = $"screenshot{Directory.GetFiles("./", "screenshot*.png").Length}.png";
 
 		snapshot.SaveToFile(fileName);
-		Outer.LogInfo("Screenshot saved as \"{0}\"", fileName);
+		Outer.LogInfo($"Screenshot saved as \"{fileName}");
 	}
 }

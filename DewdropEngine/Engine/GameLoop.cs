@@ -6,7 +6,6 @@ using DewDrop.Scenes.Transitions;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 using System.Diagnostics;
 
 #endregion
@@ -14,9 +13,10 @@ using System.Diagnostics;
 namespace DewDrop;
 
 public static partial class Engine {
+	
+	// It's best you don't touch these.
 	static Time _DeltaTime;
 	static Clock _FrameTimer;
-	static Clock _DeltaTimeClock;
 	static Stopwatch _FrameStopwatch;
 
 	static float _DeltaTimeFloat = 1;
@@ -29,8 +29,11 @@ public static partial class Engine {
 	static float _LastTime;
 	public static event Action OnRenderImGui;
 	static double _Fps;
-	public static void StartGameLoop () {
-		_DeltaTimeClock = new Clock();
+	
+	/// <summary>
+	/// Starts the game loop of the DewDrop engine.
+	/// </summary>
+	static void StartGameLoop () {
 		_FrameTimer = new Clock();
 
 		_FrameStopwatch = Stopwatch.StartNew();
@@ -67,7 +70,7 @@ public static partial class Engine {
 						 * 
 						*/
 
-						Outer.LogWarning($"Resyncing, accumulator is {_Accumulator}, and loop count is {_FrameLoops}. See comments above this line in Program.cs for more info.");
+						Outer.LogWarning($"Re-syncing, accumulator is {_Accumulator}, and loop count is {_FrameLoops}. See comments above this line in Program.cs for more info.");
 						_Accumulator = 0.0f;
 						break;
 					}
@@ -84,7 +87,7 @@ public static partial class Engine {
 						SceneManager.Push(new ErrorScene(value), true);
 						
 						StreamWriter streamWriter = new StreamWriter("error.log", true);
-						streamWriter.WriteLine("At {0}:", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss:fff"));
+						streamWriter.WriteLine(format: "At {0}:", arg0: DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss:fff"));
 						streamWriter.WriteLine(value);
 						streamWriter.WriteLine();
 						streamWriter.Close();
@@ -99,13 +102,23 @@ public static partial class Engine {
 
 		// GameLoop();
 	}
+	
+	/// <summary>
+	/// Event that is invoked when the window gains focus.
+	/// </summary>
+	public static event Action OnFocusGained;
 
-	public static event Action  OnFocusLost;
-	public static event Action  OnFocusGained;
+	/// <summary>
+	/// Event that is invoked when the window loses focus.
+	/// </summary>
+	public static event Action OnFocusLost;
+	
 	static bool _HadFocus = true;
-	static bool _HasFocus = false;
-	static Stopwatch FrameTimer = new Stopwatch();
-	public static void Update () {
+	static bool _HasFocus;
+	/// <summary>
+	/// Updates the DewDrop engine.
+	/// </summary>
+	static void Update () {
 
 		// Update our audio as soon as possible
 		//AudioManager.Instance.Update();
@@ -124,11 +137,11 @@ public static partial class Engine {
 		//Finally, draw our scene.
 		SceneManager.Draw();
 		// Draw over our scene.
-		if (_debugMode) {
+		if (_DebugMode) {
 			DebugPipeline.Draw();
 		}
 
-		if (_debugMode) {
+		if (_DebugMode) {
 			ImGuiSfml.Update(Window, _DeltaTimeFloat);
 		}
 
@@ -145,18 +158,20 @@ public static partial class Engine {
 		_HadFocus = Window.HasFocus();
 	}
 
-	public static void Render () {
-
-
+	/// <summary>
+	/// Renders the DewDrop engine.
+	/// </summary>
+	static void Render () 
+	{
 		RenderTexture.Display();
 		Window.Clear(Color.Black);
-		if (_debugMode) {
+		if (_DebugMode) {
 			OnRenderImGui?.Invoke();
 		}
 
-		Window.Draw(frameBufferVertexArray, frameBufferState);
+		Window.Draw(_FrameBufferVertexArray, _FrameBufferState);
 
-		if (_debugMode) {
+		if (_DebugMode) {
 			ImGuiSfml.Render();
 		}
 

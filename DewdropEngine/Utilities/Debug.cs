@@ -6,31 +6,29 @@ using System.Runtime.CompilerServices;
 #endregion
 
 namespace DewDrop.Utilities;
-//based on https://github.com/NoelFB/Foster/blob/master/Framework/Logging/Log.cs
-//with some minor changes
 
 /// <summary>
-///     Contains useful methods for debugging.
+/// Provides logging functionality for different levels of log messages.
 /// </summary>
 public static class Outer {
-    /// <summary>
-    ///     Initializes the Debug class
-    /// </summary>
-    internal static void Initialize () {
+	/// <summary>
+	/// Initializes the Outer class and sets the verbosity level.
+	/// </summary>
+	internal static void Initialize () {
 		SetVerbosity(LogLevel.Engine);
 	}
 
 	#region Logging methods
 
-	static LogLevel Verbosity = LogLevel.Debug;
+	static LogLevel _Verbosity = LogLevel.Debug;
 
 	// this is for writing the logs to a file in the case of a crash
-	static List<string> allLogs = new List<string>();
+	static readonly List<string> _AllLogs = new List<string>();
 
-    /// <summary>
-    ///     An enum containing levels to log on
-    /// </summary>
-    public enum LogLevel {
+	/// <summary>
+	/// Enum representing different levels of log messages.
+	/// </summary>
+	enum LogLevel {
 		System,
 		Assert,
 		Error,
@@ -42,7 +40,7 @@ public static class Outer {
 		Trace
 	}
 
-	static Dictionary<LogLevel, ConsoleColor> logColors = new Dictionary<LogLevel, ConsoleColor> {
+	static readonly Dictionary<LogLevel, ConsoleColor> _LogColors = new Dictionary<LogLevel, ConsoleColor> {
 		[LogLevel.System] = ConsoleColor.White,
 		[LogLevel.Assert] = ConsoleColor.DarkRed,
 		[LogLevel.Error] = ConsoleColor.Red,
@@ -54,62 +52,54 @@ public static class Outer {
 		[LogLevel.Trace] = ConsoleColor.Cyan
 	};
 
-    /// <summary>
-    ///     Generic logging function. Just logs as system.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void Log (
+	/// <summary>
+	/// Logs a message with the System log level.
+	/// </summary>
+	/// <param name="message">The message to log.</param>
+	public static void Log (
 		object? message,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
 		LogInternal(LogLevel.System, message, callerFilePath, callerLineNumber);
 	}
 
-    /// <summary>
-    ///     Generic logging function. Just logs as system.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    internal static void LogEngine (
+	/// <summary>
+	/// Logs a message with the Engine log level.
+	/// </summary>
+	/// <param name="message">The message to log.</param>
+	internal static void LogEngine (
 		object? message,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
 		LogInternal(LogLevel.Engine, message, callerFilePath, callerLineNumber);
 	}
 
-    /// <summary>
-    ///     Used to stop the game if a condition is false. Sends a message to the console and then throws an error.
-    /// </summary>
-    /// <param name="condition">If this condition is false, the game will go into an error scene.</param>
-    /// <param name="message">The message to display if the condition is false. Is "Assertion failed." by default.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    [WrenBlackList]
-    public static void LogAssertion (
+
+	/// <summary>
+	/// Logs an assertion message and throws an exception if the condition is false.
+	/// </summary>
+	/// <param name="condition">The condition of the assertion.</param>
+	/// <param name="message">The message to log if the assertion fails.</param>
+	[WrenBlackList]
+	public static void LogAssertion (
 		bool condition,
 		object? message,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
-	    if (message == null) {
-		    message = "Assertion failed.";
-	    }
-	    if (condition == false) {
+		message ??= "Assertion failed.";
+		if (condition == false) {
 			LogInternal(LogLevel.Assert, message, callerFilePath, callerLineNumber);
 			throw new Exception("Assertion failed!");
 		}
 
 	}
 
-    /// <summary>
-    ///     Used to send error messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void LogError (
+	/// <summary>
+	/// Logs an error message and throws the provided exception.
+	/// </summary>
+	/// <param name="message">The error message to log.</param>
+	/// <param name="exception">The exception to throw.</param>
+	public static void LogError (
 		object? message,
 		Exception? exception,
 		[CallerFilePath] string callerFilePath = "",
@@ -121,186 +111,144 @@ public static class Outer {
 		}
 	}
 
-    /// <summary>
-    ///     Used to send warning messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void LogWarning (
+	/// <summary>
+	/// Logs a warning message.
+	/// </summary>
+	/// <param name="message">The warning message to log.</param>
+	public static void LogWarning (
 		object? message,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
 		LogInternal(LogLevel.Warning, message, callerFilePath, callerLineNumber);
 	}
 
-    /// <summary>
-    ///     Used to send info messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void LogInfo (
+	/// <summary>
+	/// Logs an info message.
+	/// </summary>
+	/// <param name="message">The info message to log.</param>
+	public static void LogInfo (
 		object? message,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
 		LogInternal(LogLevel.Info, message, callerFilePath, callerLineNumber);
 	}
 
-    /// <summary>
-    ///     Used to send Lua info messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void LogESL (
+	/// <summary>
+	/// Logs a Lua message.
+	/// </summary>
+	/// <param name="message">The Lua message to log.</param>
+	public static void LogEsl (
 		object? message,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
 		LogInternal(LogLevel.Lua, message, callerFilePath, callerLineNumber);
 	}
 
-    /// <summary>
-    ///     Used to send debug messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void LogDebug (
+	/// <summary>
+	/// Logs a debug message.
+	/// </summary>
+	/// <param name="message">The debug message to log.</param>
+	public static void LogDebug (
 		object? message,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
 		LogInternal(LogLevel.Debug, message, callerFilePath, callerLineNumber);
 	}
-    
-        /// <summary>
-    ///     Generic logging function. Just logs as system.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void sLog (
-	        string message) {
-	        LogInternal(LogLevel.System, message);
-        }
 
-    /// <summary>
-    ///     Generic logging function. Just logs as system.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    internal static void sLogEngine (
-	    string message) {
-	    LogInternal(LogLevel.Engine, message);
-    }
+	public static void SLog (
+		string message) {
+		LogInternal(LogLevel.System, message);
+	}
 
-    /// <summary>
-    ///     Used to stop the game if a condition is false. Sends a message to the console and then throws an error.
-    /// </summary>
-    /// <param name="condition">If this condition is false, the game will go into an error scene.</param>
-    /// <param name="message">The message to display if the condition is false. Is "Assertion failed." by default.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void sLogAssertion (
+	internal static void SLogEngine (
+		string message) {
+		LogInternal(LogLevel.Engine, message);
+	}
+
+	public static void SLogAssertion (
 		bool condition,
-		string message = "Assertion failed."){
-	    if (condition == false) {
+		string message = "Assertion failed.") {
+		if (condition == false) {
 			LogInternal(LogLevel.Assert, message);
 			//throw new Exception("Assertion failed!");
 		}
-    }
+	}
 
-    /// <summary>
-    ///     Used to send error messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    /// <param name="callerFilePath">Ignore this.</param>
-    /// <param name="callerLineNumber">Ignore this.</param>
-    public static void sLogError (
-	    string message) {
-	    LogInternal(LogLevel.Error, message);
-    }
+	public static void SLogError (
+		string message) {
+		LogInternal(LogLevel.Error, message);
+	}
 
-    /// <summary>
-    ///     Used to send warning messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    public static void sLogWarning (
-	    string message) {
-	    LogInternal(LogLevel.Warning, message);
-    }
+	public static void SLogWarning (
+		string message) {
+		LogInternal(LogLevel.Warning, message);
+	}
 
-    /// <summary>
-    ///     Used to send info messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    public static void sLogInfo (
-	    string message) {
-	    LogInternal(LogLevel.Info, message);
-    }
+	public static void SLogInfo (
+		string message) {
+		LogInternal(LogLevel.Info, message);
+	}
 
-    /// <summary>
-    ///     Used to send Lua info messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    public static void sLogESL (
-	    string message) {
-	    LogInternal(LogLevel.Lua, message);
-    }
+	public static void SLogEsl (
+		string message) {
+		LogInternal(LogLevel.Lua, message);
+	}
 
-    /// <summary>
-    ///     Used to send debug messages to the console.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    public static void sLogDebug (
-	    string message) {
-	    LogInternal(LogLevel.Debug, message);
-    }
+	public static void SLogDebug (
+		string message) {
+		LogInternal(LogLevel.Debug, message);
+	}
 
 
-	public static void SetVerbosity (
+	/// <summary>
+	/// Sets the verbosity level for logging.
+	/// </summary>
+	/// <param name="level">The level to set the verbosity to.</param>
+	static void SetVerbosity (
 		LogLevel level,
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
-		LogInternal(LogLevel.System, $"Current log level is {Verbosity}, setting it to {level}.", callerFilePath, callerLineNumber);
-		Verbosity = level;
+		LogInternal(LogLevel.System, $"Current log level is {_Verbosity}, setting it to {level}.", callerFilePath, callerLineNumber);
+		_Verbosity = level;
 	}
 
 	static void LogInternal (LogLevel logLevel, object? message, string callerFilePath, int callerLineNumber) {
-		if (Verbosity < logLevel) {
+		if (_Verbosity < logLevel) {
 			return;
 		}
 
 		string callsite = $"{Path.GetFileName(callerFilePath)}:{callerLineNumber}";
 		string dateTimeNow = DateTime.Now.ToString("HH:mm:ss");
 
-		Console.ForegroundColor = logColors[logLevel];
+		Console.ForegroundColor = _LogColors[logLevel];
 		Console.WriteLine($"{logLevel}, {dateTimeNow}, {callsite}>>> {message}");
 		Console.ResetColor();
-		allLogs.Add($"{dateTimeNow} [{logLevel}] {callsite}>>> {message}");
+		_AllLogs.Add($"{dateTimeNow} [{logLevel}] {callsite}>>> {message}");
 
 	}
 
 	static void LogInternal (LogLevel logLevel, string message) {
-		if (Verbosity < logLevel) {
+		if (_Verbosity < logLevel) {
 			return;
 		}
 
 		string callsite = $"???:???";
 		string dateTimeNow = DateTime.Now.ToString("HH:mm:ss");
 
-		Console.ForegroundColor = logColors[logLevel];
+		Console.ForegroundColor = _LogColors[logLevel];
 		Console.WriteLine($"{logLevel}, {dateTimeNow}, {callsite}>>> {message}");
 		Console.ResetColor();
-		allLogs.Add($"{dateTimeNow} [{logLevel}] {callsite}>>> {message}");
+		_AllLogs.Add($"{dateTimeNow} [{logLevel}] {callsite}>>> {message}");
 
 	}
+	/// <summary>
+	/// Dumps all logged messages to a file.
+	/// </summary>
 	public static void DumpLogs () {
 		StreamWriter streamWriter = new StreamWriter("datadump.log");
-		allLogs.ForEach(x => streamWriter.WriteLine(x));
+		_AllLogs.ForEach(x => streamWriter.WriteLine(x));
 		streamWriter.Close();
 	}
-
-	#endregion
 }
+
+#endregion

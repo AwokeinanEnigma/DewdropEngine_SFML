@@ -8,9 +8,15 @@ using System.Globalization;
 namespace DewDrop.Utilities;
 
 /// <summary>
-///     Helper class for colors
+/// Provides helper methods for working with colors.
 /// </summary>
 public static class ColorHelper {
+	
+	/// <summary>
+	/// Converts a hexadecimal color string to a Color object.
+	/// </summary>
+	/// <param name="hexString">The hexadecimal color string.</param>
+	/// <returns>A Color object that represents the color of the hexadecimal string.</returns>
 	public static Color FromHexString (string hexString) {
 		Color result;
 		try {
@@ -23,20 +29,20 @@ public static class ColorHelper {
 		return result;
 	}
 
-    /// <summary>
-    ///     Gets a color from an integer
-    /// </summary>
-    /// <param name="color">The integer to get the color from.</param>
-    /// <returns>Returns the color from the integer</returns>
-    public static Color FromInt (int color) {
+	/// <summary>
+	/// Converts an integer to a Color object.
+	/// </summary>
+	/// <param name="color">The integer to convert.</param>
+	/// <returns>A Color object that represents the color of the integer.</returns>
+	public static Color FromInt (int color) {
 		return FromInt((uint)color);
 	}
 
     /// <summary>
-    ///     Gets a color from an unsigned integer
+    /// Converts an unsigned integer to a Color object.
     /// </summary>
-    /// <param name="color">The unsigned integer to get the color from.</param>
-    /// <returns>Returns the color from the unsigned integer</returns>
+    /// <param name="color">The unsigned integer to convert.</param>
+    /// <returns>A Color object that represents the color of the unsigned integer.</returns>
     public static Color FromInt (uint color) {
 		// inherited from carbine
 		// i don't know how this code works, and frankly, i don't want to know. 
@@ -45,22 +51,34 @@ public static class ColorHelper {
 	}
 
     /// <summary>
-    ///     Blends two colors together
+    /// Blends two colors together.
     /// </summary>
-    /// <param name="col1"></param>
-    /// <param name="col2"></param>
-    /// <param name="amount">The amount to blend by. The higher the value, the less it'll blend. Vice versa. </param>
-    /// <returns></returns>
+    /// <param name="col1">The first color to blend.</param>
+    /// <param name="col2">The second color to blend.</param>
+    /// <param name="amount">The amount to blend by. The higher the value, the less it'll blend. Vice versa.</param>
+    /// <returns>A Color object that represents the blended color.</returns>
     public static Color Blend (Color col1, Color col2, float amount) {
 		float num = 1f - amount;
 		return new Color((byte)(col1.R*(double)num + col2.R*(double)amount), (byte)(col1.G*(double)num + col2.G*(double)amount), (byte)(col1.B*(double)num + col2.B*(double)amount), byte.MaxValue);
 	}
 
-	public static Color BlendAlpha (Color col1, Color col2, float amount) {
+    /// <summary>
+    /// Blends two colors together, including their alpha values.
+    /// </summary>
+    /// <param name="col1">The first color to blend.</param>
+    /// <param name="col2">The second color to blend.</param>
+    /// <param name="amount">The amount to blend by. The higher the value, the less it'll blend. Vice versa.</param>
+    /// <returns>A Color object that represents the blended color.</returns>
+    public static Color BlendAlpha (Color col1, Color col2, float amount) {
 		float num = 1f - amount;
 		return new Color((byte)(col1.R*(double)num + col2.R*(double)amount), (byte)(col1.G*(double)num + col2.G*(double)amount), (byte)(col1.B*(double)num + col2.B*(double)amount), (byte)(col1.A*(double)num + col2.A*(double)amount));
 	}
 
+	/// <summary>
+	/// Inverts a color.
+	/// </summary>
+	/// <param name="color">The color to invert.</param>
+	/// <returns>A Color object that represents the inverted color.</returns>
 	public static Color Invert (this Color color) {
 		return new Color((byte)(byte.MaxValue - (uint)color.R), (byte)(byte.MaxValue - (uint)color.G), (byte)(byte.MaxValue - (uint)color.B), color.A);
 	}

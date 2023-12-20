@@ -1,62 +1,54 @@
-﻿#region
+﻿using DewDrop.Utilities;
 
-using SFML.System;
-
-#endregion
-
-namespace DewDrop.Tiles;
-
+/// <summary>
+/// Represents a Tile in a tile-based game.
+/// </summary>
 public struct Tile {
-    /// <summary>
-    ///     Creates a new tile.
-    /// </summary>
-    /// <param name="tileID">The ID of the tile</param>
-    /// <param name="position">The position of the tile</param>
-    /// <param name="flipHoriz">Should this tile be flipped horizontally?</param>
-    /// <param name="flipVert">Should this tile be flipped vertically?</param>
-    /// <param name="flipDiag">Should this tile be flipped diagonally?</param>
-    /// <param name="animId">The animation ID of this tile</param>
-    public Tile (uint tileID, Vector2f position, bool flipHoriz, bool flipVert, bool flipDiag, ushort animId) {
-		ID = tileID;
+	/// <summary>
+	/// The unique identifier for the Tile.
+	/// </summary>
+	public readonly uint Id;
+
+	/// <summary>
+	/// The position of the Tile in the game world.
+	/// </summary>
+	public readonly Vector2 Position;
+
+	/// <summary>
+	/// Indicates whether the Tile is flipped horizontally.
+	/// </summary>
+	public readonly bool FlipHorizontal;
+
+	/// <summary>
+	/// Indicates whether the Tile is flipped vertically.
+	/// </summary>
+	public readonly bool FlipVertical;
+
+	/// <summary>
+	/// Indicates whether the Tile is flipped diagonally.
+	/// </summary>
+	public readonly bool FlipDiagonal;
+
+	/// <summary>
+	/// The identifier for the Tile's animation.
+	/// </summary>
+	public readonly ushort AnimationId;
+
+	/// <summary>
+	/// Initializes a new instance of the Tile struct with specified properties.
+	/// </summary>
+	/// <param name="tileId">The unique identifier for the Tile.</param>
+	/// <param name="position">The position of the Tile in the game world.</param>
+	/// <param name="flipHoriz">Indicates whether the Tile is flipped horizontally.</param>
+	/// <param name="flipVert">Indicates whether the Tile is flipped vertically.</param>
+	/// <param name="flipDiag">Indicates whether the Tile is flipped diagonally.</param>
+	/// <param name="animId">The identifier for the Tile's animation.</param>
+	public Tile (uint tileId, Vector2 position, bool flipHoriz, bool flipVert, bool flipDiag, ushort animId) {
+		Id = tileId;
 		Position = position;
 		FlipHorizontal = flipHoriz;
 		FlipVertical = flipVert;
 		FlipDiagonal = flipDiag;
 		AnimationId = animId;
 	}
-
-    /// <summary>
-    ///     The constant size of the tile. Don't change this.
-    /// </summary>
-    public const uint SIZE = 8U;
-
-    /// <summary>
-    ///     The tile's ID
-    /// </summary>
-    public readonly uint ID;
-
-    /// <summary>
-    ///     The position of this tile
-    /// </summary>
-    public readonly Vector2f Position;
-
-    /// <summary>
-    ///     Is this tile flipped horizontally?
-    /// </summary>
-    public readonly bool FlipHorizontal;
-
-    /// <summary>
-    ///     Is this tile flipped vertically?
-    /// </summary>
-    public readonly bool FlipVertical;
-
-    /// <summary>
-    ///     ...Is this tile flipped diagonally?
-    /// </summary>
-    public readonly bool FlipDiagonal;
-
-    /// <summary>
-    ///     The animation ID of this tile
-    /// </summary>
-    public readonly ushort AnimationId;
 }

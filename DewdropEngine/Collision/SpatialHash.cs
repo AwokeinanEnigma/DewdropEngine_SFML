@@ -3,29 +3,43 @@
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
+// ReSharper disable RedundantAssignment
 
 #endregion
 namespace DewDrop.Collision;
 
+
 /// <summary>
-///     Spatial hashing class for handling collision.
+/// Represents a spatial hash used for efficient collision detection.
 /// </summary>
-class SpatialHash {
-	internal const int CellSize = 256;
-	internal const int InitialBucketSize = 4;
-	internal const int MaxBucketSize = 512;
+public class SpatialHash {
+	/// <summary>
+	/// The size of each cell in the spatial hash.
+	/// </summary>
+	const int CellSize = 256;
+
+	/// <summary>
+	/// The initial size of each bucket in the spatial hash.
+	/// </summary>
+	const int InitialBucketSize = 4;
+
+	/// <summary>
+	/// The maximum size of each bucket in the spatial hash.
+	/// </summary>
+	const int MaxBucketSize = 512;
+	
 	readonly ICollidable[][] _buckets;
 	VertexArray _debugGridVerts;
 	readonly int _heightInCells;
 	readonly bool[] _touches;
 	readonly int _widthInCells;
 
-    /// <summary>
-    ///     Creates a new spatial hash
-    /// </summary>
-    /// <param name="width">The width of the space that this spatial hash handles collision in</param>
-    /// <param name="height">The height of the space that this spatial hash handles collision in</param>
-    public SpatialHash (int width, int height) {
+	/// <summary>
+	/// Initializes a new instance of the SpatialHash class with specified width and height.
+	/// </summary>
+	/// <param name="width">The width of the spatial hash.</param>
+	/// <param name="height">The height of the spatial hash.</param>
+	public SpatialHash (int width, int height) {
 		_widthInCells = (width - 1)/CellSize + 1;
 		_heightInCells = (height - 1)/CellSize + 1;
 		int num = _widthInCells*_heightInCells;
@@ -33,10 +47,7 @@ class SpatialHash {
 		_touches = new bool[num];
 		InitializeDebugGrid();
 	}
-
-    /// <summary>
-    /// Initializes the debug grid for visualization.
-    /// </summary>
+    
     void InitializeDebugGrid()
     {
 	    // Calculate the total number of vertices needed
@@ -78,13 +89,8 @@ class SpatialHash {
 	void ClearTouches () {
 		Array.Clear(_touches, 0, _touches.Length);
 	}
-	/// <summary>
-	/// Gets the position hash for a given x and y coordinate.
-	/// </summary>
-	/// <param name="x">The x coordinate.</param>
-	/// <param name="y">The y coordinate.</param>
-	/// <returns>The position hash.</returns>
-	public int GetPositionHash(int x, int y)
+	
+	int GetPositionHash(int x, int y)
 	{
 		// Calculate the x and y indices
 		int xIndex = x / CellSize;
@@ -95,7 +101,7 @@ class SpatialHash {
 
 	#region Buckets
 
-		/// <summary>
+	/// <summary>
 	/// Inserts a collidable object into the spatial hash bucket
 	/// </summary>
 	/// <param name="hash">The hash value for the bucket</param>
@@ -108,7 +114,7 @@ class SpatialHash {
 		// If the bucket is empty, create a new array for the bucket
 		if (array == null)
 		{
-			_buckets[hash] = new ICollidable[4];
+			_buckets[hash] = new ICollidable[InitialBucketSize];
 			array = _buckets[hash];
 		}
 
@@ -147,7 +153,7 @@ class SpatialHash {
 		}
 
 		// Otherwise, throw an exception
-		string message = string.Format("Cannot insert more than {0} collidables into a single bucket.", MaxBucketSize);
+		string message = $"Cannot insert more than {MaxBucketSize} collidables into a single bucket.";
 		throw new InvalidOperationException(message);
 	}
 
@@ -189,7 +195,7 @@ class SpatialHash {
 	}
 
 	/// <summary>
-	/// Inserts a collidable object into the grid.
+	/// Inserts a collidable object into the spatial hash.
 	/// </summary>
 	/// <param name="collidable">The collidable object to insert.</param>
 	public void Insert (ICollidable collidable) {
@@ -306,12 +312,7 @@ class SpatialHash {
 			}
 		}
 	}
-
-	/// <summary>
-	/// Checks if a given position is colliding with any of the collidables in the buckets.
-	/// </summary>
-	/// <param name="position">The position to check for collision.</param>
-	/// <returns>True if there is no collision, false otherwise.</returns>
+	
 	public bool CheckPosition(Vector2 position)
 	{
 		// Iterate through each bucket
@@ -337,7 +338,7 @@ class SpatialHash {
 	}
 
 	/// <summary>
-	/// Removes the given collidable from the spatial partitioning data structure.
+	/// Removes a collidable object from the spatial hash.
 	/// </summary>
 	/// <param name="collidable">The collidable object to remove.</param>
 	public void Remove(ICollidable collidable)
@@ -374,10 +375,10 @@ class SpatialHash {
 	}
 	
 	/// <summary>
-	/// Queries the spatial hash for collidable objects at a specific point.
+	/// Queries the spatial hash for collidable objects at a given point and adds them to a stack.
 	/// </summary>
-	/// <param name="point">The point to query.</param>
-	/// <param name="resultStack">The stack to store the results in.</param>
+	/// <param name="point">The point in the spatial hash to query.</param>
+	/// <param name="resultStack">The stack to which the collidable objects at the given point are added.</param>
 	public void Query(Vector2 point, Stack<ICollidable> resultStack)
 	{
 		ClearTouches();
@@ -406,13 +407,7 @@ class SpatialHash {
 		}
 	}
 	
-	/// <summary>
-	/// Queries the spatial hash for collidables that intersect with the given collidable.
-	/// </summary>
-	/// <param name="collidable">The collidable to query with.</param>
-	/// <param name="offset">The offset to apply to the collidable's position.</param>
-	/// <param name="resultStack">The stack to store the resulting collidables.</param>
-	public void Query(ICollidable collidable, Vector2f offset, Stack<ICollidable> resultStack)
+	public void Query(ICollidable collidable, Vector2 offset, Stack<ICollidable> resultStack)
 	{
 		ClearTouches();
 
@@ -462,9 +457,9 @@ class SpatialHash {
 			}
 		}
 	}
-
+	
 	/// <summary>
-	/// Clears all collidable objects in the spatial hash.
+	/// Clears all the touched cells in the spatial hash.
 	/// </summary>
 	public void Clear()
 	{
@@ -497,7 +492,7 @@ class SpatialHash {
 	{
 		Vector2 currentPos = origin;
 		Vector2 normalizedDirection = Vector2.Normalize(direction);
-		Stack <ICollidable> resultStack = new();
+		Stack <ICollidable> resultStack = new Stack<ICollidable>();
 		float currentDistance = 0;
 
 		while (currentDistance <= maxDistance)
@@ -510,7 +505,7 @@ class SpatialHash {
 					// get the normal of the collidable
 					Vector2 normal = collidable.AABB.GetNormal(currentPos);
 					// return the raycast hit
-					return new(currentPos, Vector2.Zero, currentDistance, collidable, true); }
+					return new(currentPos, normal, currentDistance, collidable, true); }
 			}
 			currentPos += normalizedDirection * 1;
 			currentDistance += 1;
@@ -527,12 +522,12 @@ class SpatialHash {
 	/// <param name="maxDistance">The maximum distance the ray can travel.</param>
 	/// <returns>A list of collidables intersected by the ray.</returns>
 	public List<RaycastHit> RaycastAll(Vector2 origin, Vector2 direction, float maxDistance) {
-		List<ICollidable> rayCollidables = new();
-		List<RaycastHit> rayHits = new();
+		List<ICollidable> rayCollidables = new List<ICollidable>();
+		List<RaycastHit> rayHits = new List<RaycastHit>();
 		Vector2 currentPos = origin;
 		Vector2 normalizedDirection = Vector2.Normalize(direction);
 		float currentDistance = 0;
-		Stack <ICollidable> resultStack = new();
+		Stack <ICollidable> resultStack = new Stack<ICollidable>();
 
 		while (currentDistance <= maxDistance)
 		{
@@ -610,7 +605,7 @@ class SpatialHash {
 	/// <param name="rect">The dimensions of the box.</param>
 	/// <returns>A list of collidables that overlap with the box.</returns>	
 	public List<ICollidable> OverlapBoxAll(Vector2 position, FloatRect rect) {
-		List<ICollidable> collidables = new();
+		List<ICollidable> collidables = new List<ICollidable>();
 		// Define the box's position
 		FloatRect boxRect = new FloatRect(
 			position.X + rect.Left,
@@ -729,20 +724,17 @@ class SpatialHash {
 		}
 	}
 	#endregion
-
-	bool CheckPositionCollision(ICollidable objA, Vector2 position, ICollidable objB)
-	{
-		foreach (var normal in objA.Mesh.Normals.Concat(objB.Mesh.Normals))
-		{
-			var normalizedNormal = Vector2.Normalize(normal);
-			if (!CheckProjection(normalizedNormal, objA.Mesh, position, objB.Mesh, objB.Position))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
+	
+	/// <summary>
+	/// Checks if the projections of two meshes on a given normal overlap.
+	/// </summary>
+	/// <param name="normal">The normal on which to project the meshes.</param>
+	/// <param name="meshA">The first mesh to project.</param>
+	/// <param name="positionA">The position of the first mesh.</param>
+	/// <param name="meshB">The second mesh to project.</param>
+	/// <param name="positionB">The position of the second mesh.</param>
+	/// <returns>True if the projections overlap, false otherwise.</returns>
+	// ReSharper disable once UnusedMember.Local
 	bool CheckProjection(Vector2 normal, Mesh meshA, Vector2 positionA, Mesh meshB, Vector2 positionB)
 	{
 		var minA = 0f;
@@ -753,9 +745,15 @@ class SpatialHash {
 		ProjectPolygon(normal, meshB, positionB, ref minB, ref maxB);
 		return IntervalDistance(minA, maxA, minB, maxB) <= 0f;
 	}
-	
-	
 
+	/// <summary>
+	/// Calculates the interval distance between two intervals.
+	/// </summary>
+	/// <param name="minA">The minimum value of the first interval.</param>
+	/// <param name="maxA">The maximum value of the first interval.</param>
+	/// <param name="minB">The minimum value of the second interval.</param>
+	/// <param name="maxB">The maximum value of the second interval.</param>
+	/// <returns>The interval distance between the two intervals.</returns>
 	int IntervalDistance (float minA, float maxA, float minB, float maxB) {
 		if (minA < minB) {
 			return (int)(minB - maxA);
@@ -763,24 +761,32 @@ class SpatialHash {
 		return (int)(minA - maxB);
 	}
 
-	void ProjectPolygon (Vector2 normal, Mesh mesh, Vector2 offset, ref float min, ref float max) {
+	/// <summary>
+	/// Projects a mesh onto a given normal and calculates the minimum and maximum values of the projection.
+	/// </summary>
+	/// <param name="normal">The normal on which to project the mesh.</param>
+	/// <param name="mesh">The mesh to project.</param>
+	/// <param name="offset">The offset to apply to the mesh vertices before projection.</param>
+	/// <param name="minimum">The minimum value of the projection.</param>
+	/// <param name="maximum">The maximum value of the projection.</param>
+	void ProjectPolygon (Vector2 normal, Mesh mesh, Vector2 offset, ref float minimum, ref float maximum) {
 		float num = Vector2.DotProduct(normal, mesh.Vertices[0] + offset);
-		min = num;
-		max = num;
-		for (int i = 0; i < mesh.Vertices.Count; i++) {
-			num = Vector2.DotProduct(mesh.Vertices[i] + offset, normal);
-			if (num < min) {
-				min = num;
-			} else if (num > max) {
-				max = num;
+		minimum = num;
+		maximum = num;
+		foreach (Vector2 t in mesh.Vertices) {
+			num = Vector2.DotProduct(t + offset, normal);
+			if (num < minimum) {
+				minimum = num;
+			} else if (num > maximum) {
+				maximum = num;
 			}
 		}
 	}
 	
 	/// <summary>
-	/// Draws the debug information for collidables on the specified render target.
+	/// Draws the spatial hash grid and the debug vertices of the collidable objects in the spatial hash.
 	/// </summary>
-	/// <param name="target">The render target to draw on.</param>
+	/// <param name="target">The render target on which to draw.</param>
 	public void DebugDraw(RenderTarget target)
 	{
 		// Create the render states for drawing
@@ -796,7 +802,7 @@ class SpatialHash {
 				foreach (ICollidable collidable in array)
 				{
 					// Check if the collidable is not null and has debug vertices
-					if (collidable != null && collidable.DebugVerts != null)
+					if (collidable is { DebugVerts: not null })
 					{
 						// Set the transform to the identity and translate it to the collidable's position
 						states.Transform = Transform.Identity;
