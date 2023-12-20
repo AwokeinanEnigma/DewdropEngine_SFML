@@ -1,4 +1,5 @@
-﻿namespace DewDrop.Inspector;
+﻿namespace DewDrop.Inspector.Attributes; 
+
 public class IntegerRangeAttribute : Attribute
 {
 	public IntegerRangeAttribute (int min, int max)

@@ -7,6 +7,7 @@ using DewDrop.Collision;
 using DewDrop.Entities;
 using DewDrop.Graphics;
 using DewDrop.Inspector;
+using DewDrop.Inspector.Attributes;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using Prototype;

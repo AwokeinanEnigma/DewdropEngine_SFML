@@ -2,12 +2,12 @@
 using SFML.Graphics;
 using System.Reflection;
 
-public class PaintColorCommand : ICommand
+namespace DewDrop.Inspector.Commands; 
+
+public class PaintColorCommand : InspectorCommand
 {
-	private readonly MemberInfo _member;
-	private readonly Color _color;
-	private readonly Entity _entity;
-	private Color _previousColor;
+	 readonly Color _color;
+	 Color _previousColor;
 
 	public PaintColorCommand(MemberInfo member, Color color, Entity entity)
 	{
@@ -16,7 +16,7 @@ public class PaintColorCommand : ICommand
 		_entity = entity;
 	}
 
-	public void Execute()
+	public override void Execute()
 	{
 		// Save the previous state for undo
 		_previousColor = (Color)GetValue(_entity);
@@ -25,38 +25,15 @@ public class PaintColorCommand : ICommand
 		SetValue(_entity, _color);
 	}
 
-	public void Undo()
+	public override void Undo()
 	{
 		// Revert the action
 		SetValue(_entity, _previousColor);
 	}
 
-	public void Redo()
+	public override void Redo()
 	{
 		// Reapply the action
 		SetValue(_entity, _color);
-	}
-
-	private void SetValue(Entity entity, Color value)
-	{
-		switch (_member)
-		{
-		case PropertyInfo property:
-			property.SetValue(entity, value);
-			break;
-		case FieldInfo field:
-			field.SetValue(entity, value);
-			break;
-		}
-	}
-
-	private object GetValue(Entity entity)
-	{
-		return _member switch
-		{
-			PropertyInfo property => property.GetValue(entity),
-			FieldInfo field => field.GetValue(entity),
-			_ => null
-		};
 	}
 }

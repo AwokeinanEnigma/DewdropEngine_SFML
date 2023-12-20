@@ -1,62 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using DewDrop.Entities;
 using System.Reflection;
 
-public class PaintEnumCommand : ICommand
-{
-	private MemberInfo _memberInfo;
-	private object _entity;
-	private object _previousValue;
-	private object _newValue;
+namespace DewDrop.Inspector.Commands; 
 
-	public PaintEnumCommand(MemberInfo memberInfo, object newValue, object entity)
+public class PaintEnumCommand : InspectorCommand
+{
+	readonly object _previousValue;
+	readonly object _newValue;
+
+	public PaintEnumCommand(MemberInfo memberInfo, object newValue, Entity entity)
 	{
-		_memberInfo = memberInfo;
+		_member = memberInfo;
 		_newValue = newValue;
 		_entity = entity;
-		_previousValue = GetValue(_memberInfo, _entity);
+		_previousValue = GetValue(_entity);
 	}
 
-	public void Execute()
+	public override void Execute()
 	{
-		SetValue(_memberInfo, _entity, _newValue);
+		SetValue(_entity, _newValue);
 	}
 
-	public void Undo()
+	public override void Undo()
 	{
-		SetValue(_memberInfo, _entity, _previousValue);
+		SetValue(_entity, _previousValue);
 	}
 
-	public void Redo()
+	public override void Redo()
 	{
 		Execute();
-	}
-
-	private object GetValue(MemberInfo memberInfo, object entity)
-	{
-		switch (memberInfo)
-		{
-		case FieldInfo fieldInfo:
-			return fieldInfo.GetValue(entity);
-		case PropertyInfo propertyInfo:
-			return propertyInfo.GetValue(entity);
-		default:
-			throw new ArgumentException("Invalid member type");
-		}
-	}
-
-	private void SetValue(MemberInfo memberInfo, object entity, object value)
-	{
-		switch (memberInfo)
-		{
-		case FieldInfo fieldInfo:
-			fieldInfo.SetValue(entity, value);
-			break;
-		case PropertyInfo propertyInfo:
-			propertyInfo.SetValue(entity, value);
-			break;
-		default:
-			throw new ArgumentException("Invalid member type");
-		}
 	}
 }

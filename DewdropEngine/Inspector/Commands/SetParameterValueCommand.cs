@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
+﻿namespace DewDrop.Inspector.Commands; 
 
-public class SetParameterValueCommand : ICommand
+public class SetParameterValueCommand : InspectorCommand
 {
-	private object[] _list;
-	private object _previousValue;
-	private object _newValue;
-	private int _index;
+	readonly object[] _list;
+	readonly object _previousValue;
+	readonly object _newValue;
+	readonly int _index;
 
 	public SetParameterValueCommand(object[] list, object newValue, int index)
 	{
@@ -17,17 +15,17 @@ public class SetParameterValueCommand : ICommand
 		_previousValue = _list[_index];
 	}
 
-	public void Execute()
+	public override void Execute()
 	{
 		_list[_index] = _newValue;
 	}
 
-	public void Undo()
+	public override void Undo()
 	{
 		_list[_index] = _previousValue;
 	}
 
-	public void Redo()
+	public override void Redo()
 	{
 		Execute();
 	}

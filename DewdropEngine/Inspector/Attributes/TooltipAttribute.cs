@@ -1,4 +1,4 @@
-﻿namespace DewDrop.Inspector; 
+﻿namespace DewDrop.Inspector.Attributes;
 
 public class TooltipAttribute : Attribute{
 	public string Tooltip { get; set; }
