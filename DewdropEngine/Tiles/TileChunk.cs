@@ -202,6 +202,11 @@ public class TileChunk : Renderable {
 		fixed (Vertex* ptr = _vertices) {
 			for (int i = 0; i < tiles.Count; i++) {
 				Vertex* ptr2 = ptr + i*4;
+				if (ptr2 < ptr || ptr2 >= ptr + _vertices.Length) {
+					Outer.LogError("Pointer offset is out of bounds when creating vertex array!", null);
+					// Handle error: pointer offset is out of bounds
+					continue;
+				}
 				Tile tile = tiles[i];
 				float x = tile.Position.X;
 				float y = tile.Position.Y;
@@ -317,6 +322,11 @@ public class TileChunk : Renderable {
 				{
 					int vertexIndex = tileAnimation.VertexIndexes[j];
 					Vertex* vertexPtr = ptr + vertexIndex;
+					if (vertexPtr < ptr || vertexPtr >= ptr + _vertices.Length) {
+						// Handle error: pointer offset is out of bounds
+						Outer.LogError("Pointer offset is out of bounds!", null);
+						continue;
+					}
 					// Update the texture coordinates for the vertex
 					vertexPtr->TexCoords.X = tileX;
 					vertexPtr->TexCoords.Y = tileY;
