@@ -6,14 +6,14 @@ internal class TextWait : ITextCommand
 {
 	public int Position
 	{
-		get => position;
-		set => position = value;
+		get => _position;
+		set => _position = value;
 	}
 
 	public TextWait(int position)
 	{
-		this.position = position;
+		this._position = position;
 	}
 
-	private int position;
+	int _position;
 }

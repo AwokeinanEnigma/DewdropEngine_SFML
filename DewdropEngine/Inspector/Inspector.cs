@@ -66,15 +66,15 @@ public class Inspector : IDisposable {
 	public void Initialize (EntityManager entityManager, CollisionManager collisionManager) {
 		_aMp = new();
 		_eMd = new();
-		_customPainters =new List<ICustomPainter>();
+		_customPainters = new List<ICustomPainter>();
 		_entityManager = entityManager;
 		_collisionManager = collisionManager;
 		_clock = new Clock();
 		Input.OnMouseClick += OnMouseClick;
 		Engine.OnRenderImGui += Paint;
-		
+
 	}
-	
+
 	/// <summary>
 	/// Adds a custom painter to the Inspector.
 	/// </summary>
@@ -94,7 +94,7 @@ public class Inspector : IDisposable {
 		}
 		_customPainters.Add(painter);
 	}
-	
+
 	void OnMouseClick (object? sender, MouseButtonEventArgs e) {
 		foreach (var entity in _collisionManager.ObjectsAtPosition(Input.GetMouseWorldPosition())) {
 			Entity localEntity = _entityManager.Find(x => x == entity);
@@ -104,7 +104,7 @@ public class Inspector : IDisposable {
 					_fields = localEntity.GetType().GetFields();
 					_methods = localEntity.GetType().GetMethods();
 					_properties = localEntity.GetType().GetProperties();
-		
+
 					_eMd.TryAdd(localEntity, new List<AssociatedEnumData>());
 					_aMp.TryAdd(localEntity, new List<AssociatedMethodParameter>());
 				} else if (_selectedEntity == null) {
@@ -112,7 +112,7 @@ public class Inspector : IDisposable {
 					_fields = localEntity.GetType().GetFields();
 					_methods = localEntity.GetType().GetMethods();
 					_properties = localEntity.GetType().GetProperties();
-				
+
 					_eMd.TryAdd(localEntity, new List<AssociatedEnumData>());
 					_aMp.TryAdd(localEntity, new List<AssociatedMethodParameter>());
 				}
@@ -123,7 +123,7 @@ public class Inspector : IDisposable {
 	/// <summary>
 	/// Renders the Inspector user interface.
 	/// </summary>
-	 void Paint () {
+	void Paint () {
 		if (_selectedEntity != null) {
 			if (Keyboard.IsKeyPressed(Keyboard.Key.LControl) || Keyboard.IsKeyPressed(Keyboard.Key.RControl)) {
 				if (Keyboard.IsKeyPressed(Keyboard.Key.Z) && _clock.ElapsedTime.AsMilliseconds() > 150) {
@@ -144,7 +144,7 @@ public class Inspector : IDisposable {
 				ImGui.Text("Position: " + _selectedEntity.Position);
 				var vector2 = (System.Numerics.Vector2)_selectedEntity.Position;
 				if (ImGui.InputFloat2("Position", ref vector2)) {
-					_commandHistory.ExecuteCommand(new PaintVector2Command( _selectedEntity.GetType().GetProperty("Position"), vector2, _selectedEntity));
+					_commandHistory.ExecuteCommand(new PaintVector2Command(_selectedEntity.GetType().GetProperty("Position"), vector2, _selectedEntity));
 				}
 			}
 			ImGui.Separator();
@@ -201,29 +201,23 @@ public class Inspector : IDisposable {
 		if (_Blacklist.Contains(field.Name)) {
 			return;
 		}
-		if (value is Color color) {
-			PaintColor(field, color, _selectedEntity);
-		}
-		if (value is int integer) {
-			PaintIntegers(field, integer, _selectedEntity);
-		}
-		if (value is float floatValue) {
-			PaintFloat(field, floatValue, _selectedEntity);
-		}
-		if (value is bool boolean) {
-			PaintBool(field, boolean, _selectedEntity);
-		}
-		if (value is string str) {
-			PaintString(field, str, _selectedEntity);
-		}
-		if (value is Enum) {
-			PaintEnum(field, value, _selectedEntity);
-		}
-		if (value is Vector2 vector2) {
-			PaintVector2(field, vector2, _selectedEntity);
-		}
-		if (value is IList list) {
-			PaintList(field, list, _selectedEntity);
+		switch (value) {
+		case Color color: PaintColor(field, color, _selectedEntity);
+			break;
+		case int integer: PaintIntegers(field, integer, _selectedEntity);
+			break;
+		case float floatValue: PaintFloat(field, floatValue, _selectedEntity);
+			break;
+		case bool boolean: PaintBool(field, boolean, _selectedEntity);
+			break;
+		case string str: PaintString(field, str, _selectedEntity);
+			break;
+		case Enum: PaintEnum(field, value, _selectedEntity);
+			break;
+		case Vector2 vector2: PaintVector2(field, vector2, _selectedEntity);
+			break;
+		case IList list: PaintList(field, list, _selectedEntity);
+			break;
 		}
 		if (_customPainters.Count > 0) {
 			foreach (var painter in _customPainters) {
@@ -241,30 +235,31 @@ public class Inspector : IDisposable {
 		if (_Blacklist.Contains(property.Name)) {
 			return;
 		}
-		if (value is Color color) {
+		switch (value) {
+		case Color color:
 			PaintColor(property, color, _selectedEntity, canWrite);
-		}
-		if (value is int integer) {
+			break;
+		case int integer:
 			PaintIntegers(property, integer, _selectedEntity, canWrite);
-		}
-		if (value is float floatValue) {
-			PaintFloat(property, floatValue, _selectedEntity,canWrite);
-		}
-		if (value is bool boolean) {
+			break;
+		case float floatValue:
+			PaintFloat(property, floatValue, _selectedEntity, canWrite);
+			break;
+		case bool boolean:
 			PaintBool(property, boolean, _selectedEntity, canWrite);
-		}
-		if (value is string str) {
+			break;
+		case string str:
 			PaintString(property, str, _selectedEntity, canWrite);
-		}
-		if (value is Enum enumValue) {
+			break;
+		case Enum enumValue:
 			PaintEnum(property, enumValue, _selectedEntity, canWrite);
-		}
-		if (value is Vector2 vector2) {
+			break;
+		case Vector2 vector2:
 			PaintVector2(property, vector2, _selectedEntity, canWrite);
-		}
-		// check if list contains a supported type
-		if (value is IList list) {
+			break;
+		case IList list:
 			PaintList(property, list, _selectedEntity);
+			break;
 		}
 		if (_customPainters.Count > 0) {
 			foreach (var painter in _customPainters) {

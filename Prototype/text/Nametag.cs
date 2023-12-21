@@ -74,19 +74,9 @@ public class Nametag : Renderable
 		}
 		base.Dispose(disposing);
 	}
-
-	private const string LeftSpriteName = "left";
-
-	private const string CenterSpriteName = "center";
-
-	private const string RightSpriteName = "right";
-
-	private const int Margin = 2;
-
+	
 	private const string ResourceName = "nametag.dat";
-
 	static readonly Vector2 _TextPosition = new Vector2(4f, -4f);
-
 	private readonly SpriteGraphic _left;
 	private readonly SpriteGraphic _center;
 	private readonly SpriteGraphic _right;
