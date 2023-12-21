@@ -20,12 +20,18 @@ public class ComponentHolder : IEnumerable<Component> {
 		}
 		Components[_availableIndex] = component;
 		// sort components by importance
-		for (int i = _availableIndex; i > 0; i--) {
-			if (Components[i].Importance > Components[i - 1].Importance) {
-				(Components[i], Components[i - 1]) = (Components[i - 1], Components[i]);
+		SortComponents();
+		_availableIndex++;
+	}
+	
+	void SortComponents () {
+		for (int i = 0; i < _availableIndex; i++) {
+			for (int j = i; j > 0; j--) {
+				if (Components[j].Importance > Components[j - 1].Importance) {
+					(Components[j], Components[j - 1]) = (Components[j - 1], Components[j]);
+				}
 			}
 		}
-		_availableIndex++;
 	}
 	
 	public void RemoveComponent (Component component) {

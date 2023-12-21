@@ -29,6 +29,8 @@ public static partial class Engine {
 	static float _LastTime;
 	public static event Action OnRenderImGui;
 	static double _Fps;
+	static float _AverageFps;
+	static double _LastFps;
 	
 	/// <summary>
 	/// Starts the game loop of the DewDrop engine.
@@ -92,8 +94,11 @@ public static partial class Engine {
 						streamWriter.WriteLine();
 						streamWriter.Close();
 					}
+					
 					_FrameStopwatch.Stop();
+					_LastFps = _Fps;
 					_Fps = 1.0f / _FrameStopwatch.Elapsed.Ticks * Stopwatch.Frequency;
+					_AverageFps = (float)( _AverageFps + _Fps) / 2.0f;
 					_Accumulator -= SixtyFps;
 					_FrameLoops++;
 

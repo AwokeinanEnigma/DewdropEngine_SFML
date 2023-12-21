@@ -110,7 +110,7 @@ public class SpriteGraphic : Graphic {
 		_defaultSprite = spriteName;
 
 		_texture = TextureManager.Instance.UseSpritesheet(resource);
-
+		
 		// cast now to avoid casting in the future
 		_spritesheet = (SpritesheetTexture)_texture;
 		_sprite = new Sprite(_texture.Image);
@@ -273,7 +273,7 @@ public class SpriteGraphic : Graphic {
 
 		_speedIndex = (int)_frame%_speeds.Length;
 	}
-
+	
 	public override void Draw (RenderTarget target) {
 		if (!_disposed && _visible) {
 			if (Frames > 1 && AnimationEnabled) {
@@ -301,7 +301,6 @@ public class SpriteGraphic : Graphic {
 			}
 		}
 	}
-
 	
 	/// <summary>
 	/// Retrieves the sprite definition for a given sprite name.

@@ -16,6 +16,7 @@ public class ErrorScene : SceneBase {
 		_pipeline.Add(main);
 		_pipeline.Add(error);
 		_pipeline.Add(contact);
+		Outer.DumpLogs();
 	}
 
 	public override void Focus () {

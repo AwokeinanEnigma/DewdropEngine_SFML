@@ -46,7 +46,10 @@ public static partial class Engine {
 		
 		ImGui.Text("FPS//");
 		ImGui.Separator();
-		ImGui.Text($"FPS: {MathF.Round((float)_Fps)}");
+		// using last fps, average fps, and current fps
+		//ImGui.Text($"Last FPS: {MathF.Round((float)_LastFps)}");
+		//ImGui.Text($"Average FPS: {MathF.Round((float)_Fps)}");
+		ImGui.Text($"Current FPS: {MathF.Round(_AverageFps)}");
 		ImGui.Separator();
 
 		//Outer.Log(GC.GetTotalMemory(false)/1024L);
