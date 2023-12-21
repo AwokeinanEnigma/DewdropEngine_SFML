@@ -2,6 +2,7 @@
 
 using SFML.Graphics;
 using System.Globalization;
+using System.Numerics;
 
 #endregion
 
@@ -17,15 +18,9 @@ public static class ColorHelper {
 	/// </summary>
 	/// <param name="hexString">The hexadecimal color string.</param>
 	/// <returns>A Color object that represents the color of the hexadecimal string.</returns>
-	public static Color FromHexString (string hexString) {
-		Color result;
-		try {
-			int color = int.Parse(hexString, NumberStyles.HexNumber);
-			result = FromInt(color);
-		} catch (Exception) {
-			result = Color.White;
-		}
-
+	public static Color? FromHexString (string hexString) {
+		Color? result; 
+		result = Int16.TryParse(hexString, NumberStyles.HexNumber, null, out short shortColor) ? FromInt((uint)shortColor) : Color.Black;
 		return result;
 	}
 
@@ -37,6 +32,10 @@ public static class ColorHelper {
 	public static Color FromInt (int color) {
 		return FromInt((uint)color);
 	}
+	
+	public static Vector4 ToNumericVector4 (Color self) => new Vector4(self.R/255.0f, self.G/255.0f, self.B/255.0f, self.A/255.0f);
+	public static Color ToSfmlColor (Vector4 self) => new Color((byte)(self.X*255f), (byte)(self.Y*255f), (byte)(self.Z*255f), (byte)(self.W*255f));
+
 
     /// <summary>
     /// Converts an unsigned integer to a Color object.

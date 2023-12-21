@@ -11,16 +11,9 @@ public class TextureHolder : ITexture
 	/// <summary>
 	/// Gets the image associated with the texture.
 	/// </summary>
-	public Texture Image
-	{
-		get
-		{
-			return this._imageTex;
-		}
-		set
-		{
-			this._imageTex = value;
-		}
+	public Texture Image {
+		get => _imageTex;
+		set => _imageTex = value;
 	}
 
 	Texture _imageTex;

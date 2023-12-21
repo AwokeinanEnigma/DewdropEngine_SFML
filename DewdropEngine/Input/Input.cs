@@ -1,5 +1,6 @@
 ﻿#region
 
+using DewDrop.Exceptions;
 using DewDrop.GUI;
 using DewDrop.Utilities;
 using SFML.System;
@@ -153,7 +154,7 @@ public class Input {
 	#endregion
 	public Input () {
 		if (Instance != null) {
-			throw new Exception("Input already exists!");
+			throw new  AlreadyExistsException(typeof(Input), "Input already exists!");
 		}
 
 		_keyStatuses = new Dictionary<Key, bool>();
@@ -298,13 +299,9 @@ public class Input {
 		if (!_recieveInput)
 			return;
 
-		Outer.Log("button released");
-		if (_controllerType == ControllerType.Xbox360) {
-			if (_controllertoDButtonsMap.ContainsKey(e.Button)) {
-				Outer.Log(_controllertoDButtonsMap[e.Button]);
-				OnButtonReleased?.Invoke(this, _controllertoDButtonsMap[e.Button]);
-
-			}
+		if (_controllerType == ControllerType.Xbox360 && _controllertoDButtonsMap.TryGetValue(e.Button, out DButtons value)) {
+				OnButtonReleased?.Invoke(this, value);
+			
 		}
 
 	}
@@ -312,13 +309,9 @@ public class Input {
 	void WindowOnJoystickButtonPressed (object? sender, JoystickButtonEventArgs e) {
 		if (!_recieveInput)
 			return;
-
-		Outer.Log("button pressed");
-		if (_controllerType == ControllerType.Xbox360) {
-			if (_controllertoDButtonsMap.ContainsKey(e.Button)) {
-				Outer.Log(_controllertoDButtonsMap[e.Button]);
-				OnButtonPressed?.Invoke(this, _controllertoDButtonsMap[e.Button]);
-			}
+		if (_controllerType == ControllerType.Xbox360 && _controllertoDButtonsMap.TryGetValue(e.Button, out DButtons value)) {
+				OnButtonPressed?.Invoke(this, value);
+			
 		}
 	}
 

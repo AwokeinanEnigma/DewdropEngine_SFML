@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Mother4.Scripts.Text
+namespace Mother4.Scripts.Text; 
+
+public interface ITextCommand
 {
-	public interface ITextCommand
-	{
-		int Position { get; set; }
-	}
+	int Position { get; set; }
 }

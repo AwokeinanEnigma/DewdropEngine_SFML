@@ -87,13 +87,12 @@ public class ShapeEntity2 : RenderableEntity
     
     protected override void Dispose(bool disposing)
     {
-        if (!_disposed)
+
+        if (!_disposed && disposing && _shape != null)
         {
-            if (disposing && _shape != null)
-            {
-                _shape.Dispose();
-            }
+            _shape.Dispose();
         }
+        
         _disposed = true;
     }
 

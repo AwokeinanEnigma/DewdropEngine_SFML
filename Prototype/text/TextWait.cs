@@ -1,26 +1,19 @@
 ﻿using System;
 
-namespace Mother4.Scripts.Text
+namespace Mother4.Scripts.Text; 
+
+internal class TextWait : ITextCommand
 {
-	internal class TextWait : ITextCommand
+	public int Position
 	{
-		public int Position
-		{
-			get
-			{
-				return this.position;
-			}
-			set
-			{
-				this.position = value;
-			}
-		}
-
-		public TextWait(int position)
-		{
-			this.position = position;
-		}
-
-		private int position;
+		get => _position;
+		set => _position = value;
 	}
+
+	public TextWait(int position)
+	{
+		this._position = position;
+	}
+
+	int _position;
 }

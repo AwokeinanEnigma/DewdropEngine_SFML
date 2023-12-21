@@ -9,27 +9,26 @@
 // Note: I didn't test with with Indexed or Grayscale colors
 // Only implemented the stuff I needed / wanted, other stuff is ignored
 
-namespace DewDrop.Graphics.Aseprite
+namespace DewDrop.Graphics.Aseprite; 
+
+public partial class AsepriteImporter
 {
-    public partial class AsepriteImporter
+    public class Tag : IUserData
     {
-        public class Tag : IUserData
+        public enum LoopDirections
         {
-            public enum LoopDirections
-            {
-                Forward = 0,
-                Reverse = 1,
-                PingPong = 2
-            }
-
-            public string Name = string.Empty;
-            public LoopDirections LoopDirection;
-            public int From;
-            public int To;
-            public int Repeat;
-
-            public UserData UserData { get; set; }
+            Forward = 0,
+            Reverse = 1,
+            PingPong = 2
         }
 
+        public string Name = string.Empty;
+        public LoopDirections LoopDirection;
+        public int From;
+        public int To;
+        public int Repeat;
+
+        public UserData UserData { get; set; }
     }
+
 }

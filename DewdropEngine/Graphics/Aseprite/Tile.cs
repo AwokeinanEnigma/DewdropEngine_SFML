@@ -7,8 +7,8 @@
 // Note: I didn't test with with Indexed or Grayscale colors
 // Only implemented the stuff I needed / wanted, other stuff is ignored
 
-namespace DewDrop.Graphics.Aseprite
-{
+namespace DewDrop.Graphics.Aseprite;
+
     public partial class AsepriteImporter
     {
         public struct Tile
@@ -20,4 +20,3 @@ namespace DewDrop.Graphics.Aseprite
         }
 
     }
-}

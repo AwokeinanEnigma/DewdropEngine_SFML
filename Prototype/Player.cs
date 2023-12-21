@@ -273,28 +273,21 @@ public string Username = "Joe";
     
     protected override void Dispose(bool disposing)
     {
-        if (!_disposed)
-        {
-            if (disposing && _shape != null)
-            {
-                _shape.Dispose();
-            }
+        if (!_disposed && disposing && _shape != null) {
+            _shape.Dispose();
         }
         _disposed = true;
     }
 
-    public override void Draw(RenderTarget target)
-    {
-        if (!_disposed)
-        {
-            _shape.Origin = Origin;
-            Vector2 positionCopy = _position;
-            positionCopy.y -= Size.y;
-            positionCopy.x -= Size.x / 2;
-            _shape.Position = positionCopy;
-            //_shape.Position = _position - Size;
-            target.Draw(_shape);
-        }
+    public override void Draw(RenderTarget target) {
+        if (_disposed) return;
+        _shape.Origin = Origin;
+        Vector2 positionCopy = _position;
+        positionCopy.y -= Size.y;
+        positionCopy.x -= Size.x / 2;
+        _shape.Position = positionCopy;
+        //_shape.Position = _position - Size;
+        target.Draw(_shape);
     }
 
     public Vector2 Velocity;
@@ -310,9 +303,9 @@ public string Username = "Joe";
     public string[] ArrayOfStrings = new string[5];
     public VertexArray DebugVerts { get; set; }
     
-    public void OnTriggerStay (ICollidable context) { throw new NotImplementedException(); }
+    public void OnTriggerStay (ICollidable context) { ; }
 
-    public void OnTriggerEnter (ICollidable context) { throw new NotImplementedException(); }
-    public void OnTriggerExit (ICollidable context) { throw new NotImplementedException(); }
+    public void OnTriggerEnter (ICollidable context) { ; }
+    public void OnTriggerExit (ICollidable context) { ; }
     public List<ICollidable> CollidingWith { get; }
 }

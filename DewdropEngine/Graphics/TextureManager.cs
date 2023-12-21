@@ -107,7 +107,7 @@ public class TextureManager {
 					}
 
 					SpriteDefinition newSpriteDefinition = new SpriteDefinition(text, coords, bounds, origin, frames, speeds, flipX, flipY, mode, data);
-					if (spriteDefinition.Name == "") {
+					if (spriteDefinition.Name == string.Empty) {
 						spriteDefinition = newSpriteDefinition;
 					}
 

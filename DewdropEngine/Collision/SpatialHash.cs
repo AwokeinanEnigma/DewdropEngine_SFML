@@ -655,7 +655,7 @@ public class SpatialHash {
 	/// <param name="position">The position of the box.</param>
 	/// <param name="rect">The dimensions of the box.</param>
 	/// <returns>The collidable that overlaps with the box, or null if no overlap is found.</returns>
-	public ICollidable OverlapBoxTarget(Vector2 position, FloatRect rect) {
+	public ICollidable? OverlapBoxTarget(Vector2 position, FloatRect rect) {
 		// Define the box's position
 		FloatRect boxRect = new FloatRect(
 			position.X + rect.Left,
@@ -712,16 +712,8 @@ public class SpatialHash {
 		float maxX = collidable.Position.X + collidable.AABB.Position.X + collidable.AABB.Size.X;
 		float minY = collidable.Position.Y + collidable.AABB.Position.Y;
 		float maxY = collidable.Position.Y + collidable.AABB.Position.Y + collidable.AABB.Size.Y;
-
-		// Check if the position is inside the bounding box
-		if (position.X >= minX && position.X < maxX && position.Y >= minY && position.Y < maxY)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		
+		return position.X >= minX && position.X < maxX && position.Y >= minY && position.Y < maxY;
 	}
 	#endregion
 	

@@ -5,106 +5,81 @@ using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
 
-namespace Mother4.GUI
+namespace Mother4.GUI; 
+
+public class Nametag : Renderable
 {
-	public class Nametag : Renderable
+	public override Vector2 RenderPosition
 	{
-		public override Vector2 RenderPosition
-		{
-			get
-			{
-				return _position;
-			}
-			set
-			{
-				this.Reposition(value);
-			}
-		}
-
-		public string Name
-		{
-			get
-			{
-				return this.nameText.Text;
-			}
-			set
-			{
-				this.SetName(value);
-			}
-		}
-
-		public Nametag(string nameString, Vector2 position, int depth)
-		{
-			_position = position;
-			_depth = depth;
-			this.nameText = new TextRenderer(_position + Nametag.TEXT_POSITION, _depth + 1, new FontData(), nameString);
-			this.left = new SpriteGraphic(Nametag.RESOURCE_NAME, "left", _position, _depth);
-			this.center = new SpriteGraphic(Nametag.RESOURCE_NAME, "center", this.left.RenderPosition + new Vector2(this.left.Size.X, 0f), _depth);
-			this.center.Scale = new Vector2(this.nameText.Size.X + 2f, 1f);
-			this.right = new SpriteGraphic(Nametag.RESOURCE_NAME, "right", this.center.RenderPosition + new Vector2(this.nameText.Size.X + 2f, 0f), _depth);
-			this.CalculateSize();
-		}
-
-		private void Reposition(Vector2 newPosition)
-		{
-			_position = newPosition;
-			this.nameText.RenderPosition = _position + Nametag.TEXT_POSITION;
-			this.left.RenderPosition = _position;
-			this.center.RenderPosition = this.left.RenderPosition + new Vector2(this.left.Size.X, 0f);
-			this.right.RenderPosition = this.center.RenderPosition + new Vector2(this.nameText.Size.X + 2f, 0f);
-		}
-
-		private void SetName(string newName)
-		{
-			this.nameText.Reset(newName, 0, newName.Length);
-			this.center.Scale = new Vector2(this.nameText.Size.X + 2f, 1f);
-			this.right.RenderPosition = this.center.RenderPosition + new Vector2(this.nameText.Size.X + 2f, 0f);
-			this.CalculateSize();
-		}
-
-		private void CalculateSize()
-		{
-			Size = new Vector2(this.left.Size.X + this.nameText.Size.X + 2f + this.right.Size.X, this.left.Size.Y);
-		}
-
-		public override void Draw(RenderTarget target)
-		{
-			this.left.Draw(target);
-			this.center.Draw(target);
-			this.right.Draw(target);
-			this.nameText.Draw(target);
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (!_disposed && disposing)
-			{
-				this.left.Dispose();
-				this.center.Dispose();
-				this.right.Dispose();
-				this.nameText.Dispose();
-			}
-			base.Dispose(disposing);
-		}
-
-		private const string LEFT_SPRITE_NAME = "left";
-
-		private const string CENTER_SPRITE_NAME = "center";
-
-		private const string RIGHT_SPRITE_NAME = "right";
-
-		private const int MARGIN = 2;
-
-		private static readonly string RESOURCE_NAME = "nametag.dat";
-
-		private static readonly Vector2 TEXT_POSITION = new Vector2(4f, -4f);
-
-		private SpriteGraphic left;
-
-		private SpriteGraphic center;
-
-		private SpriteGraphic right;
-
-		private TextRenderer nameText;
+		get => _position;
+		set => Reposition(value);
 	}
+
+	public string Name
+	{
+		get => _nameText.Text;
+		set => SetName(value);
+	}
+
+	public Nametag(string nameString, Vector2 position, int depth)
+	{
+		_position = position;
+		_depth = depth;
+		this._nameText = new TextRenderer(_position + Nametag._TextPosition, _depth + 1, new FontData(), nameString);
+		this._left = new SpriteGraphic(Nametag.ResourceName, "left", _position, _depth);
+		this._center = new SpriteGraphic(Nametag.ResourceName, "center", this._left.RenderPosition + new Vector2(this._left.Size.X, 0f), _depth);
+		this._center.Scale = new Vector2(this._nameText.Size.X + 2f, 1f);
+		this._right = new SpriteGraphic(Nametag.ResourceName, "right", this._center.RenderPosition + new Vector2(this._nameText.Size.X + 2f, 0f), _depth);
+		this.CalculateSize();
+	}
+
+	private void Reposition(Vector2 newPosition)
+	{
+		_position = newPosition;
+		this._nameText.RenderPosition = _position + Nametag._TextPosition;
+		this._left.RenderPosition = _position;
+		this._center.RenderPosition = this._left.RenderPosition + new Vector2(this._left.Size.X, 0f);
+		this._right.RenderPosition = this._center.RenderPosition + new Vector2(this._nameText.Size.X + 2f, 0f);
+	}
+
+	private void SetName(string newName)
+	{
+		this._nameText.Reset(newName, 0, newName.Length);
+		this._center.Scale = new Vector2(this._nameText.Size.X + 2f, 1f);
+		this._right.RenderPosition = this._center.RenderPosition + new Vector2(this._nameText.Size.X + 2f, 0f);
+		this.CalculateSize();
+	}
+
+	private void CalculateSize()
+	{
+		Size = new Vector2(this._left.Size.X + this._nameText.Size.X + 2f + this._right.Size.X, this._left.Size.Y);
+	}
+
+	public override void Draw(RenderTarget target)
+	{
+		this._left.Draw(target);
+		this._center.Draw(target);
+		this._right.Draw(target);
+		this._nameText.Draw(target);
+	}
+
+	protected override void Dispose(bool disposing)
+	{
+		if (!_disposed && disposing)
+		{
+			this._left.Dispose();
+			this._center.Dispose();
+			this._right.Dispose();
+			this._nameText.Dispose();
+		}
+		base.Dispose(disposing);
+	}
+	
+	private const string ResourceName = "nametag.dat";
+	static readonly Vector2 _TextPosition = new Vector2(4f, -4f);
+	private readonly SpriteGraphic _left;
+	private readonly SpriteGraphic _center;
+	private readonly SpriteGraphic _right;
+
+	private readonly TextRenderer _nameText;
 }

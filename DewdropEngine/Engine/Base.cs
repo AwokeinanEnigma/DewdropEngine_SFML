@@ -8,6 +8,7 @@ using DewDrop.Utilities;
 using DewDrop.Wren;
 using fNbt;
 using SFML.System;
+using System.Reflection;
 
 #endregion
 
@@ -26,6 +27,7 @@ public static partial class Engine {
 	public static Clock SessionTimer;
     internal static EngineConfigurationData.ApplicationData ApplicationData;
     static EngineConfigurationData _ConfigurationData;
+    public static Assembly Assembly => typeof(Engine).Assembly; 
     /// <summary>
     /// Initializes the DewDrop engine with the provided configuration data.
     /// </summary>
@@ -38,7 +40,7 @@ public static partial class Engine {
 		if (!_Initialized) {
 			Outer.Initialize();
 			WrenManager.Initialize(config);	
-			EmbeddedResourcesHandler.GetStreams();
+			EmbeddedResourcesHandler.FillStreams();
 			
 			// ReSharper disable once ObjectCreationAsStatement
 			// We just want to create an instance of Input to initialize it.

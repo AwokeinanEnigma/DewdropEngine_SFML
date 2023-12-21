@@ -44,8 +44,8 @@ public class Wreno : IDisposable {
 			_wren.Error += WriteError;
 			Outer.Log("Wreno initialized! " + callerFilePath + ":" + callerLineNumber);
 			_typeMap = new Dictionary<Type, Action<int, object>> {
-				[typeof(float)] = (i, v) => { _wren.SetSlotDouble(i, (float)v); },
-				[typeof(int)] = (i, v) => { _wren.SetSlotDouble(i, (int)v); },
+				[typeof(float)] = (i, v) =>  _wren.SetSlotDouble(i, (float)v),
+				[typeof(int)] = (i, v) =>  _wren.SetSlotDouble(i, (int)v),
 				[typeof(string)] = (i, v) => _wren.SetSlotString(i, (string)v),
 				[typeof(bool)] = (i, v) => _wren.SetSlotBool(i, (bool)v),
 				[typeof(double)] = (i, v) => _wren.SetSlotDouble(i, (double)v),
@@ -160,7 +160,7 @@ public class Wreno : IDisposable {
 			callBuilder.Append("_,");
 		}
 		callBuilder.Length -= 1; // Remove the last comma
-		callBuilder.Append(")");
+		callBuilder.Append(')');
 		string call = callBuilder.ToString();
 		
 		var fnHandle = GetFunction(function, call);
@@ -280,7 +280,6 @@ public class Wreno : IDisposable {
 	///   Disposes of all managed and unmanaged resources.
 	/// </summary>
 	public void Dispose () {
-		//
 		Dispose(true);
 
 		// we manually disposed, we don't need to finalize

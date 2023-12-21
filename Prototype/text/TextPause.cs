@@ -1,37 +1,27 @@
 ﻿using System;
 
-namespace Mother4.Scripts.Text
+namespace Mother4.Scripts.Text; 
+
+internal class TextPause : ITextCommand
 {
-	internal class TextPause : ITextCommand
+	public int Position
 	{
-		public int Position
-		{
-			get
-			{
-				return this.position;
-			}
-			set
-			{
-				this.position = value;
-			}
-		}
-
-		public int Duration
-		{
-			get
-			{
-				return this.duration;
-			}
-		}
-
-		public TextPause(int position, int duration)
-		{
-			this.position = position;
-			this.duration = duration;
-		}
-
-		private int position;
-
-		private int duration;
+		get => _position;
+		set => _position = value;
 	}
+
+	public int Duration
+	{
+		get => _duration;
+		
+	}
+
+	public TextPause(int position, int duration)
+	{
+		this._position = position;
+		this._duration = duration;
+	}
+
+	int _position;
+	readonly int _duration;
 }

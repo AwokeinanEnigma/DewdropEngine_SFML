@@ -11,7 +11,7 @@ using SFML.System;
 namespace DewDrop.Maps;
 
 public class MapLoader {
-	string _mapName;
+	readonly string _mapName;
 
 	public MapLoader (string mapName) {
 		_mapName = mapName;
@@ -80,7 +80,7 @@ public class MapLoader {
 
 					byte[] tileByteArray = tileGroup.Get<NbtByteArray>("tiles").Value;
 					ushort[] tiles = new ushort[tileByteArray.Length/2];
-					Buffer.BlockCopy(tileByteArray, 0, tiles, 0, tileByteArray.Length);
+					Buffer.BlockCopy(tileByteArray, 0, tiles, 0, Buffer.ByteLength(tileByteArray));
 
 					TileChunkData newTileGroup = new TileChunkData {
 						Depth = (uint)depth,
@@ -98,11 +98,16 @@ public class MapLoader {
 
 	static void LoadCollisions (NbtCompound mapTag, ref List<Mesh> meshes) {
 		NbtTag nbtTag = mapTag.Get("mesh");
-		if (!(nbtTag is ICollection<NbtTag>)) {
+		if (nbtTag is not ICollection<NbtTag>) {
 			return;
 		}
 
-		foreach (NbtList nbtList in nbtTag as IEnumerable<NbtTag>) {
+		foreach (NbtTag nbtTag1 in nbtTag as IEnumerable<NbtTag>) {
+			NbtList nbtList = (NbtList)nbtTag1;
+			if (nbtList == null) {
+				Outer.LogError("Failed to load collision mesh, nbtList is null!", null);
+				continue;
+			}
 			List<Vector2> points = new List<Vector2>();
 			for (int tagIndex = 0; tagIndex < nbtList.Count; tagIndex += 2) {
 				int x = nbtList.Get<NbtInt>(tagIndex).Value;
@@ -118,13 +123,19 @@ public class MapLoader {
 	static void LoadTriggers(NbtCompound mapTag, ref List<Trigger> triggers)
 	{
 		var nbtTag = mapTag.Get("triggers");
-		if (!(nbtTag is ICollection<NbtTag> nbtTagCollection))
+		if (nbtTag is not ICollection<NbtTag> nbtTagCollection)
 		{
 			return;
 		}
 
-		foreach (NbtCompound nbtCompound in nbtTagCollection)
+		foreach (NbtTag tag in nbtTagCollection)
 		{
+			var nbtCompound = (NbtCompound)tag;
+			if (nbtCompound == null)
+			{
+				Outer.LogError("Failed to load trigger, nbtCompound is null!", null);
+				continue;
+			}
 			Trigger trigger = new Trigger
 			{
 				Flag = nbtCompound.Get<NbtShort>("flag").Value,

@@ -87,9 +87,9 @@ public static class Outer {
 		[CallerFilePath] string callerFilePath = "",
 		[CallerLineNumber] int callerLineNumber = 0) {
 		message ??= "Assertion failed.";
-		if (condition == false) {
+		if (!condition) {
 			LogInternal(LogLevel.Assert, message, callerFilePath, callerLineNumber);
-			throw new Exception("Assertion failed!");
+			throw new ArgumentException("Assertion failed!");
 		}
 
 	}
@@ -168,7 +168,7 @@ public static class Outer {
 	public static void SLogAssertion (
 		bool condition,
 		string message = "Assertion failed.") {
-		if (condition == false) {
+		if (!condition) {
 			LogInternal(LogLevel.Assert, message);
 			//throw new Exception("Assertion failed!");
 		}
@@ -218,7 +218,7 @@ public static class Outer {
 		}
 
 		string callsite = $"{Path.GetFileName(callerFilePath)}:{callerLineNumber}";
-		string dateTimeNow = DateTime.Now.ToString("HH:mm:ss");
+		string dateTimeNow = DateTime.UtcNow.ToString("HH:mm:ss");
 
 		Console.ForegroundColor = _LogColors[logLevel];
 		Console.WriteLine($"{logLevel}, {dateTimeNow}, {callsite}>>> {message}");
@@ -233,7 +233,7 @@ public static class Outer {
 		}
 
 		string callsite = $"???:???";
-		string dateTimeNow = DateTime.Now.ToString("HH:mm:ss");
+		string dateTimeNow = DateTime.UtcNow.ToString("HH:mm:ss");
 
 		Console.ForegroundColor = _LogColors[logLevel];
 		Console.WriteLine($"{logLevel}, {dateTimeNow}, {callsite}>>> {message}");

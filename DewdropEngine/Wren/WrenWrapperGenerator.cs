@@ -8,11 +8,11 @@ using System.ComponentModel.Design;
 using System.Reflection;
 
 #endregion
-public class WrenWrapperGenerator {
+public static class WrenWrapperGenerator {
 	public static List<string> BlacklistedMethods = new List<string> {
 		"GetType",
 	};
-	public static string GenerateWrapper (Type originalType) {
+	public static string? GenerateWrapper (Type originalType) {
 		// check if type has WrenBlackList
 		if (originalType.GetCustomAttributes(typeof(WrenBlackList), true).Length > 0) {
 			Outer.LogError("Cannot generate wrapper for blacklisted type: " + originalType.Name, null);
@@ -29,7 +29,11 @@ public class WrenWrapperGenerator {
 		wrapperCode += Environment.NewLine;
 		bool isStatic = originalType.IsAbstract && originalType.IsSealed;
 		
+		wrapperCode += "namespace DewDrop.Wren.Wrappers;" + Environment.NewLine;
+		wrapperCode += Environment.NewLine;
 
+		// this such a clusterfuck
+		// i need to redo this
 		wrapperCode += $"[WrenClass(\"{originalType.Name}\")]" + Environment.NewLine;
 		if (originalType.GetInterface("IRenderable") != null) {
 			wrapperCode += $"public class {wrapperClassName} : BasicRenderableWrapper" + Environment.NewLine;
@@ -59,11 +63,11 @@ public class WrenWrapperGenerator {
 
 			// Generate constructor
 			var constructorParams = originalType.GetConstructors()
-				.FirstOrDefault()?.GetParameters() ?? new ParameterInfo[0];
+				.FirstOrDefault()?.GetParameters() ?? Array.Empty<ParameterInfo>();
 
 			var validParams = new List<ParameterInfo>();
 			foreach (var parameter in constructorParams) {
-				string type = GetWrenTypeSuffix(parameter.ParameterType, out string cast, false);
+				string type = GetWrenTypeSuffix(parameter.ParameterType, false, out string cast);
 				if (type.Contains("Unknown")) {
 					//Outer.Log("Skipping unknown type: " + parameter.ParameterType);
 					continue;
@@ -87,7 +91,7 @@ public class WrenWrapperGenerator {
 			}
 			string constructoCode = "";
 			foreach (var parameter in constructorParams) {
-				string type = GetWrenTypeSuffix(parameter.ParameterType, out string cast, false);
+				string type = GetWrenTypeSuffix(parameter.ParameterType, false, out string cast);
 				if (type.Contains("Unknown")) {
 					//Outer.Log("Skipping unknown type: " + parameter.ParameterType);
 					constructoCode += "null, ";
@@ -118,7 +122,7 @@ public class WrenWrapperGenerator {
 				wrapperCode += $"vm.EnsureSlots({validParams.Count});" + Environment.NewLine;
 			}
 			foreach (var parameter in constructorParams) {
-				string type = GetWrenTypeSuffix(parameter.ParameterType, out string cast, false);
+				string type = GetWrenTypeSuffix(parameter.ParameterType, false, out string cast);
 				if (type.Contains("Unknown")) {
 					//Outer.Log("Skipping unknown type: " + parameter.ParameterType);
 					continue;
@@ -167,7 +171,7 @@ public class WrenWrapperGenerator {
 				declarationParameters = "public static void";
 			}
 			
-			string type = GetWrenTypeSuffix(field.FieldType, out string cast, false);
+			string type = GetWrenTypeSuffix(field.FieldType, false, out string cast);
 			if (type.Contains("Unknown")) {
 				//Outer.Log("Skipping unknown type: " + field.FieldType);
 				continue;
@@ -191,9 +195,9 @@ public class WrenWrapperGenerator {
 			wrapperCode += "{" + Environment.NewLine;
 			wrapperCode += "vm.EnsureSlots(1);" + Environment.NewLine;
 			if (type.Contains("Foreign")) {
-				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.FieldType, out _, true)}(0, new {GetWrapperClassName(field.FieldType)}({storedName}.{field.Name}));" + Environment.NewLine;
+				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.FieldType, true, out _)}(0, new {GetWrapperClassName(field.FieldType)}({storedName}.{field.Name}));" + Environment.NewLine;
 			} else {
-				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.FieldType, out _, true)}(0, {storedName}.{field.Name});" + Environment.NewLine;
+				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.FieldType, true, out _)}(0, {storedName}.{field.Name});" + Environment.NewLine;
 			}
 			wrapperCode += "}" + Environment.NewLine;
 			wrapperCode += Environment.NewLine;
@@ -208,7 +212,7 @@ public class WrenWrapperGenerator {
 			if (field.GetCustomAttributes(typeof(WrenBlackList), true).Length > 0) {
 				continue;
 			}
-			string type = GetWrenTypeSuffix(field.PropertyType, out string cast, false);
+			string type = GetWrenTypeSuffix(field.PropertyType, false, out string cast);
 			if (type.Contains("Unknown")) {
 				//Outer.Log("Skipping unknown type: " + field.PropertyType);
 				continue;
@@ -240,9 +244,9 @@ public class WrenWrapperGenerator {
 			wrapperCode += "{" + Environment.NewLine;
 			wrapperCode += "vm.EnsureSlots(1);" + Environment.NewLine;
 			if (type.Contains("Foreign")) {
-				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.PropertyType, out _, true)}(0, new {GetWrapperClassName(field.PropertyType)}({storedName}.{field.Name}));" + Environment.NewLine;
+				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.PropertyType, true, out _)}(0, new {GetWrapperClassName(field.PropertyType)}({storedName}.{field.Name}));" + Environment.NewLine;
 			} else {
-				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.PropertyType, out _, true)}(0, {storedName}.{field.Name});" + Environment.NewLine;
+				wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(field.PropertyType, true, out _)}(0, {storedName}.{field.Name});" + Environment.NewLine;
 			}
 			wrapperCode += "}" + Environment.NewLine;
 			wrapperCode += Environment.NewLine;
@@ -282,7 +286,7 @@ public class WrenWrapperGenerator {
 
 			if (parameters.Length > 0) {
 				//Outer.Log(parameters[0].ParameterType);
-				string parameterType = GetWrenTypeSuffix(parameters[0].ParameterType, out _, false);
+				string parameterType = GetWrenTypeSuffix(parameters[0].ParameterType, false, out _);
 				if (parameterType.Contains("Unknown")) {
 					//Outer.Log("Skipping unknown type: " + method.ReturnType);
 					continue;
@@ -318,7 +322,7 @@ public class WrenWrapperGenerator {
 				var parameterList = "";
 				for (int i = 0; i < parameters.Length; i++) {
 					var parameter = parameters[i];
-					string type = GetWrenTypeSuffix(parameter.ParameterType, out string cast, false);
+					string type = GetWrenTypeSuffix(parameter.ParameterType, false, out string cast);
 
 					if (type.Contains("Foreign")) {
 						parameterList += $"{cast}vm.GetSlot{type}({i + 1}).{GetForeignField(parameter.ParameterType)}";
@@ -330,11 +334,11 @@ public class WrenWrapperGenerator {
 					}
 				}
 				if (method.ReturnType != typeof(void)) {
-					var type = GetWrenTypeSuffix(method.ReturnType, out string cast, false);
+					var type = GetWrenTypeSuffix(method.ReturnType, false, out string cast);
 					if (type.Contains("Foreign")) {
-						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, out _, true)}(0, new {GetWrapperClassName(method.ReturnType)}({storedName}.{method.Name}({parameterList})));" + Environment.NewLine;
+						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, true, out _)}(0, new {GetWrapperClassName(method.ReturnType)}({storedName}.{method.Name}({parameterList})));" + Environment.NewLine;
 					} else {
-						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, out _, true)}(0, {storedName}.{method.Name}({parameterList}));" + Environment.NewLine;
+						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, true, out _)}(0, {storedName}.{method.Name}({parameterList}));" + Environment.NewLine;
 					}
 				} else {
 					wrapperCode += $"{storedName}.{method.Name}({parameterList});" + Environment.NewLine;
@@ -359,11 +363,11 @@ public class WrenWrapperGenerator {
 					wrapperCode += $"{declaredParameters} {methodName}(WrenVM vm)" + Environment.NewLine;
 					wrapperCode += "{" + Environment.NewLine;
 					wrapperCode += "vm.EnsureSlots(1);" + Environment.NewLine;
-					var type = GetWrenTypeSuffix(method.ReturnType, out string cast, false);
+					var type = GetWrenTypeSuffix(method.ReturnType, false, out string cast);
 					if (type.Contains("Foreign")) {
-						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, out _, true)}(0, new {GetWrapperClassName(method.ReturnType)}({storedName}.{method.Name}()));" + Environment.NewLine;
+						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, true, out _)}(0, new {GetWrapperClassName(method.ReturnType)}({storedName}.{method.Name}()));" + Environment.NewLine;
 					} else {
-						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, out _, true)}(0, {storedName}.{method.Name}());" + Environment.NewLine;
+						wrapperCode += $"vm.SetSlot{GetWrenTypeSuffix(method.ReturnType, true, out _)}(0, {storedName}.{method.Name}());" + Environment.NewLine;
 					}
 					wrapperCode += "}" + Environment.NewLine;
 				}
@@ -387,14 +391,11 @@ public class WrenWrapperGenerator {
 			return "Color";
 		}
 		return "Stored";
-		//else {
-		return "Unknown";
-		// }
 	}
 	
 
 
-	static string GetWrenTypeSuffix (Type type, out string cast, bool set) {
+	static string GetWrenTypeSuffix (Type type, bool set, out string cast) {
 		cast = "";
 		if (type == typeof(float)) {
 			cast = "(float)";

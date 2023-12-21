@@ -149,7 +149,7 @@ public class TileChunk : Renderable {
 			if (tileId >= 0)
 			{
 				// Check if the sprite definition has data
-				if (spriteDefinition.Data != null && spriteDefinition.Data.Length > 0)
+				if (spriteDefinition.Data?.Length > 0)
 				{
 					// Get the data and speed from the sprite definition
 					int[] data = spriteDefinition.Data;
@@ -201,7 +201,14 @@ public class TileChunk : Renderable {
 
 		fixed (Vertex* ptr = _vertices) {
 			for (int i = 0; i < tiles.Count; i++) {
-				Vertex* ptr2 = ptr + i*4;
+
+				Vertex* ptr2;
+				if (ptr + i * 4  >= ptr + _vertices.Length) {
+					Outer.LogError("Pointer offset is out of bounds when creating vertex array!", null);
+					// Handle error: pointer offset is out of bounds
+					continue;
+				}
+				ptr2 = ptr + i*4;
 				Tile tile = tiles[i];
 				float x = tile.Position.X;
 				float y = tile.Position.Y;
@@ -316,7 +323,14 @@ public class TileChunk : Renderable {
 				for (int j = 0; j < tileAnimation.VertexIndexes.Count; j++)
 				{
 					int vertexIndex = tileAnimation.VertexIndexes[j];
-					Vertex* vertexPtr = ptr + vertexIndex;
+					Vertex* vertexPtr; // = ptr + vertexIndex;
+					if (ptr + vertexIndex  >= ptr + vertexIndex + tileAnimation.VertexIndexes.Count) {
+						Outer.LogError("Updating animation, vertex index out of bounds!", null);
+						// Handle error: pointer offset is out of bounds
+						continue;
+					}
+					vertexPtr = ptr + vertexIndex;
+					
 					// Update the texture coordinates for the vertex
 					vertexPtr->TexCoords.X = tileX;
 					vertexPtr->TexCoords.Y = tileY;
