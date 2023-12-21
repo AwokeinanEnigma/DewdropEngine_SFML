@@ -8,7 +8,7 @@ using System.ComponentModel.Design;
 using System.Reflection;
 
 #endregion
-public class WrenWrapperGenerator {
+public static class WrenWrapperGenerator {
 	public static List<string> BlacklistedMethods = new List<string> {
 		"GetType",
 	};
@@ -29,7 +29,11 @@ public class WrenWrapperGenerator {
 		wrapperCode += Environment.NewLine;
 		bool isStatic = originalType.IsAbstract && originalType.IsSealed;
 		
+		wrapperCode += "namespace DewDrop.Wren.Wrappers;" + Environment.NewLine;
+		wrapperCode += Environment.NewLine;
 
+		// this such a clusterfuck
+		// i need to redo this
 		wrapperCode += $"[WrenClass(\"{originalType.Name}\")]" + Environment.NewLine;
 		if (originalType.GetInterface("IRenderable") != null) {
 			wrapperCode += $"public class {wrapperClassName} : BasicRenderableWrapper" + Environment.NewLine;

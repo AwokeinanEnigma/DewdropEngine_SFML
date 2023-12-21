@@ -336,9 +336,9 @@ public class Inspector : IDisposable {
 					}
 					if (parameter.ParameterType == typeof(Color)) {
 						Color value = (Color)aMp.Parameters[i];
-						Vector4 numericalColor = ToNumericVector4(value);
+						Vector4 numericalColor = ColorHelper.ToNumericVector4(value);
 						if (ImGui.ColorPicker4("Parameter: " + parameter.Name, ref numericalColor)) {
-							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, ToSfmlColor(numericalColor), i));
+							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, ColorHelper.ToSfmlColor(numericalColor), i));
 						}
 					}
 					if (parameter.ParameterType.IsEnum) {
@@ -383,14 +383,17 @@ public class Inspector : IDisposable {
 		bool isArray = list is Array;
 		Type elementType = isArray ? list.GetType().GetElementType() : list.GetType().GetGenericArguments()[0];
 		if (!_SupportedTypes.Contains(elementType)) {
+			// We don't support this type, so just return.
 			return;
 		}
-		//	ImGui.Text(info.Name + (isArray ? " : Array" : " : List" ));
 		PaintTooltip(info);
+		
+		// generate header for the list
 		if (ImGui.CollapsingHeader($"{info.Name} [{list.Count}]###{info.Name}", ImGuiTreeNodeFlags.FramePadding)) {
 			ImGui.Indent();
 
 			if (!isArray) {
+				// if it's not an array, add a button to add an element to the list 
 				if (ImGui.Button("Add Element : " + info.Name)) {
 					// check if our custom painter supports this type
 					if (_customPainters.Count > 0) {
@@ -416,46 +419,36 @@ public class Inspector : IDisposable {
 			}
 			ImGui.PushItemWidth(-ImGui.GetStyle().IndentSpacing);
 			for (var i = 0; i < list.Count; i++) {
-				if (elementType == typeof(int)) {
-					int value = (int)(list[i] ?? 0);
+				switch (list[i]) {
+				case int value:
 					if (ImGui.DragInt($"{i} : {info.Name}", ref value)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
-				}
-				else if (elementType == typeof(float)) {
-					float value = (float)(list[i] ?? 0);
-					if (ImGui.DragFloat($"{i} : {info.Name}", ref value)) 
-					{
+					break;
+				case float value:
+					if (ImGui.DragFloat($"{i} : {info.Name}", ref value)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
-				}
-				else if (elementType == typeof(string)) {
-					string value = (string)(list[i] ?? string.Empty);
-					if (ImGui.InputText($"{i} : {info.Name}", ref value, 200))
-					{
+					break;
+				case string value:
+					if (ImGui.InputText($"{i} : {info.Name}", ref value, 200)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
-				}
-				else if (elementType == typeof(Vector2)) {
-					Vector2 value = (Vector2)(list[i] ?? Vector2.Zero);
+					break;
+				case Vector2 value:
 					var vector2 = (System.Numerics.Vector2)value;
-					if (ImGui.DragFloat2($"{i} : {info.Name}", ref vector2)) 					{
+					if (ImGui.DragFloat2($"{i} : {info.Name}", ref vector2)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, (Vector2)vector2, i));
 					}
-				} 
-				else if (elementType == typeof(Color)) {
-					Color value = (Color)(list[i] ?? Color.White);
-					Vector4 numericalColor = ToNumericVector4(value);
+					break;
+				case Color value:
+					Vector4 numericalColor = ColorHelper.ToNumericVector4(value);
 					if (ImGui.ColorPicker4($"{i} : {info.Name}", ref numericalColor)) {
-						_commandHistory.ExecuteCommand(new SetListValueCommand(list, ToSfmlColor(numericalColor), i));
+						_commandHistory.ExecuteCommand(new SetListValueCommand(list, ColorHelper.ToSfmlColor(numericalColor), i));
 					}
-				}
-				if (_customPainters.Count > 0) {
-					foreach (var painter in _customPainters) {
-						if (painter.Type == elementType) {
-							painter.PaintList(list, i, entity, this, _commandHistory);
-						}
-					}
+					break;
+				default:
+					break;
 				}
 			}
 
@@ -484,7 +477,7 @@ public class Inspector : IDisposable {
 	}
 	void PaintColor (MemberInfo info, Color color, Entity entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Color");
-		Vector4 numericalColor = ToNumericVector4(color);
+		Vector4 numericalColor = ColorHelper.ToNumericVector4(color);
 		if (!canWrite) {
 			// i don't think there's any way to display a color without using a color picker
 			ImGui.ColorPicker4(info.Name, ref numericalColor);
@@ -493,7 +486,7 @@ public class Inspector : IDisposable {
 		}
 		PaintTooltip(info);
 		if (ImGui.ColorPicker4(info.Name, ref numericalColor)) {
-			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ToSfmlColor(numericalColor), entity));
+			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ColorHelper.ToSfmlColor(numericalColor), entity));
 		}
 	}
 	void PaintIntegers (MemberInfo info, int integer, Entity entity, bool canWrite = true) {
@@ -584,8 +577,6 @@ public class Inspector : IDisposable {
 			ImGui.Text("TOOLTIP: "+tooltip.Tooltip);
 		}
 	}
-	static Vector4 ToNumericVector4 (Color self) => new Vector4(self.R/255.0f, self.G/255.0f, self.B/255.0f, self.A/255.0f);
-	static Color ToSfmlColor (Vector4 self) => new Color((byte)(self.X*255f), (byte)(self.Y*255f), (byte)(self.Z*255f), (byte)(self.W*255f));
 	/// <summary>
 	/// Disposes the Inspector, cleaning up any resources it is using.
 	/// </summary>
