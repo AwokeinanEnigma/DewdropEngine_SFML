@@ -66,6 +66,8 @@ public class SpriteGraphic : Graphic {
 	/// Gets the spritesheet texture.
 	/// </summary>
     public SpritesheetTexture Spritesheet => _spritesheet;
+	
+	public Sprite Sprite => _sprite;
 	#endregion
 
 	#region Fields

@@ -140,7 +140,6 @@ public class TileScene : SceneBase
             ImGui.End();
         };
         pipeline = new RenderPipeline(Engine.RenderTexture);
-        this.texture = new SpriteGraphic("C:\\\\Users\\\\Tom\\\\Documents\\\\bear.dat", "walk north", new Vector2(160, 90), 100);
         pipeline.Add(this.texture);
     }
     public override void Focus()
