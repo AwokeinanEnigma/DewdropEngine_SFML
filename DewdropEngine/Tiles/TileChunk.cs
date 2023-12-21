@@ -201,12 +201,15 @@ public class TileChunk : Renderable {
 
 		fixed (Vertex* ptr = _vertices) {
 			for (int i = 0; i < tiles.Count; i++) {
-				Vertex* ptr2 = ptr + i*4;
-				if (ptr2 < ptr || ptr2 >= ptr + _vertices.Length) {
+
+				Vertex* ptr2;
+				if ( !(ptr + i*4  >= ptr + _vertices.Length)) {
 					Outer.LogError("Pointer offset is out of bounds when creating vertex array!", null);
 					// Handle error: pointer offset is out of bounds
 					continue;
 				}
+				ptr2 = ptr + i*4;
+				
 				Tile tile = tiles[i];
 				float x = tile.Position.X;
 				float y = tile.Position.Y;
