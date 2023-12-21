@@ -447,8 +447,6 @@ public class Inspector : IDisposable {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, ColorHelper.ToSfmlColor(numericalColor), i));
 					}
 					break;
-				default:
-					break;
 				}
 			}
 
