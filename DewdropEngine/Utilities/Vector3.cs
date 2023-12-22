@@ -1,4 +1,5 @@
-﻿namespace DewDrop.Utilities; 
+﻿using SFML.System;
+namespace DewDrop.Utilities; 
 
 public struct Vector3 {
 	public float X { get; set; }
@@ -19,6 +20,31 @@ public struct Vector3 {
 		Y = 0;
 		Z = 0;
 	}
+	public static implicit operator Vector3 (Vector2 v) {
+		return new Vector3(v.X, v.Y, 0);
+	}
+	public static implicit operator Vector2 (Vector3 v) {
+		return new Vector2(v.X, v.Y);
+	}
+public static implicit operator Vector3 (Vector2i v) {
+		return new Vector3(v.X, v.Y, 0);
+	}
+	public static implicit operator Vector2i (Vector3 v) {
+		return new Vector2i((int)v.X, (int)v.Y);
+	}
+	public static implicit operator Vector3 (Vector2u v) {
+		return new Vector3(v.X, v.Y, 0);
+	}
+	public static implicit operator Vector2u (Vector3 v) {
+		return new Vector2u((uint)v.X, (uint)v.Y);
+	}
+	public static implicit operator Vector2f (Vector3 v) {
+		return new Vector2f(v.X, v.Y);
+	}
+	public static Vector2 operator + (Vector2 a, Vector3 b) {
+		return new Vector2(a.X + b.X, a.Y + b.Y);
+	}
+	
 	public static Vector3 operator + (Vector3 a, Vector3 b) {
 		return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 	}

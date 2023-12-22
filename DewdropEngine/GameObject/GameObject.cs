@@ -1,7 +1,7 @@
 ﻿using DewDrop.Utilities;
 using SFML.Graphics;
 using System.Collections;
-namespace DewDrop.GameObject; 
+namespace DewDrop.Internal; 
 
 public class GameObject : IEnumerable<Component>, IDisposable {
 	public Transform? Parent {
@@ -13,7 +13,7 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 	public float Y { get => Transform.Position.Y;  }
 	public float Z { get => Transform.Position.Z;  }
 	public float Rotation { get => Transform.Rotation; }
-	public int Importance { get; set; }
+	public int UpdateSlot { get; set; }
 	public Transform Transform { get; private set; }
 	public bool Awakened;
 	public ComponentHolder ComponentHolder {
@@ -29,7 +29,7 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		};
 		ComponentHolder = new ComponentHolder(this);
 		Name = "GameObject";
-		Importance = 0;																					
+		UpdateSlot = 0;																					
 	}
 	
 	public string Name { get; set; }
@@ -115,7 +115,7 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		GameObject clone = new GameObject();
 		Transform.Clone(clone.Transform);
 		ComponentHolder.Clone(clone.ComponentHolder);
-		clone.Importance = Importance;
+		clone.UpdateSlot = UpdateSlot;
 		clone.Name = Name;
 		return clone;
 	}

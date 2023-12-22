@@ -1,6 +1,5 @@
 ﻿using DewDrop;
-using DewDrop.GameObject;
-using DewDrop.Utilities;
+using DewDrop.Internal; using DewDrop.Utilities;
 using DewDrop.Scenes;
 using DewDrop.UserInput;
 using DewDrop.Wren;

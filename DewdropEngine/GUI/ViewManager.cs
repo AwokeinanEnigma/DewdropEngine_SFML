@@ -1,7 +1,7 @@
 #region
 
 using DewDrop.Entities;
-using DewDrop.Utilities;
+using DewDrop.Internal; using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
 // ReSharper disable MemberCanBePrivate.Global
@@ -82,7 +82,7 @@ public class ViewManager {
     /// <summary>
     /// Gets or sets the entity that the view is following.
     /// </summary>
-    public Entity EntityFollow { get; set; }
+    public GameObject EntityFollow { get; set; }
 
     /// <summary>
     /// Gets or sets the offset of the view from the entity it is following.
@@ -156,9 +156,9 @@ public class ViewManager {
 		if (EntityFollow != null) {
 			if (!_isMovingTo) {
 				_previousViewCenter = _viewCenter;
-				_viewCenter = EntityFollow.Position;
+				_viewCenter = EntityFollow.Transform.Position;
 			} else {
-				_moveToPosition = EntityFollow.Position;
+				_moveToPosition = EntityFollow.Transform.Position;
 			}
 		}
 
@@ -202,10 +202,10 @@ public class ViewManager {
 	/// </summary>
 	/// <param name="entity">The entity to move to.</param>
 	/// <param name="speed">The speed at which to move.</param>
-	public void MoveTo (Entity entity, float speed) {
+	public void MoveTo (GameObject entity, float speed) {
 		if (entity != null) {
 			EntityFollow = entity;
-			MoveTo(entity.Position, speed);
+			MoveTo(entity.Transform.Position, speed);
 		}
 	}
 

@@ -1,7 +1,7 @@
 ﻿using DewDrop.Exceptions;
 using SFML.Graphics;
 using System.Collections;
-namespace DewDrop.GameObject; 
+namespace DewDrop.Internal; 
 
 public class ComponentHolder : IEnumerable<Component> {
 	GameObject _gameObject;

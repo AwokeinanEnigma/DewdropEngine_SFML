@@ -1,6 +1,6 @@
 ﻿using DewDrop.Exceptions;
 using DewDrop.Utilities;
-namespace DewDrop.GameObject; 
+namespace DewDrop.Internal; 
 
 public class Transform {
 	public const int MaxChildren = 32;

@@ -1,7 +1,7 @@
 ﻿using DewDrop.Exceptions;
 using DewDrop.Utilities;
 using SFML.Graphics;
-namespace DewDrop.GameObject; 
+namespace DewDrop.Internal; 
 
 public static class GameObjectRegister {
 	#region Comparers
@@ -9,8 +9,11 @@ public static class GameObjectRegister {
 	class GameObjectComparer : IComparer<GameObject> {
 		public int Compare(GameObject x, GameObject y) {
 			// Compare based on Importance
-			int importanceComparison = x.Importance.CompareTo(y.Importance);
+			int importanceComparison = x.UpdateSlot.CompareTo(y.UpdateSlot);
+			//O/ter.Log(x.Name + " " + x.Importance);
+			//Outer.Log(y.Name + " " + y.Importance);
 			if (importanceComparison != 0) {
+			//	Outer.Log(importanceComparison);
 				return importanceComparison;
 			}
 
@@ -165,7 +168,7 @@ public static class GameObjectRegister {
 		newGameObject.Transform.Position = position;
 		newGameObject.Transform.Rotation = rotation;
 		newGameObject.Transform.Size = size;
-		newGameObject.Importance = importance;
+		newGameObject.UpdateSlot = importance;
 		AddGameObject(newGameObject);
 		return newGameObject;
 	}
@@ -175,7 +178,7 @@ public static class GameObjectRegister {
 		newGameObject.Transform.Position = position;
 		newGameObject.Transform.Rotation = rotation;
 		newGameObject.Transform.Size = size;
-		newGameObject.Importance = importance;
+		newGameObject.UpdateSlot = importance;
 		newGameObject.Name = name;
 		AddGameObject(newGameObject);
 		return newGameObject;
@@ -186,7 +189,7 @@ public static class GameObjectRegister {
 		newGameObject.Transform.Position = position;
 		newGameObject.Transform.Rotation = rotation;
 		newGameObject.Transform.Size = size;
-		newGameObject.Importance = importance;
+		newGameObject.UpdateSlot = importance;
 		newGameObject.Name = name;
 		newGameObject.Transform.SetParent(parent);
 		AddGameObject(newGameObject);

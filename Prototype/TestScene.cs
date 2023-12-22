@@ -3,8 +3,7 @@
 using DewDrop;
 using DewDrop.Collision;
 using DewDrop.Entities;
-using DewDrop.GameObject;
-using DewDrop.Graphics;
+using DewDrop.Internal; using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
 using DewDrop.Inspector;
@@ -243,7 +242,7 @@ public class TestScene : SceneBase
         base.Focus();
  
         ViewManager.Instance.Reset();
-        ViewManager.Instance.EntityFollow = _playerEntity;
+        //ViewManager.Instance.EntityFollow = _playerEntity;
         ViewManager.Instance.Center = new Vector2(160f, 90f);
         ViewManager.Instance.Offset = new Vector2(0, (float)(-(float)((int)_playerEntity.AABB.Size.Y)/2));
     }

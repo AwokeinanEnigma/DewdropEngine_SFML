@@ -1,10 +1,9 @@
 ﻿using DewDrop;
-using DewDrop.GameObject;
-using DewDrop.GUI;
+using DewDrop.Internal; using DewDrop.GUI;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;
-using Transform = DewDrop.GameObject.Transform;
+using Transform = DewDrop.Internal.Transform;
 namespace Prototype; 
 
 public class MyComponent : Component {
