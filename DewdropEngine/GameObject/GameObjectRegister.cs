@@ -23,18 +23,7 @@ public static class GameObjectRegister {
 	}
 	class GameObjectZComparer : IComparer<GameObject> {
 		public int Compare(GameObject x, GameObject y) {
-			// Compare based on Z
-			if (x.Transform == null) {
-				return (int)y.Transform.Position.Z;	
-			}
-			if (y.Transform == null) {
-				return (int)x.Transform.Position.Z;	
-			}
-			return (int)(x.Transform.Position.Z != y.Transform.Position.Z ? x.Transform.Position.Z - y.Transform.Position.Z : x.GetHashCode().CompareTo(y.GetHashCode()));
-
-
-			// If Z is equal, compare based on IDs to ensure uniqueness
-			return x.GetHashCode().CompareTo(y.GetHashCode());
+			return (int)(x.Transform.Position.Z != y.Transform.Position.Z ? x.Transform.Position.Z - y.Transform.Position.Z : _Ids[y] - _Ids[x]); 
 		}
 	}
 
@@ -43,6 +32,7 @@ public static class GameObjectRegister {
 	public static SortedSet<GameObject> GameObjects { get; private set; }
 	//static SortedSet<GameObject> _GameObjectsSortedByZ;
 	static List<GameObject> _GameObjectsSortedByZ;
+	static Dictionary<GameObject, int> _Ids;
 	static FloatRect _ViewRect;
 	static FloatRect _RenderableRect;
 	static View _View;
@@ -50,13 +40,16 @@ public static class GameObjectRegister {
 	static Stack<GameObject> _GameObjectsToAdd;
 	static Stack<GameObject> _GameObjectsToRemove;
 	static bool _Sort;
+	static int _IdCounter;
 	public static bool Initialized;
+	
 	public static void Initialize(RenderTarget target) {
 		_Target = target;
 		GameObjects = new SortedSet<GameObject>(new GameObjectComparer());
 		_GameObjectsSortedByZ = new List<GameObject>(); //= new SortedSet<GameObject>(new GameObjectZComparer());
 		_GameObjectsToAdd = new Stack<GameObject>();
 		_GameObjectsToRemove = new Stack<GameObject>();
+		_Ids = new Dictionary<GameObject, int>();
 		Initialized = true;
 	}
 
@@ -66,7 +59,7 @@ public static class GameObjectRegister {
 		}
 		gameObject.Awake();
 		gameObject.FrameRegistered = Engine.Frame;
-		GameObjects.Add(gameObject);
+		//GameObjects.Add(gameObject);
 		_GameObjectsToAdd.Push(gameObject);
 	}
 
@@ -76,17 +69,23 @@ public static class GameObjectRegister {
 		}
 	}
 	public static void RemoveGameObject(GameObject gameObject) {
-		GameObjects.Remove(gameObject);
-		_GameObjectsSortedByZ.Remove(gameObject);
+		_GameObjectsToRemove.Push(gameObject);
 	}
 	
 	public static void Update() {
+		DoRemovals();
+		DoAdditions();
+		if (_Sort) {
+			_GameObjectsSortedByZ.Sort(new GameObjectZComparer());
+			_Sort = false;
+		}
+		
 		foreach (GameObject gameObject in GameObjects) {
 			if (Engine.Frame - gameObject.FrameRegistered == 1) {
 				gameObject.Start();
 			}
 			
-			if (gameObject.Active) 
+			if (gameObject.Active && !gameObject.OnlyDraw) 
 				gameObject.Update();
 		}
 	}
@@ -96,10 +95,13 @@ public static class GameObjectRegister {
 			// remove the thing from the top of this
 			GameObject key = _GameObjectsToAdd.Pop();
 
+			_Ids.Add(key, _IdCounter);
 			// add it to the list
+			GameObjects.Add(key);
 			_GameObjectsSortedByZ.Add(key);
 			// force our render pipeline to sort IRenderables after adding
 			_Sort = true;
+			++_IdCounter;
 		}
 	}
 
@@ -107,7 +109,7 @@ public static class GameObjectRegister {
 		while (_GameObjectsToRemove.Count > 0) {
 			GameObject key = _GameObjectsToRemove.Pop();
 			_GameObjectsSortedByZ.Remove(key);
-
+			GameObjects.Remove(key);
 			// unlike DoAdditions, we don't need to force sort our IRenderables again
 			// this is pretty obvious, but you don't need to sort again if something was removed 
 		}
@@ -118,13 +120,7 @@ public static class GameObjectRegister {
 		_Sort = true;
 	}
 	public static void Draw() {
-		DoRemovals();
-		DoAdditions();
-		if (_Sort) {
-			_GameObjectsSortedByZ.Sort(new GameObjectZComparer());
-			_Sort = false;
-		}
-		_View = Engine.Window.GetView();
+		_View = Engine.RenderTexture.GetView();
 
 		_ViewRect.Left = _View.Center.X - _View.Size.X/2f;
 		_ViewRect.Top = _View.Center.Y - _View.Size.Y/2f;
@@ -134,10 +130,10 @@ public static class GameObjectRegister {
 		
 		foreach (GameObject gameObject in _GameObjectsSortedByZ) {
 
-			if (gameObject.Transform.Visible) {
+			if (gameObject.Transform.Visible && !gameObject.OnlyUpdate) {
 				
-				_RenderableRect.Left = gameObject.Transform.Position.X - gameObject.Transform.Origin.x;
-				_RenderableRect.Top = gameObject.Transform.Position.Y - gameObject.Transform.Origin.y;
+				_RenderableRect.Left = gameObject.Transform.Position.X - gameObject.Transform.Origin.X;
+				_RenderableRect.Top = gameObject.Transform.Position.Y - gameObject.Transform.Origin.Y;
 				_RenderableRect.Width = gameObject.Transform.Size.X;
 				_RenderableRect.Height = gameObject.Transform.Size.Y;
 				
@@ -155,9 +151,9 @@ public static class GameObjectRegister {
 	}
 	
 	
-	public static void Destroy() {
+	public static void Destroy(bool sceneWipe) {
 		foreach (GameObject gameObject in GameObjects) {
-			gameObject.Destroy(true);
+			gameObject.Destroy(sceneWipe);
 		}
 		GameObjects.Clear();
 		_GameObjectsSortedByZ.Clear();

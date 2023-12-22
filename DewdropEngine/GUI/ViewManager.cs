@@ -129,6 +129,9 @@ public class ViewManager {
 		SetViewRect();
 	}
 
+	public void SetZoom (float zoom) {
+		View.Zoom(zoom);
+	}
 	Vector2 GetCenter () {
 		return Vector2.Truncate(_viewCenter + Offset + _shakeOffset);
 	}

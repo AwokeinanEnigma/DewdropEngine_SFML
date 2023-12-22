@@ -3,7 +3,7 @@ using SFML.Graphics;
 using System.Collections;
 namespace DewDrop.Internal; 
 
-public class GameObject : IEnumerable<Component>, IDisposable {
+public class GameObject : IDisposable {
 	public Transform? Parent {
 		get => Transform.Parent;
 		set => Transform.Parent = value;
@@ -16,12 +16,21 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 	public int UpdateSlot { get; set; }
 	public Transform Transform { get; private set; }
 	public bool Awakened;
+	public bool OnlyDraw;
+	public bool OnlyUpdate;
 	public ComponentHolder ComponentHolder {
 		get;
 		private set;
 	}
 
-	public bool Active = true;
+	public bool Active {
+		get => _active;
+		set {
+			_active = value;
+			Transform.SetActive(value);
+		}
+	}
+	bool _active = true;
 	bool _destroyed;
 	public GameObject () {
 		Transform = new Transform {
@@ -38,21 +47,12 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		ComponentHolder.Awake();
 	}
 	public virtual void Start () {
-		if (_destroyed) 
-			return;
-		
 		ComponentHolder.Start();
 	}
 	public virtual void Update () {
-		if (_destroyed) 
-			return;
-		
 		ComponentHolder.Update();
 	}
 	public virtual void Draw (RenderTarget target) {
-		if (_destroyed) 
-			return;
-		
 		ComponentHolder.Draw(target);
 	}
 	public virtual void Destroy (bool sceneWipe = false) {
@@ -134,11 +134,6 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		Dispose(true);
 		GC.SuppressFinalize(this);
 	}
-	public IEnumerator<Component> GetEnumerator () {
-		return ComponentHolder.GetEnumerator();
-	}
-	IEnumerator IEnumerable.GetEnumerator () { return GetEnumerator(); }
-	
 	~GameObject () {
 		Dispose(false);
 	}

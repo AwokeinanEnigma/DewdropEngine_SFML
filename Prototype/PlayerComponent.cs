@@ -2,6 +2,7 @@
 using DewDrop.Internal; using DewDrop.UserInput;
 using DewDrop.Utilities;
 using SFML.Graphics;
+using SFML.Window;
 namespace Prototype; 
 
 public class PlayerComponent : Component{
@@ -25,6 +26,9 @@ public class PlayerComponent : Component{
 		nuposition.Z = nuposition.Y;
 		base.position = nuposition;
 
+		if (Input.Instance[Keyboard.Key.M]) {
+			ViewManager.Instance.SetZoom(1.1f);
+		}
 		Vector2 positionCopy = base.position;
 		//positionCopy.y -= size.y;
 		//positionCopy.x -= size.x / 2;

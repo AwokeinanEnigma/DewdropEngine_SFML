@@ -3,7 +3,7 @@ using DewDrop.Utilities;
 namespace DewDrop.Internal; 
 
 public class Transform {
-	public const int MaxChildren = 32;
+	public const int MaxChildren = 5012;
 	public Transform[] Children;
 	public bool Visible = true;
 	public bool DrawRegardlessOfVisibility = false;
@@ -42,6 +42,7 @@ public class Transform {
 		}
 		
 	}
+	
 	public Vector2 Size { get; set; }
 	
 	Vector3 _position;
@@ -82,7 +83,13 @@ public class Transform {
 	
 	#endregion
 	#region Child Management
-
+	public void SetActive (bool active) {
+	foreach (Transform child in Children) {
+		if (child != null) {
+			child.GameObject.Active = active;
+		}
+	}
+}
 	public void AttachChild (Transform gameObject) {
 		if (_destroyed)
 			return;
@@ -90,7 +97,8 @@ public class Transform {
 		if (_availableIndex >= MaxChildren) {
 			throw new TooManyChildrenException($"Too many children on object '{GameObject.Name}'");
 		}
-
+		
+		gameObject.GameObject.UpdateSlot = GameObject.UpdateSlot + 1;
 		Children[_availableIndex] = gameObject;
 		_availableIndex++;
 	}

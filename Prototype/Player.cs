@@ -6,12 +6,14 @@ using DewDrop;
 using DewDrop.Collision;
 using DewDrop.Entities;
 using DewDrop.Graphics;
+using DewDrop.GUI;
 using DewDrop.Inspector;
 using DewDrop.Inspector.Attributes;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using Prototype;
 using SFML.Graphics;
+using SFML.Window;
 
 #endregion
 
@@ -115,6 +117,18 @@ public string Username = "Joe";
  
             //DDDebug.Log("Velocity: " + Velocity);
         }
+        if (Input.Instance[Keyboard.Key.Space])
+        {
+            Outer.Log("Space pressed");
+            ViewManager.Instance.SetZoom(1.25f);
+        }
+        if (Input.Instance[Keyboard.Key.LShift])
+        {
+            
+            Outer.Log("Shift pressed");
+            ViewManager.Instance.SetZoom(0.75f);
+        }
+        ViewManager.Instance.Center = _position;
 
         if (_manager != null && CanMove)
         {

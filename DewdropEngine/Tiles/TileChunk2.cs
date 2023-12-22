@@ -1,12 +1,10 @@
 ﻿#region
 
 using DewDrop.Graphics;
-using DewDrop.Internal;
 using DewDrop.Resources;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.Graphics.Glsl;
-using Transform = SFML.Graphics.Transform;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable MergeIntoPattern
 // ReSharper disable ForCanBeConvertedToForeach
@@ -16,27 +14,27 @@ using Transform = SFML.Graphics.Transform;
 
 namespace DewDrop.Tiles;
 
-public class TileChunk : Component  {
+public class TileChunk2 : Renderable {
 	#region Properties
 
 	public bool AnimationEnabled { get; set; }
 
-	public Vector2 RenderPosition {
-		get => transform.Position;
+	public override Vector2 RenderPosition {
+		get => _position;
 		set {
-			transform.Position = value;
+			_position = value;
 			ResetTransform();
 		}
 	}
 
-	public Vector2 Origin {
-		get => transform.Origin;
+	public override Vector2 Origin {
+		get => _origin;
 		set {
-			transform.Origin = value;
+			_origin = value;
 			ResetTransform();
 		}
 	}
-	public SpritesheetTexture TilesetSpritesheet;
+	public SpritesheetTexture TilesetSpritesheet { get; }
 
 	#endregion
 
@@ -49,7 +47,7 @@ public class TileChunk : Component  {
 
 	RenderStates _renderState;
 
-	 Vec4 _blendColor;
+	readonly Vec4 _blendColor;
 
 	#endregion
 
@@ -63,13 +61,14 @@ public class TileChunk : Component  {
 	/// <param name="palette">The palette color.</param>
 	/// <param name="enableAnimations">Whether animations are enabled or not.</param>
 	/// <param name="blendColor">The blend color.</param>
-	public void Setup(List<Tile> tiles, string resource, int depth, Vector2 position, uint palette, bool enableAnimations = true, Color blendColor = default) 
+	public TileChunk2 (List<Tile> tiles, string resource, int depth, Vector2 position, uint palette, bool enableAnimations = true, Color blendColor = default) 
 	{
 		// Use the TextureManager to get the spritesheet for the given resource
 		TilesetSpritesheet = TextureManager.Instance.UseSpritesheet(resource);
 		// Set the current palette color for the spritesheet
 		TilesetSpritesheet.CurrentPalette = palette;
-		transform.Position = new Vector3(position.x, position.y, depth);
+		_position = position;
+		_depth = depth;
 		// Set the render state for the chunk
 		_renderState = new RenderStates(BlendMode.Alpha, Transform.Identity, TilesetSpritesheet.Image, _TileGroupShader);
 		// Set the animation enabled flag
@@ -91,7 +90,7 @@ public class TileChunk : Component  {
 
 	void ResetTransform () {
 		Transform identity = Transform.Identity;
-		identity.Translate(transform.Position - transform.Origin);
+		identity.Translate(_position - _origin);
 		_renderState.Transform = identity;
 	}
 
@@ -103,10 +102,10 @@ public class TileChunk : Component  {
 	public int GetTileId(Vector2 location)
 	{
 		// Calculate the relative position of the location within the tile chunk
-		Vector2 relativePosition = location - transform.Position + transform.Origin;
+		Vector2 relativePosition = location - _position + _origin;
 
 		// Calculate the tile index based on the relative position
-		uint tileIndex = (uint)(relativePosition.X / 8f + relativePosition.Y / 8f * (transform.Size.X / 8f));
+		uint tileIndex = (uint)(relativePosition.X / 8f + relativePosition.Y / 8f * (_size.X / 8f));
 
 		// Get the vertex at the calculated tile index
 		Vertex vertex = _vertices[(int)(UIntPtr)(tileIndex * 4U)];
@@ -295,7 +294,7 @@ public class TileChunk : Component  {
 			}
 		}
 
-		transform.Size = v2 - v;
+		_size = v2 - v;
 	}
 
 	/// <summary>
@@ -357,11 +356,13 @@ public class TileChunk : Component  {
 		target.Draw(_vertices, PrimitiveType.Quads, _renderState);
 	}
 
-	protected override void ReleaseManagedResources () {
-		TextureManager.Instance.Unuse(TilesetSpritesheet);
-		Array.Clear(_tileAnimations, 0, _tileAnimations.Length);
-		Array.Clear(_vertices, 0, _vertices.Length);
-		_vertices = null;
-		_tileAnimations = null;	
+	protected override void Dispose (bool disposing) {
+		if (!_disposed) {
+			TextureManager.Instance.Unuse(TilesetSpritesheet);
+			Array.Clear(_tileAnimations, 0, _tileAnimations.Length);
+			Array.Clear(_vertices, 0, _vertices.Length);
+		}
+
+		_disposed = true;
 	}
 }

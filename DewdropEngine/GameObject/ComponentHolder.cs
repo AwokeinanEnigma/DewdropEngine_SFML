@@ -3,11 +3,12 @@ using SFML.Graphics;
 using System.Collections;
 namespace DewDrop.Internal; 
 
-public class ComponentHolder : IEnumerable<Component> {
+public class ComponentHolder {
 	GameObject _gameObject;
 	const int MaxComponents = 32;
 	Component[] Components { get; set; }
 	int _availableIndex;
+	bool _sort;
 	
 	public ComponentHolder (GameObject gameObject)
 	{
@@ -21,20 +22,13 @@ public class ComponentHolder : IEnumerable<Component> {
 		}
 		component.GameObject = _gameObject;
 		Components[_availableIndex] = component;
+		_sort = true;
 		// sort components by importance
-		SortComponents();
+		//SortComponents();
 		_availableIndex++;
 	}
 	
-	void SortComponents () {
-		for (int i = 0; i < _availableIndex; i++) {
-			for (int j = i; j > 0; j--) {
-				if (Components[j].Importance > Components[j - 1].Importance) {
-					(Components[j], Components[j - 1]) = (Components[j - 1], Components[j]);
-				}
-			}
-		}
-	}
+
 	
 	public void RemoveComponent (Component component) {
 		for (int i = 0; i < _availableIndex; i++) {
@@ -93,7 +87,7 @@ public class ComponentHolder : IEnumerable<Component> {
 	public void Awake () {
 		for (int i = 0; i < _availableIndex; i++) {
 			Components[i].Awake();
-		}
+		}	
 	}
 	
 	public void Start () {
@@ -102,7 +96,21 @@ public class ComponentHolder : IEnumerable<Component> {
 		}
 	}
 	
+	void SortComponents () {
+		for (int i = 0; i < _availableIndex; i++) {
+			for (int j = i; j > 0; j--) {
+				if (Components[j].Importance > Components[j - 1].Importance) {
+					(Components[j], Components[j - 1]) = (Components[j - 1], Components[j]);
+				}
+			}
+		}
+	}
+	
 	public void Update () {
+		if (_sort) {
+			SortComponents();
+			_sort = false;
+		}
 		for (int i = 0; i < _availableIndex; i++) {
 			if (Components[i].Active) 
 				Components[i].Update();
@@ -124,9 +132,5 @@ public class ComponentHolder : IEnumerable<Component> {
 		_availableIndex = 0;
 		Components = null;
 		_gameObject = null;
-	}
-	public IEnumerator<Component> GetEnumerator () {
-		return (IEnumerator<Component>)Components.GetEnumerator();
-	}
-	IEnumerator IEnumerable.GetEnumerator () { return GetEnumerator(); }
+	} 
 }

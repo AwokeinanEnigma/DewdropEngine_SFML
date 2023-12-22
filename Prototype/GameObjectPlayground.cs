@@ -26,37 +26,44 @@ public class GameObjectPlayground : SceneBase{
 		base.Focus();
 		GameObjectRegister.Initialize(Engine.RenderTexture);
 		/*obj = new GameObject();
-		obj.Name = "Test Object";
-		obj.Transform.DrawRegardlessOfVisibility = true;
-		obj.Transform.Position = new Vector3(160, 90, 1);
-		obj.UpdateSlot = 1;
-		obj.AddComponent<MyComponent>().dos = true;
-		GameObjectRegister.AddGameObject(obj);
-
-		
-		obj2 = obj.Clone();
-		obj2.GetComponent<MyComponent>().dos = false;
-		obj2.Transform.Position = new Vector3(90,90,2);
-		obj2.Name = "Test Object 2";
-		obj2.UpdateSlot = 2;
-		obj2.Transform.DrawRegardlessOfVisibility = true;
-		//Debug.Assert(gameObject.GetComponent<MyComponent>() == obj2.GetComponent<MyComponent>());
-		obj2.Transform.SetParent(obj.Transform);
-		GameObjectRegister.AddGameObject(obj2);*/
+			obj.Name = "Test Object";
+			obj.Transform.DrawRegardlessOfVisibility = true;
+			obj.Transform.Position = new Vector3(160, 90, 1);
+			obj.UpdateSlot = 1;
+			obj.AddComponent<MyComponent>().dos = true;
+			GameObjectRegister.AddGameObject(obj);
+	
+			
+			obj2 = obj.Clone();
+			obj2.GetComponent<MyComponent>().dos = false;
+			obj2.Transform.Position = new Vector3(90,90,2);
+			obj2.Name = "Test Object 2";
+			obj2.UpdateSlot = 2;
+			obj2.Transform.DrawRegardlessOfVisibility = true;
+			//Debug.Assert(gameObject.GetComponent<MyComponent>() == obj2.GetComponent<MyComponent>());
+			obj2.Transform.SetParent(obj.Transform);
+			GameObjectRegister.AddGameObject(obj2);*/
 		
 		var obj3 = new GameObject();
 		obj3.RemoveComponent<MyComponent>();
 
-		obj3.UpdateSlot = 3;
+		obj3.UpdateSlot = -1;
 		PlayerComponent playerComponent = obj3.AddComponent<PlayerComponent>();
 		obj3.Transform.Position = new Vector3(21,50,3);
 		obj3.Name = "Test Object 3";
 		obj3.Transform.DrawRegardlessOfVisibility = true;
 		GameObjectRegister.AddGameObject(obj3);
 		
-		MapLoader loader = new("testmapg.dat");
+		MapLoader loader = new("testmap.mdat");
 		Map mapFile = loader.Load();
-		GameObjectRegister.AddAllGameObjects(MakeTileChunks(0, mapFile.TileChunkData));
+		GameObject mapParent = new();
+		mapParent.Name = "Map Parent: " + mapFile.Title;
+		GameObjectRegister.AddGameObject(mapParent);
+		foreach (GameObject tileChunkData in MakeTileChunks(0, mapFile.TileChunkData)) {
+			tileChunkData.Transform.SetParent(mapParent.Transform);
+			tileChunkData.OnlyDraw = true;
+			GameObjectRegister.AddGameObject(tileChunkData);
+		}
 		Engine.OnRenderImGui += EngineOnRenderImGUI;
 	}
 	
@@ -65,11 +72,13 @@ public class GameObjectPlayground : SceneBase{
 		ImGui.Text($"Position: {gameObject.Transform.Position}");
 		ImGui.Text($"Rotation: {gameObject.Transform.Rotation}");
 		ImGui.Text($"Size: {gameObject.Transform.Size}");
-		ImGui.Text($"Active: {gameObject.Active}");
+		bool visible = gameObject.Active;
+		if (ImGui.Checkbox("Active", ref visible)) {
+			gameObject.Active = visible;
+		}
 		ImGui.Text($"Awakened: {gameObject.Awakened}");
 		ImGui.Text($"Update Slot: {gameObject.UpdateSlot}");
 		ImGui.Text($"Parent: {gameObject.Transform.Parent?.GameObject.Name ?? "None"}");
-		ImGui.Text($"Children: {gameObject.Transform.ChildCount}");
 	}
 	void EngineOnRenderImGUI () {
 		if (ImGui.CollapsingHeader("Hierarchy")) {
@@ -79,24 +88,28 @@ public class GameObjectPlayground : SceneBase{
 			foreach (GameObject gameObject in GameObjectRegister.GameObjects) {
 				//Outer.Log(gameObject.UpdateSlot);
 				if (!_drawn.ContainsKey(gameObject)) {
-					if (gameObject.Parent != null && !_drawn.ContainsKey(gameObject.Parent.GameObject)) {
-						continue;
+					if (gameObject.Transform.Parent != null) {
+						if (_drawn.ContainsKey(gameObject.Transform.Parent.GameObject)) {
+							continue;
+						}
 					}
 					_drawn.Add(gameObject, true);
 					if (ImGui.TreeNode(gameObject.Name)) {
 						DrawGameObject(gameObject);
 						if (gameObject.Transform.ChildCount > 0) {
 							ImGui.Indent();
-							for (int i = 0; i < gameObject.Transform.ChildCount; i++) {
-								GameObject child = gameObject.Transform.Children[i].GameObject;
-								if (!_drawn.ContainsKey(child)) {
-									_drawn.Add(child, true);
-									if (ImGui.TreeNode(child.Name)) {
-										DrawGameObject(child);
-										ImGui.TreePop();
+							if (ImGui.CollapsingHeader($"Children: {gameObject.Transform.ChildCount}")) {
+								for (int i = 0; i < gameObject.Transform.ChildCount; i++) {
+									GameObject child = gameObject.Transform.Children[i].GameObject;
+									if (!_drawn.ContainsKey(child)) {
+										_drawn.Add(child, true);
+										if (ImGui.TreeNode(child.Name)) {
+											DrawGameObject(child);
+											ImGui.TreePop();
+										}
 									}
 								}
-							}
+							}	
 							ImGui.Unindent();
 						}
 						ImGui.TreePop();
@@ -112,9 +125,10 @@ public class GameObjectPlayground : SceneBase{
 		string arg = "default";
 
 		//string resource = "C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Graphics\\cave2.dat";// string.Format("{0}{1}.mtdat", graphicDirectory, arg);
-		string resource = "testmap.dat";
+		string resource = "testmap.gdat";
 		List<GameObject> list = new(groups.Count);
 		long ticks = DateTime.UtcNow.Ticks;
+		Outer.Log(groups.Count);
 		for (int i = 0; i < groups.Count; i++)
 		{
 			TileChunkData group = groups[i];
@@ -143,9 +157,9 @@ public class GameObjectPlayground : SceneBase{
 			}
 			// converting to array allocates extra memory, and it's just not needed
 			GameObject gameObject = new();
-			gameObject.Name = "TileChunk " + i;
+			gameObject.Name = "TileChunk " + (i+ 1);
 			TileChunk chunk = gameObject.AddComponent<TileChunk>();
-			chunk.Setup(tiles, resource, new Vector3(group.X, group.Y, group.Depth), palette);
+			chunk.Setup(tiles, resource, (int)group.Depth, new Vector2(group.X, group.Y), palette);
 			list.Add(gameObject);
 		}
 		Console.WriteLine("Created tile groups in {0}ms", (DateTime.UtcNow.Ticks - ticks) / 10000L);
@@ -185,7 +199,7 @@ public class GameObjectPlayground : SceneBase{
 		if (disposing && !disposed) {
 			obj2 = null;
 			obj = null;
-			GameObjectRegister.Destroy();
+			GameObjectRegister.Destroy(true);
 		}
 		base.Dispose(disposing); 
 	}
