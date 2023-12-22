@@ -1,10 +1,12 @@
 ﻿#region
 
 using DewDrop.Graphics;
+using DewDrop.Internal;
 using DewDrop.Resources;
 using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.Graphics.Glsl;
+using Transform = SFML.Graphics.Transform;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable MergeIntoPattern
 // ReSharper disable ForCanBeConvertedToForeach
@@ -14,28 +16,29 @@ using SFML.Graphics.Glsl;
 
 namespace DewDrop.Tiles;
 
-public class TileChunk : Renderable {
+public class TileChunk : Component {
 	#region Properties
 
 	public bool AnimationEnabled { get; set; }
 
-	public override Vector2 RenderPosition {
-		get => _position;
+	public Vector2 RenderPosition {
+		get => transform.Position;
 		set {
-			_position = value;
+			transform.Position = value;
 			ResetTransform();
 		}
 	}
 
-	public override Vector2 Origin {
-		get => _origin;
+	public Vector2 Origin {
+		get => transform.Origin;
 		set {
-			_origin = value;
+			transform.Origin = value;
 			ResetTransform();
 		}
 	}
-	public SpritesheetTexture TilesetSpritesheet { get; }
+	public SpritesheetTexture TilesetSpritesheet;
 
+	
 	#endregion
 
 	#region Fields
@@ -47,7 +50,7 @@ public class TileChunk : Renderable {
 
 	RenderStates _renderState;
 
-	readonly Vec4 _blendColor;
+	Vec4 _blendColor;
 
 	#endregion
 
@@ -56,19 +59,18 @@ public class TileChunk : Renderable {
 	/// </summary>
 	/// <param name="tiles">The list of tiles.</param>
 	/// <param name="resource">The resource string.</param>
-	/// <param name="depth">The depth of the chunk.</param>
 	/// <param name="position">The position of the chunk.</param>
 	/// <param name="palette">The palette color.</param>
 	/// <param name="enableAnimations">Whether animations are enabled or not.</param>
 	/// <param name="blendColor">The blend color.</param>
-	public TileChunk (List<Tile> tiles, string resource, int depth, Vector2 position, uint palette, bool enableAnimations = true, Color blendColor = default) 
+	public void Setup(List<Tile> tiles, string resource, Vector3 position, uint palette, bool enableAnimations = true, Color blendColor = default) 
 	{
 		// Use the TextureManager to get the spritesheet for the given resource
 		TilesetSpritesheet = TextureManager.Instance.UseSpritesheet(resource);
 		// Set the current palette color for the spritesheet
 		TilesetSpritesheet.CurrentPalette = palette;
-		_position = position;
-		_depth = depth;
+		this.position = position;
+		
 		// Set the render state for the chunk
 		_renderState = new RenderStates(BlendMode.Alpha, Transform.Identity, TilesetSpritesheet.Image, _TileGroupShader);
 		// Set the animation enabled flag
@@ -86,11 +88,17 @@ public class TileChunk : Renderable {
 		// Clear the tiles list (optional)
 		//tiles = null;
 		//tiles.Clear();
+		_TileGroupShader.SetUniform("image", TilesetSpritesheet.Image);
+		_TileGroupShader.SetUniform("palette", TilesetSpritesheet.Palette);
+		_TileGroupShader.SetUniform("palIndex", TilesetSpritesheet.CurrentPaletteFloat);
+		_TileGroupShader.SetUniform("palSize", TilesetSpritesheet.PaletteSize);
+		_TileGroupShader.SetUniform("blend", _blendColor);
+		_TileGroupShader.SetUniform("blendMode", 1f);
 	}
-
+	
 	void ResetTransform () {
 		Transform identity = Transform.Identity;
-		identity.Translate(_position - _origin);
+		identity.Translate(position - origin);
 		_renderState.Transform = identity;
 	}
 
@@ -102,10 +110,10 @@ public class TileChunk : Renderable {
 	public int GetTileId(Vector2 location)
 	{
 		// Calculate the relative position of the location within the tile chunk
-		Vector2 relativePosition = location - _position + _origin;
+		Vector2 relativePosition = location - position + origin;
 
 		// Calculate the tile index based on the relative position
-		uint tileIndex = (uint)(relativePosition.X / 8f + relativePosition.Y / 8f * (_size.X / 8f));
+		uint tileIndex = (uint)(relativePosition.X / 8f + relativePosition.Y / 8f * (size.X / 8f));
 
 		// Get the vertex at the calculated tile index
 		Vertex vertex = _vertices[(int)(UIntPtr)(tileIndex * 4U)];
@@ -294,7 +302,7 @@ public class TileChunk : Renderable {
 			}
 		}
 
-		_size = v2 - v;
+		size = v2 - v;
 	}
 
 	/// <summary>
@@ -345,24 +353,17 @@ public class TileChunk : Renderable {
 		}
 	}
 	public override void Draw (RenderTarget target) {
-		_TileGroupShader.SetUniform("image", TilesetSpritesheet.Image);
-		_TileGroupShader.SetUniform("palette", TilesetSpritesheet.Palette);
-		_TileGroupShader.SetUniform("palIndex", TilesetSpritesheet.CurrentPaletteFloat);
-		_TileGroupShader.SetUniform("palSize", TilesetSpritesheet.PaletteSize);
-		_TileGroupShader.SetUniform("blend", _blendColor);
-		_TileGroupShader.SetUniform("blendMode", 1f);
+
 
 		UpdateAnimations();
 		target.Draw(_vertices, PrimitiveType.Quads, _renderState);
 	}
 
-	protected override void Dispose (bool disposing) {
-		if (!_disposed) {
-			TextureManager.Instance.Unuse(TilesetSpritesheet);
-			Array.Clear(_tileAnimations, 0, _tileAnimations.Length);
-			Array.Clear(_vertices, 0, _vertices.Length);
-		}
 
-		_disposed = true;
+	protected override void ReleaseManagedResources () {
+		base.ReleaseManagedResources();
+		TextureManager.Instance.Unuse(TilesetSpritesheet);
+		Array.Clear(_tileAnimations, 0, _tileAnimations.Length);
+		Array.Clear(_vertices, 0, _vertices.Length);
 	}
 }

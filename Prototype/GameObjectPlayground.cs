@@ -1,12 +1,18 @@
 ﻿using DewDrop;
-using DewDrop.Internal; using DewDrop.Scenes;
+using DewDrop.Internal;
+using DewDrop.Maps;
+using DewDrop.Maps.MapData;
+using DewDrop.Scenes;
 using DewDrop.Scenes.Transitions;
+using DewDrop.Tiles;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using ImGuiNET;
 using Prototype.Scenes;
+using SFML.System;
 using SFML.Window;
 using System.Diagnostics;
+using System.Threading.Tasks.Dataflow;
 namespace Prototype; 
 
 public class GameObjectPlayground : SceneBase{
@@ -19,7 +25,7 @@ public class GameObjectPlayground : SceneBase{
 	public override void Focus () {
 		base.Focus();
 		GameObjectRegister.Initialize(Engine.RenderTexture);
-		obj = new GameObject();
+		/*obj = new GameObject();
 		obj.Name = "Test Object";
 		obj.Transform.DrawRegardlessOfVisibility = true;
 		obj.Transform.Position = new Vector3(160, 90, 1);
@@ -36,9 +42,9 @@ public class GameObjectPlayground : SceneBase{
 		obj2.Transform.DrawRegardlessOfVisibility = true;
 		//Debug.Assert(gameObject.GetComponent<MyComponent>() == obj2.GetComponent<MyComponent>());
 		obj2.Transform.SetParent(obj.Transform);
-		GameObjectRegister.AddGameObject(obj2);
+		GameObjectRegister.AddGameObject(obj2);*/
 		
-		var obj3 = obj.Clone();
+		var obj3 = new GameObject();
 		obj3.RemoveComponent<MyComponent>();
 
 		obj3.UpdateSlot = 3;
@@ -47,7 +53,10 @@ public class GameObjectPlayground : SceneBase{
 		obj3.Name = "Test Object 3";
 		obj3.Transform.DrawRegardlessOfVisibility = true;
 		GameObjectRegister.AddGameObject(obj3);
-
+		
+		MapLoader loader = new("testmapg.dat");
+		Map mapFile = loader.Load();
+		GameObjectRegister.AddAllGameObjects(MakeTileChunks(0, mapFile.TileChunkData));
 		Engine.OnRenderImGui += EngineOnRenderImGUI;
 	}
 	
@@ -97,6 +106,52 @@ public class GameObjectPlayground : SceneBase{
 		}
 		_drawn.Clear();
 	}
+	
+	public IList<GameObject>  MakeTileChunks(uint palette, List<TileChunkData> groups)
+	{
+		string arg = "default";
+
+		//string resource = "C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Graphics\\cave2.dat";// string.Format("{0}{1}.mtdat", graphicDirectory, arg);
+		string resource = "testmap.dat";
+		List<GameObject> list = new(groups.Count);
+		long ticks = DateTime.UtcNow.Ticks;
+		for (int i = 0; i < groups.Count; i++)
+		{
+			TileChunkData group = groups[i];
+                
+			List<Tile> tiles = new(group.Tiles.Length / 2);
+			int tileIndex = 0;
+			int tileX = 0;
+			while (tileIndex < group.Tiles.Length)
+			{
+				int tileID = group.Tiles[tileIndex] - 1;
+				if (tileID >= 0)
+				{
+					ushort tileModifier;
+					tileModifier = tileIndex + 1 < group.Tiles.Length ? group.Tiles[tileIndex + 1] : (ushort)0;
+					int tileY = group.Width * 8;
+					Vector2f position = new(tileX * 8L % tileY, tileX * 8L / tileY * 8L);
+					bool flipHoriz = (tileModifier & 1) > 0;
+					bool flipVert = (tileModifier & 2) > 0;
+					bool flipDiag = (tileModifier & 4) > 0;
+					ushort animId = (ushort)(tileModifier >> 3);
+					Tile item = new((uint)tileID, position, flipHoriz, flipVert, flipDiag, animId);
+					tiles.Add(item);
+				}
+				tileIndex += 2;
+				tileX++;
+			}
+			// converting to array allocates extra memory, and it's just not needed
+			GameObject gameObject = new();
+			gameObject.Name = "TileChunk " + i;
+			TileChunk chunk = gameObject.AddComponent<TileChunk>();
+			chunk.Setup(tiles, resource, new Vector3(group.X, group.Y, group.Depth), palette);
+			list.Add(gameObject);
+		}
+		Console.WriteLine("Created tile groups in {0}ms", (DateTime.UtcNow.Ticks - ticks) / 10000L);
+		return list; 
+	}
+	
 	public override void TransitionIn () { base.TransitionIn(); }
 	public override void Unfocus () { base.Unfocus(); }
 	bool dunnit;

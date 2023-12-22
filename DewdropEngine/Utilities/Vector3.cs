@@ -44,7 +44,9 @@ public static implicit operator Vector3 (Vector2i v) {
 	public static Vector2 operator + (Vector2 a, Vector3 b) {
 		return new Vector2(a.X + b.X, a.Y + b.Y);
 	}
-	
+	public static Vector3 operator - (Vector3 a, Vector2 b) {
+		return new Vector3(a.X - b.X, a.Y - b.Y);
+	}
 	public static Vector3 operator + (Vector3 a, Vector3 b) {
 		return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 	}

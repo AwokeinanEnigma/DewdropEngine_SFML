@@ -61,7 +61,6 @@ public struct Vector2 {
 		_vector2f = new Vector2f(x, y);
 	}
 
-
     /// <summary>
     ///     Creates a new Vector2 from a Vector2f
     /// </summary>
@@ -238,6 +237,12 @@ public struct Vector2 {
 	public static Vector2 operator - (Vector2 a, int b) {
 		a.x -= b;
 		a.y -= b;
+		return a;
+	}
+	
+	public static Vector2 operator - (Vector2 a, Vector3 b) {
+		a.x -= b.X;
+		a.y -= b.Y;
 		return a;
 	}
 	

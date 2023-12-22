@@ -169,8 +169,8 @@ public static partial class Engine {
 			//   
 			//window.SetFramerateLimit(target_framerate);
 		} else {
-			Window.SetFramerateLimit(60);
-
+			Window.SetVerticalSyncEnabled(false);
+			Window.SetFramerateLimit(0);
 		}
 
 		// nullable check because we don't know if anything is subscribed to this event

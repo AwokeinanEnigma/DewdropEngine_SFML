@@ -32,7 +32,7 @@ class Program
 			EnableImGui = true,
 			ScreenSize = new Vector2(320, 180),
 			Fullscreen = false,
-			VSync = true,
+			VSync = false,
 			DebugMode = true,
 			DefaultBufferScale = 4,
 			StartScene = new GameObjectPlayground(),

@@ -57,7 +57,7 @@ public class TestScene : SceneBase
         Map mapFile = loader.Load();
         Triggers = new List<TriggerArea>();
         CollisionManager = new CollisionManager(mapFile.Width, mapFile.Height);
-        _pipeline.AddAll(MakeTileChunks(0, mapFile.TileChunkData));
+        //_pipeline.AddAll(MakeTileChunks(0, mapFile.TileChunkData));
         foreach (var trigger in mapFile.Triggers)
         {
             Triggers.Add(new TriggerArea(trigger.Position, trigger.Points, trigger.Flag, trigger.Script));
@@ -230,8 +230,8 @@ public class TestScene : SceneBase
                 tileX++;
             }
             // converting to array allocates extra memory, and it's just not needed
-            TileChunk item2 = new(tiles, resource, (int)group.Depth, new Vector2f(group.X, group.Y), palette);
-            list.Add(item2);
+           // TileChunk item2 = new(tiles, resource, (int)group.Depth, new Vector2f(group.X, group.Y), palette);
+            //list.Add(item2);
         }
         Console.WriteLine("Created tile groups in {0}ms", (DateTime.UtcNow.Ticks - ticks) / 10000L);
         return list; 

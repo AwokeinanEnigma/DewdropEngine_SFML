@@ -42,7 +42,7 @@ public static partial class Engine {
 		_Time = _FrameTimer.ElapsedTime.AsSeconds();
 		_LastTime = _Time;
 
-			while (Window.IsOpen) {
+			while (true) {
 				
 				_Time = _FrameTimer.ElapsedTime.AsSeconds();
 				_DeltaTimeFloat = _Time - _LastTime;

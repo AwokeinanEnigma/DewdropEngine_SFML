@@ -167,34 +167,34 @@ public class RenderPipeline {
 		_needToSort = true;
 	}
 
-	void DoAdditions () {
-		while (_renderablesToAdd.Count > 0) {
-			// remove the thing from the top of this
-			IRenderable key = _renderablesToAdd.Pop();
+    void DoAdditions () {
+	    while (_renderablesToAdd.Count > 0) {
+		    // remove the thing from the top of this
+		    IRenderable key = _renderablesToAdd.Pop();
 
-			// add it to the list
-			_renderables.Add(key);
+		    // add it to the list
+		    _renderables.Add(key);
 
-			// determine its IRenderable ID
-			_renderableIds.Add(key, _renderableCount);
+		    // determine its IRenderable ID
+		    _renderableIds.Add(key, _renderableCount);
 
-			// force our render pipeline to sort IRenderables after adding
-			_needToSort = true;
+		    // force our render pipeline to sort IRenderables after adding
+		    _needToSort = true;
 
-			++_renderableCount;
-		}
-	}
+		    ++_renderableCount;
+	    }
+    }
 
-	void DoRemovals () {
-		while (_renderablesToRemove.Count > 0) {
-			IRenderable key = _renderablesToRemove.Pop();
-			_renderables.Remove(key);
-			_renderableIds.Remove(key);
+    void DoRemovals () {
+	    while (_renderablesToRemove.Count > 0) {
+		    IRenderable key = _renderablesToRemove.Pop();
+		    _renderables.Remove(key);
+		    _renderableIds.Remove(key);
 
-			// unlike DoAdditions, we don't need to force sort our IRenderables again
-			// this is pretty obvious, but you don't need to sort again if something was removed 
-		}
-	}
+		    // unlike DoAdditions, we don't need to force sort our IRenderables again
+		    // this is pretty obvious, but you don't need to sort again if something was removed 
+	    }
+    }
 
     /// <summary>
     ///     Executes a function for every IRenderable with a IRenderable parameter

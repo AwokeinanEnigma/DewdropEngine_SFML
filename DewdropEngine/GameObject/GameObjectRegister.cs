@@ -30,12 +30,8 @@ public static class GameObjectRegister {
 			if (y.Transform == null) {
 				return (int)x.Transform.Position.Z;	
 			}
-			//Outer.Log(x);
-			//Outer.Log(y);
-			int zComparison = x.Transform.Position.Z.CompareTo(y.Transform.Position.Z);
-			if (zComparison != 0) {
-				return zComparison;
-			}
+			return (int)(x.Transform.Position.Z != y.Transform.Position.Z ? x.Transform.Position.Z - y.Transform.Position.Z : x.GetHashCode().CompareTo(y.GetHashCode()));
+
 
 			// If Z is equal, compare based on IDs to ensure uniqueness
 			return x.GetHashCode().CompareTo(y.GetHashCode());
@@ -45,17 +41,22 @@ public static class GameObjectRegister {
 	#endregion
 
 	public static SortedSet<GameObject> GameObjects { get; private set; }
-	static SortedSet<GameObject> _GameObjectsSortedByZ;
+	//static SortedSet<GameObject> _GameObjectsSortedByZ;
+	static List<GameObject> _GameObjectsSortedByZ;
 	static FloatRect _ViewRect;
 	static FloatRect _RenderableRect;
 	static View _View;
-	public static bool Initialized;
 	static RenderTarget _Target;
-
+	static Stack<GameObject> _GameObjectsToAdd;
+	static Stack<GameObject> _GameObjectsToRemove;
+	static bool _Sort;
+	public static bool Initialized;
 	public static void Initialize(RenderTarget target) {
 		_Target = target;
 		GameObjects = new SortedSet<GameObject>(new GameObjectComparer());
-		_GameObjectsSortedByZ = new SortedSet<GameObject>(new GameObjectZComparer());
+		_GameObjectsSortedByZ = new List<GameObject>(); //= new SortedSet<GameObject>(new GameObjectZComparer());
+		_GameObjectsToAdd = new Stack<GameObject>();
+		_GameObjectsToRemove = new Stack<GameObject>();
 		Initialized = true;
 	}
 
@@ -66,9 +67,14 @@ public static class GameObjectRegister {
 		gameObject.Awake();
 		gameObject.FrameRegistered = Engine.Frame;
 		GameObjects.Add(gameObject);
-		_GameObjectsSortedByZ.Add(gameObject);
+		_GameObjectsToAdd.Push(gameObject);
 	}
 
+	public static void AddAllGameObjects(IList<GameObject> gameObjects) {
+		foreach (GameObject gameObject in gameObjects) {
+			AddGameObject(gameObject);
+		}
+	}
 	public static void RemoveGameObject(GameObject gameObject) {
 		GameObjects.Remove(gameObject);
 		_GameObjectsSortedByZ.Remove(gameObject);
@@ -85,13 +91,46 @@ public static class GameObjectRegister {
 		}
 	}
 	
+	static void DoAdditions () {
+		while (_GameObjectsToAdd.Count > 0) {
+			// remove the thing from the top of this
+			GameObject key = _GameObjectsToAdd.Pop();
+
+			// add it to the list
+			_GameObjectsSortedByZ.Add(key);
+			// force our render pipeline to sort IRenderables after adding
+			_Sort = true;
+		}
+	}
+
+	static void DoRemovals () {
+		while (_GameObjectsToRemove.Count > 0) {
+			GameObject key = _GameObjectsToRemove.Pop();
+			_GameObjectsSortedByZ.Remove(key);
+
+			// unlike DoAdditions, we don't need to force sort our IRenderables again
+			// this is pretty obvious, but you don't need to sort again if something was removed 
+		}
+	}
+	
+	public static void ForceSort() {
+		//Outer.Log("Forcing sort");
+		_Sort = true;
+	}
 	public static void Draw() {
+		DoRemovals();
+		DoAdditions();
+		if (_Sort) {
+			_GameObjectsSortedByZ.Sort(new GameObjectZComparer());
+			_Sort = false;
+		}
 		_View = Engine.Window.GetView();
 
 		_ViewRect.Left = _View.Center.X - _View.Size.X/2f;
 		_ViewRect.Top = _View.Center.Y - _View.Size.Y/2f;
 		_ViewRect.Width = _View.Size.X;
 		_ViewRect.Height = _View.Size.Y;
+		
 		
 		foreach (GameObject gameObject in _GameObjectsSortedByZ) {
 
@@ -114,6 +153,7 @@ public static class GameObjectRegister {
 			}
 		}
 	}
+	
 	
 	public static void Destroy() {
 		foreach (GameObject gameObject in GameObjects) {

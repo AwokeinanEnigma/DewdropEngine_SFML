@@ -26,7 +26,10 @@ public class Transform {
 	public Vector3 Position {
 		get => _position; set {
 			_lastPosition = _position;
-			_position = value; 
+			_position = value;
+			if ((int)_lastPosition.Z != (int)_position.Z) {
+				GameObjectRegister.ForceSort();
+			}
 			UpdatePosition(); 
 		}
 	}
