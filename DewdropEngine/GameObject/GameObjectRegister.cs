@@ -41,7 +41,7 @@ public static class GameObjectRegister {
 
 	#endregion
 
-	static SortedSet<GameObject> _GameObjects;
+	public static SortedSet<GameObject> GameObjects { get; private set; }
 	static SortedSet<GameObject> _GameObjectsSortedByZ;
 	static FloatRect _ViewRect;
 	static FloatRect _RenderableRect;
@@ -51,28 +51,28 @@ public static class GameObjectRegister {
 
 	public static void Initialize(RenderTarget target) {
 		_Target = target;
-		_GameObjects = new SortedSet<GameObject>(new GameObjectComparer());
+		GameObjects = new SortedSet<GameObject>(new GameObjectComparer());
 		_GameObjectsSortedByZ = new SortedSet<GameObject>(new GameObjectZComparer());
 		Initialized = true;
 	}
 
 	public static void AddGameObject(GameObject gameObject) {
-		if (_GameObjects.Contains(gameObject)) {
+		if (GameObjects.Contains(gameObject)) {
 			throw new GameObjectAlreadyRegisteredException($"GameObject '{gameObject.Name}' already registered");
 		}
 		gameObject.Awake();
 		gameObject.FrameRegistered = Engine.Frame;
-		_GameObjects.Add(gameObject);
+		GameObjects.Add(gameObject);
 		_GameObjectsSortedByZ.Add(gameObject);
 	}
 
 	public static void RemoveGameObject(GameObject gameObject) {
-		_GameObjects.Remove(gameObject);
+		GameObjects.Remove(gameObject);
 		_GameObjectsSortedByZ.Remove(gameObject);
 	}
 	
 	public static void Update() {
-		foreach (GameObject gameObject in _GameObjects) {
+		foreach (GameObject gameObject in GameObjects) {
 			if (Engine.Frame - gameObject.FrameRegistered == 1) {
 				gameObject.Start();
 			}
@@ -113,17 +113,17 @@ public static class GameObjectRegister {
 	}
 	
 	public static void Destroy() {
-		foreach (GameObject gameObject in _GameObjects) {
-			gameObject.Destroy();
+		foreach (GameObject gameObject in GameObjects) {
+			gameObject.Destroy(true);
 		}
-		_GameObjects.Clear();
+		GameObjects.Clear();
 		_GameObjectsSortedByZ.Clear();
 	}
 
 	public static GameObject? GetGameObjectByName(string name) {
-		foreach (GameObject gameObject in _GameObjects) {
+		foreach (GameObject gameObject in GameObjects) {
 			if (gameObject.Name == name) {
-				return gameObject;
+				return gameObject; 
 			}
 		}
 		return null;

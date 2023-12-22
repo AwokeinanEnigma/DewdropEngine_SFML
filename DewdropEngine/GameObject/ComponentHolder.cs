@@ -116,7 +116,7 @@ public class ComponentHolder : IEnumerable<Component> {
 		}
 	}
 	
-	public void Destroy () {
+	public void Destroy (bool sceneWipe) {
 		for (int i = 0; i < _availableIndex; i++) {
 			Components[i].Destroy();
 			Components[i] = null;

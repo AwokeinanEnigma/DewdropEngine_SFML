@@ -4,6 +4,7 @@ using DewDrop.Scenes;
 using DewDrop.Scenes.Transitions;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
+using ImGuiNET;
 using Prototype.Scenes;
 using SFML.Window;
 using System.Diagnostics;
@@ -36,6 +37,50 @@ public class GameObjectPlayground : SceneBase{
 		obj2.Transform.SetParent(obj.Transform);
 		GameObjectRegister.AddGameObject(obj2);
 		
+		Engine.OnRenderImGui += EngineOnRenderImGUI;
+	}
+	
+	Dictionary<GameObject, bool> _drawn = new Dictionary<GameObject, bool>();
+	void DrawGameObject (GameObject gameObject) {
+		ImGui.Text($"Position: {gameObject.Transform.Position}");
+		ImGui.Text($"Rotation: {gameObject.Transform.Rotation}");
+		ImGui.Text($"Size: {gameObject.Transform.Size}");
+		ImGui.Text($"Parent: {gameObject.Transform.Parent?.GameObject.Name ?? "None"}");
+		ImGui.Text($"Children: {gameObject.Transform.ChildCount}");
+	}
+	void EngineOnRenderImGUI () {
+		if (ImGui.CollapsingHeader("Hierarchy")) {
+			// go through all gameobjects and draw them in a tree
+			// if they have children, draw them as well
+			// and then don't draw them again
+			foreach (GameObject gameObject in GameObjectRegister.GameObjects) {
+				if (!_drawn.ContainsKey(gameObject)) {
+					if (gameObject.Parent != null && _drawn[gameObject.Parent.GameObject]) {
+						continue;
+					}
+					_drawn.Add(gameObject, true);
+					if (ImGui.TreeNode(gameObject.Name)) {
+						DrawGameObject(gameObject);
+						if (gameObject.Transform.ChildCount > 0) {
+							ImGui.Indent();
+							for (int i = 0; i < gameObject.Transform.ChildCount; i++) {
+								GameObject child = gameObject.Transform.Children[i].GameObject;
+								if (!_drawn.ContainsKey(child)) {
+									_drawn.Add(child, true);
+									if (ImGui.TreeNode(child.Name)) {
+										DrawGameObject(child);
+										ImGui.TreePop();
+									}
+								}
+							}
+							ImGui.Unindent();
+						}
+						ImGui.TreePop();
+					} 
+				}
+			}
+		}
+		_drawn.Clear();
 	}
 	public override void TransitionIn () { base.TransitionIn(); }
 	public override void Unfocus () { base.Unfocus(); }

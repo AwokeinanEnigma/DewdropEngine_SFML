@@ -29,6 +29,7 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		};
 		ComponentHolder = new ComponentHolder(this);
 		Name = "GameObject";
+		Importance = 0;																					
 	}
 	
 	public string Name { get; set; }
@@ -54,14 +55,18 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		
 		ComponentHolder.Draw(target);
 	}
-	public virtual void Destroy () {
+	public virtual void Destroy (bool sceneWipe = false) {
 		if (_destroyed) {
 			return;
 		}
 		_destroyed = true;
-		//GameObjectRegister.RemoveGameObject(this);
-		Transform.Destroy();
-		ComponentHolder.Destroy();
+		if (!sceneWipe) {
+		
+			GameObjectRegister.RemoveGameObject(this);
+		}
+		//
+		Transform.Destroy(sceneWipe);
+		ComponentHolder.Destroy(sceneWipe);
 		Dispose();
 	}
 

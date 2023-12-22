@@ -8,6 +8,7 @@ public class Transform {
 	public bool Visible = true;
 	public bool DrawRegardlessOfVisibility = false;
 	public bool IsBeingDrawn = false;
+	public int ChildCount => _availableIndex;
 	public bool IsRoot => Parent == null;
 	public Vector2 Origin;
 	
@@ -65,6 +66,7 @@ public class Transform {
 	void UpdateRotation () {
 		if (_destroyed)
 			return;
+		
 		// we want to rotate our children relative to our rotation. so if our rotation is 1, and their rotation is 1, their actual rotation is 2
 		for (int i = 0; i < MaxChildren; i++) {
 			Transform child = Children[i];
@@ -104,7 +106,7 @@ public class Transform {
 
 	#endregion
 	
-	public void Destroy () {
+	public void Destroy (bool sceneWipe) {
 		_destroyed = true;
 		if (Parent != null) {
 			Parent.DetachChild(this);
@@ -114,7 +116,7 @@ public class Transform {
 		for (int i = 0; i < MaxChildren; i++) {
 			Transform child = Children[i];
 			if (child != null) {
-				child.GameObject.Destroy();
+				child.GameObject.Destroy(sceneWipe);
 				Children[i] = null;
 			}
 		}
