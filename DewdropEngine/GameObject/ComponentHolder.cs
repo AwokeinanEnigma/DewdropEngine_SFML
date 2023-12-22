@@ -1,4 +1,5 @@
 ﻿using DewDrop.Exceptions;
+using SFML.Graphics;
 using System.Collections;
 namespace DewDrop.GameObject; 
 
@@ -18,6 +19,7 @@ public class ComponentHolder : IEnumerable<Component> {
 		if (_availableIndex >= MaxComponents) {
 			throw new TooManyComponentsException($"Too many components on object '{component.GameObject.Name}'");
 		}
+		component.GameObject = _gameObject;
 		Components[_availableIndex] = component;
 		// sort components by importance
 		SortComponents();
@@ -44,13 +46,14 @@ public class ComponentHolder : IEnumerable<Component> {
 		throw new ComponentNotFoundException("Component not found");
 	}
 	
-	public T GetComponent<T> () where T : Component {
+	public T? GetComponent<T> () where T : Component {
 		for (int i = 0; i < _availableIndex; i++) {
 			if (Components[i] is T) {
 				return (T)Components[i];
 			}
 		}
-		throw new ComponentNotFoundException("Component not found");
+		return null;
+		//throw new ComponentNotFoundException("Component not found");
 	}
 	
 	public T AddComponent<T> () where T : Component, new() {
@@ -58,6 +61,33 @@ public class ComponentHolder : IEnumerable<Component> {
 		component.GameObject = _gameObject;
 		AddComponent(component);
 		return component;
+	}
+	
+	public void RemoveComponent<T> () where T : Component {
+		for (int i = 0; i < _availableIndex; i++) {
+			if (Components[i] is T) {
+				Components[i].Destroy();
+				Components[i] = null;
+				_availableIndex--;
+				return;
+			}
+		}
+		//throw new ComponentNotFoundException("Component not found");
+	}
+	
+	public T AddOrGetComponent<T> () where T : Component, new() {
+		T component = GetComponent<T>();
+		if (component == null) {
+			component = AddComponent<T>();
+		}
+		return component;
+	}
+	
+	
+	public void Clone (ComponentHolder componentHolder) {
+		for (int i = 0; i < _availableIndex; i++) {
+			componentHolder.AddComponent((Component)Activator.CreateInstance(Components[i].GetType()));
+		}
 	}
 	
 	public void Awake () {
@@ -74,13 +104,15 @@ public class ComponentHolder : IEnumerable<Component> {
 	
 	public void Update () {
 		for (int i = 0; i < _availableIndex; i++) {
-			Components[i].Update();
+			if (Components[i].Active) 
+				Components[i].Update();
 		}
 	}
 	
-	public void Draw () {
+	public void Draw (RenderTarget target) {
 		for (int i = 0; i < _availableIndex; i++) {
-			Components[i].Draw();
+			if (Components[i].Active) 
+				Components[i].Draw(target);
 		}
 	}
 	

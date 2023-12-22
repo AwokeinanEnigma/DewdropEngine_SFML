@@ -1,18 +1,39 @@
-﻿using System.Collections;
+﻿using DewDrop.Utilities;
+using SFML.Graphics;
+using System.Collections;
 namespace DewDrop.GameObject; 
 
 public class GameObject : IEnumerable<Component>, IDisposable {
+	public Transform? Parent {
+		get => Transform.Parent;
+		set => Transform.Parent = value;
+	}
+	public long FrameRegistered { get; set; }
+	public float X { get => Transform.Position.X;}
+	public float Y { get => Transform.Position.Y;  }
+	public float Z { get => Transform.Position.Z;  }
+	public float Rotation { get => Transform.Rotation; }
+	public int Importance { get; set; }
 	public Transform Transform { get; private set; }
-	public ComponentHolder ComponentHolder { get; private set; }
+	public bool Awakened;
+	public ComponentHolder ComponentHolder {
+		get;
+		private set;
+	}
 
+	public bool Active = true;
+	bool _destroyed;
 	public GameObject () {
-		Transform = new Transform();
+		Transform = new Transform {
+			GameObject = this
+		};
 		ComponentHolder = new ComponentHolder(this);
 		Name = "GameObject";
 	}
 	
 	public string Name { get; set; }
 	public virtual void Awake () {
+		//Awakened = true;
 		ComponentHolder.Awake();
 	}
 	public virtual void Start () {
@@ -21,16 +42,22 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 	public virtual void Update () {
 		ComponentHolder.Update();
 	}
-	public virtual void Draw () {
-		ComponentHolder.Draw();
+	public virtual void Draw (RenderTarget target) {
+		ComponentHolder.Draw(target);
 	}
 	public virtual void Destroy () {
+		if (_destroyed) {
+			return;
+		}
+		_destroyed = true;
+		GameObjectRegister.RemoveGameObject(this);
+		Transform.Destroy();
+		ComponentHolder.Destroy();
 		Dispose();
 	}
+
+	#region Add Component
 	
-	public T GetComponent<T> () where T : Component {
-		return ComponentHolder.GetComponent<T>();
-	}
 	public T AddComponent<T> (T component) where T : Component {
 		ComponentHolder.AddComponent(component);
 		return component;
@@ -41,12 +68,49 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 	public T AddComponent<T> () where T : Component, new() {
 		return ComponentHolder.AddComponent<T>();
 	}
+	public T AddOrGetComponent<T> () where T : Component, new() {
+		return ComponentHolder.AddOrGetComponent<T>();
+	}
+	
+	#endregion
+	public T GetComponent<T> () where T : Component {
+		return ComponentHolder.GetComponent<T>();
+	}
+
+	#region Remove Component
+
+	public void RemoveComponent (Component component) {
+		ComponentHolder.RemoveComponent(component);
+	}
+	public void RemoveComponent<T> () where T : Component {
+		ComponentHolder.RemoveComponent<T>();
+	}
+	public void RemoveComponent<T> (T component) where T : Component {
+		ComponentHolder.RemoveComponent(component);
+	}	
+
+	#endregion
+
+	public GameObject Clone () {
+		if (Parent != null) {
+			throw new ObjectDisposedException("Cannot clone a destroyed GameObject");
+		}
+		GameObject clone = new GameObject();
+		Transform.Clone(clone.Transform);
+		ComponentHolder.Clone(clone.ComponentHolder);
+		clone.Importance = Importance;
+		clone.Name = Name;
+		return clone;
+	}
+	
 	protected virtual void ReleaseUnmanagedResources () {
 		// release unmanaged resources here
 	}
 	protected virtual void Dispose (bool disposing) {
 		ReleaseUnmanagedResources();
 		if (disposing) {
+			Transform = null;
+			ComponentHolder = null;
 		}
 	}
 	public void Dispose () {

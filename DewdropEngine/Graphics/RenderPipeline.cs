@@ -18,11 +18,11 @@ public class RenderPipeline {
 		//used for uids
 		readonly RenderPipeline _pipeline;
 
-        /// <summary>
-        ///     Creates a new IRenderable comparer using a renderpipeline
-        /// </summary>
-        /// <param name="pipeline">The render pipeline to use</param>
-        public RenderableComparer (RenderPipeline pipeline) {
+		/// <summary>
+		///     Creates a new IRenderable comparer using a renderpipeline
+		/// </summary>
+		/// <param name="pipeline">The render pipeline to use</param>
+		public RenderableComparer (RenderPipeline pipeline) {
 			this._pipeline = pipeline;
 		}
 
@@ -71,8 +71,8 @@ public class RenderPipeline {
 	int _renderableCount;
 
 	FloatRect _viewRect;
-
 	FloatRect _renderableRect;
+	View _view;
 
 	#endregion
 	/// <summary>
@@ -229,7 +229,6 @@ public class RenderPipeline {
 		_renderableIds.Clear();
 	}
 
-	View _view;
 	public void Draw () {
 		DoAdditions();
 		DoRemovals();

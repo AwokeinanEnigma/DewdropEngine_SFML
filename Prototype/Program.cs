@@ -36,13 +36,9 @@ class Program
 			VSync = true,
 			DebugMode = true,
 			DefaultBufferScale = 4,
-			StartScene = new DebugPlayground(),
+			StartScene = new GameObjectPlayground(),
 			WrenTypes = WrenManager.FindWrenTypes(typeof(Program).Assembly).ToList()
 		});
-		GameObject gameObject = new GameObject();
-		gameObject.Transform.Position = new Vector3(0, 0, 0);
-		gameObject.Transform.Size = new Vector3(1, 1, 1);
-		gameObject.AddComponent<MyComponent>();
-		
+
 	}
 }
