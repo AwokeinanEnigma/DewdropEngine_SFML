@@ -4,7 +4,7 @@ using System.Collections;
 namespace DewDrop.GameObject; 
 
 public class ComponentHolder : IEnumerable<Component> {
-	readonly GameObject _gameObject;
+	GameObject _gameObject;
 	const int MaxComponents = 32;
 	Component[] Components { get; set; }
 	int _availableIndex;
@@ -119,7 +119,11 @@ public class ComponentHolder : IEnumerable<Component> {
 	public void Destroy () {
 		for (int i = 0; i < _availableIndex; i++) {
 			Components[i].Destroy();
+			Components[i] = null;
 		}
+		_availableIndex = 0;
+		Components = null;
+		_gameObject = null;
 	}
 	public IEnumerator<Component> GetEnumerator () {
 		return (IEnumerator<Component>)Components.GetEnumerator();

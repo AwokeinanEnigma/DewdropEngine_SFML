@@ -4,7 +4,7 @@ namespace DewDrop.GameObject;
 
 public class Transform {
 	public const int MaxChildren = 32;
-	public readonly Transform[] Children;
+	public Transform[] Children;
 	public bool Visible = true;
 	public bool DrawRegardlessOfVisibility = false;
 	public bool IsBeingDrawn = false;
@@ -46,10 +46,13 @@ public class Transform {
 	float _rotation;
 	Transform _parent;
 	int _availableIndex;
-	
+	bool _destroyed;
 	#region Position and Rotation
 
 	void UpdatePosition () {
+		if (_destroyed)
+			return;
+		
 		// we want to position our children relative to our position. so if our position is 1, and their position is 1, their actual position is 2
 		for (int i = 0; i < MaxChildren; i++) {
 			Transform child = Children[i];
@@ -60,6 +63,8 @@ public class Transform {
 		}
 	}
 	void UpdateRotation () {
+		if (_destroyed)
+			return;
 		// we want to rotate our children relative to our rotation. so if our rotation is 1, and their rotation is 1, their actual rotation is 2
 		for (int i = 0; i < MaxChildren; i++) {
 			Transform child = Children[i];
@@ -74,6 +79,9 @@ public class Transform {
 	#region Child Management
 
 	public void AttachChild (Transform gameObject) {
+		if (_destroyed)
+			return;
+		
 		if (_availableIndex >= MaxChildren) {
 			throw new TooManyChildrenException($"Too many children on object '{GameObject.Name}'");
 		}
@@ -82,6 +90,9 @@ public class Transform {
 		_availableIndex++;
 	}
 	public void DetachChild (Transform gameObject) {
+		if (_destroyed)
+			return;
+		
 		for (int i = 0; i < MaxChildren; i++) {
 			if (Children[i] == gameObject) {
 				_availableIndex--;
@@ -94,6 +105,7 @@ public class Transform {
 	#endregion
 	
 	public void Destroy () {
+		_destroyed = true;
 		if (Parent != null) {
 			Parent.DetachChild(this);
 			_parent = null;
@@ -103,8 +115,13 @@ public class Transform {
 			Transform child = Children[i];
 			if (child != null) {
 				child.GameObject.Destroy();
+				Children[i] = null;
 			}
 		}
+		Children = null;
+		Position = Vector3.Zero;
+		Rotation = 0;
+		Size = Vector2.Zero;
 	}
 
 	public void Clone (Transform transform) {

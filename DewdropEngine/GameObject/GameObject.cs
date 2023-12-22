@@ -37,12 +37,21 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		ComponentHolder.Awake();
 	}
 	public virtual void Start () {
+		if (_destroyed) 
+			return;
+		
 		ComponentHolder.Start();
 	}
 	public virtual void Update () {
+		if (_destroyed) 
+			return;
+		
 		ComponentHolder.Update();
 	}
 	public virtual void Draw (RenderTarget target) {
+		if (_destroyed) 
+			return;
+		
 		ComponentHolder.Draw(target);
 	}
 	public virtual void Destroy () {
@@ -50,7 +59,7 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 			return;
 		}
 		_destroyed = true;
-		GameObjectRegister.RemoveGameObject(this);
+		//GameObjectRegister.RemoveGameObject(this);
 		Transform.Destroy();
 		ComponentHolder.Destroy();
 		Dispose();
@@ -58,7 +67,10 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 
 	#region Add Component
 	
-	public T AddComponent<T> (T component) where T : Component {
+	public T? AddComponent<T> (T component) where T : Component {
+		if (_destroyed) 
+			return null;
+		
 		ComponentHolder.AddComponent(component);
 		return component;
 	}
@@ -66,15 +78,15 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 		ComponentHolder.AddComponent(component);
 	}
 	public T AddComponent<T> () where T : Component, new() {
-		return ComponentHolder.AddComponent<T>();
+		return _destroyed ? null : ComponentHolder.AddComponent<T>();
 	}
 	public T AddOrGetComponent<T> () where T : Component, new() {
-		return ComponentHolder.AddOrGetComponent<T>();
+		return _destroyed ? null : ComponentHolder.AddOrGetComponent<T>();
 	}
 	
 	#endregion
 	public T GetComponent<T> () where T : Component {
-		return ComponentHolder.GetComponent<T>();
+		return _destroyed ? null : ComponentHolder.GetComponent<T>();
 	}
 
 	#region Remove Component
@@ -92,7 +104,7 @@ public class GameObject : IEnumerable<Component>, IDisposable {
 	#endregion
 
 	public GameObject Clone () {
-		if (Parent != null) {
+		if (_destroyed) {
 			throw new ObjectDisposedException("Cannot clone a destroyed GameObject");
 		}
 		GameObject clone = new GameObject();

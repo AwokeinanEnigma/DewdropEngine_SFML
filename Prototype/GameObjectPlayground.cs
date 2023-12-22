@@ -1,8 +1,10 @@
 ﻿using DewDrop;
 using DewDrop.GameObject;
 using DewDrop.Scenes;
+using DewDrop.Scenes.Transitions;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
+using Prototype.Scenes;
 using SFML.Window;
 using System.Diagnostics;
 namespace Prototype; 
@@ -51,11 +53,26 @@ public class GameObjectPlayground : SceneBase{
 			obj.Destroy();
 			dunnit = true;
 		}
+		
+		if (Input.Instance[Keyboard.Key.S] && !dunnit) {
+			SceneManager.Transition = new InstantTransition();
+			SceneManager.Push(new TestScene(), true);
+		}
 	}
 	public override void Draw () {
 		base.Draw();
 		if (GameObjectRegister.Initialized) 
 			GameObjectRegister.Draw();
 	}
-	protected override void Dispose (bool disposing) { base.Dispose(disposing); }
+	protected override void Dispose (bool disposing) {
+		Outer.Log("HEY");
+
+		
+		if (disposing && !disposed) {
+			obj2 = null;
+			obj = null;
+			GameObjectRegister.Destroy();
+		}
+		base.Dispose(disposing); 
+	}
 }

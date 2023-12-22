@@ -37,6 +37,12 @@ public class MyComponent : Component {
 		target.Draw(_shape);
 	//	Outer.Log("Draw");
 	}
+
+	protected override void ReleaseManagedResources () {
+		base.ReleaseManagedResources();
+		_shape.Dispose();
+	}
+
 	public override void Destroy () {
 		Outer.Log("Destroy");
 	}

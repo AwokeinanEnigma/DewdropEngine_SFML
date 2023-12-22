@@ -3,6 +3,7 @@
 using DewDrop;
 using DewDrop.Collision;
 using DewDrop.Entities;
+using DewDrop.GameObject;
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
@@ -110,6 +111,7 @@ public class TestScene : SceneBase
         _line = new LineRenderer(_playerEntity.Position, _playerEntity.Position, new Vector2(3000,3000), new Vector2(0, 0),10000, Color.Yellow);
         _pipeline.Add(_line);
 
+        
         Engine.OnRenderImGui += EngineOnRenderImGUI;
         Input.OnKeyPressed += InstanceOnOnKeyPressed;
 
@@ -133,6 +135,7 @@ public class TestScene : SceneBase
                 _playerEntity.Position,
                 Vector2.Normalize(_playerEntity.CheckVector),
                 25);
+            Outer.Log(GameObjectRegister.GetGameObjectByName("Test Object 2"));
 
             if (intersectedCollidables.Count > 0) {
 

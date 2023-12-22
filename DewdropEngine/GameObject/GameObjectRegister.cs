@@ -27,8 +27,8 @@ public static class GameObjectRegister {
 			if (y.Transform == null) {
 				return (int)x.Transform.Position.Z;	
 			}
-	//		Outer.Log(x);
-		//	Outer.Log(y);
+			//Outer.Log(x);
+			//Outer.Log(y);
 			int zComparison = x.Transform.Position.Z.CompareTo(y.Transform.Position.Z);
 			if (zComparison != 0) {
 				return zComparison;
@@ -115,8 +115,9 @@ public static class GameObjectRegister {
 	public static void Destroy() {
 		foreach (GameObject gameObject in _GameObjects) {
 			gameObject.Destroy();
-			RemoveGameObject(gameObject);
 		}
+		_GameObjects.Clear();
+		_GameObjectsSortedByZ.Clear();
 	}
 
 	public static GameObject? GetGameObjectByName(string name) {

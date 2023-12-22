@@ -7,6 +7,7 @@ public class Component : IDisposable {
 	protected Transform transform => GameObject.Transform;
 	public string Name { get; set; }
 	public bool Active = true;
+	protected bool _destroyed;
 	
 	public virtual void Awake (){}
 	public virtual void Start (){}
@@ -24,6 +25,9 @@ public class Component : IDisposable {
 		// release managed resources here
 	}
 	protected  void Dispose (bool disposing) {
+		if (_destroyed) {
+			return;
+		}
 		ReleaseUnmanagedResources();
 		if (disposing) {
 			ReleaseManagedResources();
