@@ -1,5 +1,6 @@
 ﻿using DewDrop.Utilities;
 using SFML.Graphics;
+using System.Reflection;
 namespace DewDrop.Internal; 
 
 public class Component : IDisposable {
@@ -26,6 +27,50 @@ public class Component : IDisposable {
 	public string Name { get; set; }
 	public bool Active = true;
 	protected bool _destroyed;
+	
+	MethodInfo[] _methods;
+	MethodInfo awake;
+	MethodInfo start;
+	MethodInfo update;
+	MethodInfo draw;
+	MethodInfo destroy;
+	
+	public Component () {
+		_methods = GetType().GetMethods();
+		foreach (MethodInfo method in _methods) {
+			if (method.Name == "Awake") {
+				awake = method;
+			}
+			if (method.Name == "Start") {
+				start = method;
+			}
+			if (method.Name == "Update") {
+				update = method;
+			}
+			if (method.Name == "Draw") {
+				draw = method;
+			}
+			if (method.Name == "Destroy") {
+				destroy = method;
+			}
+		}
+	}
+	
+	public void InvokeAwake () {
+		awake?.Invoke(this, null);
+	}
+	public void InvokeStart () {
+		start?.Invoke(this, null);
+	}
+	public void InvokeUpdate () {
+		update?.Invoke(this, null);
+	}
+	public void InvokeDraw (RenderTarget target) {
+		draw?.Invoke(this, new object[] {target});
+	}
+	public void InvokeDestroy () {
+		destroy?.Invoke(this, null);
+	}
 	
 	public virtual void Awake (){}
 	public virtual void Start (){}

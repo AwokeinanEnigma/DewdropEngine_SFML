@@ -85,7 +85,10 @@ public class GameObjectPlayground : SceneBase{
 			// go through all gameobjects and draw them in a tree
 			// if they have children, draw them as well
 			// and then don't draw them again
-			foreach (GameObject gameObject in GameObjectRegister.GameObjects) {
+			// go through in reverse order so that the root objects are drawn first
+			
+			for (int i = GameObjectRegister.GameObjects.Count - 1; i >= 0; i--) {
+				GameObject gameObject = GameObjectRegister.GameObjects[i];
 				//Outer.Log(gameObject.UpdateSlot);
 				if (!_drawn.ContainsKey(gameObject)) {
 					if (gameObject.Transform.Parent != null) {
@@ -99,8 +102,8 @@ public class GameObjectPlayground : SceneBase{
 						if (gameObject.Transform.ChildCount > 0) {
 							ImGui.Indent();
 							if (ImGui.CollapsingHeader($"Children: {gameObject.Transform.ChildCount}")) {
-								for (int i = 0; i < gameObject.Transform.ChildCount; i++) {
-									GameObject child = gameObject.Transform.Children[i].GameObject;
+								for (int j = 0; j < gameObject.Transform.ChildCount; j++) {
+									GameObject child = gameObject.Transform.Children[j].GameObject;
 									if (!_drawn.ContainsKey(child)) {
 										_drawn.Add(child, true);
 										if (ImGui.TreeNode(child.Name)) {

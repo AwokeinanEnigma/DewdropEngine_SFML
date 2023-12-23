@@ -42,20 +42,20 @@ public class GameObject : IDisposable {
 	}
 	
 	public string Name { get; set; }
-	public virtual void Awake () {
+	public void Awake () {
 		//Awakened = true;
 		ComponentHolder.Awake();
 	}
-	public virtual void Start () {
+	public void Start () {
 		ComponentHolder.Start();
 	}
-	public virtual void Update () {
+	public void Update () {
 		ComponentHolder.Update();
 	}
-	public virtual void Draw (RenderTarget target) {
+	public void Draw (RenderTarget target) {
 		ComponentHolder.Draw(target);
 	}
-	public virtual void Destroy (bool sceneWipe = false) {
+	public void Destroy (bool sceneWipe = false) {
 		if (_destroyed) {
 			return;
 		}
@@ -120,10 +120,10 @@ public class GameObject : IDisposable {
 		return clone;
 	}
 	
-	protected virtual void ReleaseUnmanagedResources () {
+	void ReleaseUnmanagedResources () {
 		// release unmanaged resources here
-	}
-	protected virtual void Dispose (bool disposing) {
+	} 
+	void Dispose (bool disposing) {
 		ReleaseUnmanagedResources();
 		if (disposing) {
 			Transform = null;

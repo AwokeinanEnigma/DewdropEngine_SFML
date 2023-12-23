@@ -98,7 +98,7 @@ public class Transform {
 			throw new TooManyChildrenException($"Too many children on object '{GameObject.Name}'");
 		}
 		
-		gameObject.GameObject.UpdateSlot = GameObject.UpdateSlot + 1;
+		gameObject.GameObject.UpdateSlot = GameObject.UpdateSlot + ChildCount + 1;
 		Children[_availableIndex] = gameObject;
 		_availableIndex++;
 	}
@@ -142,7 +142,8 @@ public class Transform {
 		transform.Rotation = Rotation;
 		transform.Size = Size;
 	}
-	public void SetParent (Transform gameObject) {
+	public void 
+		SetParent (Transform gameObject) {
 		if (Parent != null) {
 			_parent.DetachChild(gameObject);
 			_parent = null;
