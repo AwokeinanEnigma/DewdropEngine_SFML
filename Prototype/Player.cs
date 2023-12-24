@@ -1,3 +1,4 @@
+/*
 #region
 
 using System.Runtime.CompilerServices;
@@ -322,4 +323,4 @@ public string Username = "Joe";
     public void OnTriggerEnter (ICollidable context) { ; }
     public void OnTriggerExit (ICollidable context) { ; }
     public List<ICollidable> CollidingWith { get; }
-}
+}*/

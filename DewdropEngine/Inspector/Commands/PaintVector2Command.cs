@@ -1,4 +1,4 @@
-﻿using DewDrop.Entities;
+﻿using DewDrop.Internal;
 using System.Reflection;
 using DewDrop.Utilities;
 
@@ -8,7 +8,7 @@ public class PaintVector2Command : InspectorCommand {
 	readonly Vector2 _vector;
 	Vector2 _previousVector;
 
-	public PaintVector2Command (MemberInfo member, Vector2 vector, Entity entity) {
+	public PaintVector2Command (MemberInfo member, Vector2 vector, Component entity) {
 		_member = member;
 		_vector = vector;
 		_entity = entity;

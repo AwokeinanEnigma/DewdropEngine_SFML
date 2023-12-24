@@ -1,4 +1,4 @@
-﻿using DewDrop.Entities;
+﻿using DewDrop.Internal;
 using System.Reflection;
 
 namespace DewDrop.Inspector.Commands; 
@@ -7,7 +7,7 @@ public class PaintBoolCommand : InspectorCommand {
 	readonly bool _value;
 	bool _previousValue;
 
-	public PaintBoolCommand (MemberInfo member, bool value, Entity entity) {
+	public PaintBoolCommand (MemberInfo member, bool value, Component entity) {
 		_member = member;
 		_value = value;
 		_entity = entity;

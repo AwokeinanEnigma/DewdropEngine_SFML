@@ -1,3 +1,4 @@
+/*
 #region
 
 using DewDrop;
@@ -263,7 +264,7 @@ public class TestScene : SceneBase
         /*  wren = new Wrentity(File.ReadAllText(Directory.GetCurrentDirectory() + "/wrentity.wren"), new RectangleShape(new Vector2f(11, 20)),
               new Vector2(160, 90),
               new Vector2(11, 20),
-              new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Blue, Color.Blue);*/
+              new Vector2(0, 0), 90000, pipeline, CollisionManager, Color.Blue, Color.Blue);
         //  EntityManager.AddEntity(wren);
         //   pipeline.Add(wren);
         //  CollisionManager.Add(wren);
@@ -299,4 +300,4 @@ public class TestScene : SceneBase
 
         base.Dispose(disposing);
     }
-}
+}*/

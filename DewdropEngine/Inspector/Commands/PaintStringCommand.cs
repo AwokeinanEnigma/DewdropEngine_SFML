@@ -1,4 +1,4 @@
-﻿using DewDrop.Entities;
+﻿using DewDrop.Internal;
 using System.Reflection;
 
 namespace DewDrop.Inspector.Commands; 
@@ -7,7 +7,7 @@ public class PaintStringCommand : InspectorCommand {
 	readonly string _str;
 	string _previousStr;
 
-	public PaintStringCommand (MemberInfo member, string str, Entity entity) {
+	public PaintStringCommand (MemberInfo member, string str, Component entity) {
 		_member = member;
 		_str = str;
 		_entity = entity;

@@ -1,4 +1,4 @@
-﻿using DewDrop.Entities;
+﻿using DewDrop.Internal;
 using System.Reflection;
 
 namespace DewDrop.Inspector.Commands; 
@@ -8,7 +8,7 @@ public class PaintFloatCommand : InspectorCommand
 	 readonly float _value;
 	 float _previousValue;
 
-	public PaintFloatCommand(MemberInfo member, float value, Entity entity)
+	public PaintFloatCommand(MemberInfo member, float value, Component entity)
 	{
 		_member = member;
 		_value = value;

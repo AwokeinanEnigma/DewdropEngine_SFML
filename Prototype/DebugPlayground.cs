@@ -1,34 +1,23 @@
 ﻿using DewDrop;
-using DewDrop.Entities;
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
-using DewDrop.Resources;
 using DewDrop.Scenes;
 using DewDrop.Scenes.Transitions;
-using DewDrop.UserInput;
-using DewDrop.Utilities;
 using DewDrop.Wren;
-using ImGuiNET;
 using Mother4.GUI;
-using Mother4.Scripts.Text;
-using Prototype.Scenes;
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 
 namespace Prototype;
 
 public class DebugPlayground : SceneBase
 {
-        private Player _playerEntity;
         public Text funnyText;
-        ShapeEntity2 overlayEntity;
         public ScrollableList List;
 
         RenderPipeline _pipeline;
-         Wreno _wreno;
-         EntityManager _entityManager;
+         Wreno _wreno; 
          bool firsta;
          
         public DebugPlayground(bool first = false)
@@ -91,7 +80,7 @@ public class DebugPlayground : SceneBase
                                         Color.Blue,
                                         Color.Red,
                                     });
-                                    SceneManager.Push(new TestScene(), true);
+                                   // SceneManager.Push(new TestScene(), true);
                                     return true;
                                 }
                                 return false;
@@ -124,23 +113,21 @@ public class DebugPlayground : SceneBase
                 _pipeline.Add(List);
                 TextureManager.Instance.DumpLoadedTextures();
                 clock = new Clock();
-                _entityManager = new EntityManager();
                 //WindowBox box = new WindowBox("window.gdat", 0, new Vector2(-160,20), new Vector2(320, 70), 1000);
                 //var renderer = new TextRenderer(new Vector2(box.RenderPosition.x + 10, box.RenderPosition.y + 10), 2000, "");
                 //_pipeline.Add(renderer);
                 
                 Engine.OnRenderImGui += EngineOnRenderImGUI;
                 ViewManager.Instance.Center = Engine.HalfScreenSize;
-                TextBox box = new TextBox(_pipeline, 0);
+                    //TextBox box = new TextBox(_pipeline, 0);
                 //box.Reset("@wah wah wah wah wah wah wah wah wah wah wah wah wah wah", "gya", false, false);
                 //box.Reset("@You don't know me? I run the newspaper.\n@You know[p:15], the Archipelago Times?", "gya", false ,false);    
-                box.Show();
-                box.OnTypewriterComplete += () => {
+               // box.Show();
+              //  box.OnTypewriterComplete += () => {
                     //box.Reset("@sugma", "ligma", false, false);
                     
-                };
-                WrenContext.TextBox = box;
-                _entityManager.AddEntity(box);
+             //   };
+                //WrenContext.TextBox = box;
                // ViewManager.Instance.Center = Engine.HalfScreenSize;
                 /*TextWriter writer = new TextWriter( .05f);
                 _entityManager.AddEntity(writer);
@@ -168,7 +155,6 @@ public class DebugPlayground : SceneBase
         public override void Update () {
             base.Update();
             if (initialized) {
-                _entityManager.Update();
             }
         }
 

@@ -71,7 +71,7 @@ public class TileChunk : Component  {
 		TilesetSpritesheet.CurrentPalette = palette;
 		transform.Position = new Vector3(position.x, position.y, depth);
 		// Set the render state for the chunk
-		_renderState = new RenderStates(BlendMode.Alpha, Transform.Identity, TilesetSpritesheet.Image, _TileGroupShader);
+		_renderState = new RenderStates(BlendMode.Alpha, SFML.Graphics.Transform.Identity, TilesetSpritesheet.Image, _TileGroupShader);
 		// Set the animation enabled flag
 		AnimationEnabled = enableAnimations;
 		// If a blend color is provided, create a new Vec4 object with the blend color
@@ -97,7 +97,7 @@ public class TileChunk : Component  {
 	}
 
 	void ResetTransform () {
-		Transform identity = Transform.Identity;
+		Transform identity = SFML.Graphics.Transform.Identity;
 		identity.Translate(transform.Position - transform.Origin);
 		_renderState.Transform = identity;
 	}

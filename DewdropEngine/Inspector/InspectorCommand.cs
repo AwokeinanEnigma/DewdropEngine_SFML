@@ -1,13 +1,13 @@
-﻿using DewDrop.Entities;
+﻿using DewDrop.Internal;
 using System.Reflection;
 
 namespace DewDrop.Inspector.Commands; 
 
 public abstract class InspectorCommand : ICommand {
 	protected MemberInfo _member;
-	protected Entity _entity;
+	protected Component _entity;
 	
-	protected void SetValue (Entity entity, object value) {
+	protected void SetValue (Component entity, object value) {
 		if (_member is PropertyInfo property) {
 			property.SetValue(entity, value);
 		} else if (_member is FieldInfo field) {
@@ -15,7 +15,7 @@ public abstract class InspectorCommand : ICommand {
 		}
 	}
 
-	protected object? GetValue (Entity entity) {
+	protected object? GetValue (Component entity) {
 		if (_member is PropertyInfo property) {
 			return property.GetValue(entity);
 		} 

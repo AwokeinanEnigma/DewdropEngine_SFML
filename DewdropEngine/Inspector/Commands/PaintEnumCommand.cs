@@ -1,4 +1,4 @@
-﻿using DewDrop.Entities;
+﻿using DewDrop.Internal;
 using System.Reflection;
 
 namespace DewDrop.Inspector.Commands; 
@@ -8,7 +8,7 @@ public class PaintEnumCommand : InspectorCommand
 	readonly object _previousValue;
 	readonly object _newValue;
 
-	public PaintEnumCommand(MemberInfo memberInfo, object newValue, Entity entity)
+	public PaintEnumCommand(MemberInfo memberInfo, object newValue, Component entity)
 	{
 		_member = memberInfo;
 		_newValue = newValue;

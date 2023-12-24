@@ -6,6 +6,11 @@ namespace DewDrop.Internal;
 public class Component : IDisposable {
 	public virtual int Importance { get; set; }
 	public GameObject GameObject { get; set; }
+	public Transform Transform => GameObject.Transform;
+	public Vector3 Position {
+		get => Transform.Position;
+		set => Transform.Position = value;
+	}
 	protected Transform transform => GameObject.Transform;
 	protected Vector3 position {
 		get => transform.Position;

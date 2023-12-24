@@ -1,6 +1,5 @@
 #region
 
-using DewDrop.Entities;
 using DewDrop.Internal; using DewDrop.Utilities;
 using SFML.Graphics;
 using SFML.System;

@@ -1,5 +1,5 @@
-﻿using DewDrop.Entities;
-using DewDrop.Inspector;
+﻿using DewDrop.Inspector;
+using DewDrop.Internal;
 using System.Collections;
 using System.Reflection;
 /// <summary>
@@ -23,7 +23,7 @@ public interface ICustomPainter {
     /// <param name="entity">The entity that the field belongs to.</param>
     /// <param name="inspector">The Inspector instance.</param>
     /// <param name="history">The CommandHistory instance.</param>
-    public void PaintField (FieldInfo field, object value, Entity entity, Inspector inspector, CommandHistory history);
+    public void PaintField (FieldInfo field, object value, Component entity, Inspector inspector, CommandHistory history);
 
     /// <summary>
     /// Paints a property of the supported type.
@@ -33,7 +33,7 @@ public interface ICustomPainter {
     /// <param name="entity">The entity that the property belongs to.</param>
     /// <param name="inspector">The Inspector instance.</param>
     /// <param name="history">The CommandHistory instance.</param>
-    public void PaintProperty (PropertyInfo property, object value, Entity entity, Inspector inspector, CommandHistory history);
+    public void PaintProperty (PropertyInfo property, object value, Component entity, Inspector inspector, CommandHistory history);
 
     /// <summary>
     /// Paints a list of the supported type.
@@ -43,7 +43,7 @@ public interface ICustomPainter {
     /// <param name="entity">The entity that the list belongs to.</param>
     /// <param name="inspector">The Inspector instance.</param>
     /// <param name="history">The CommandHistory instance.</param>
-    public void PaintList (IList list, int index, Entity entity, Inspector inspector, CommandHistory history);
+    public void PaintList (IList list, int index, Component entity, Inspector inspector, CommandHistory history);
 
     /// <summary>
     /// Adds an element to a list of the supported type.
@@ -52,7 +52,7 @@ public interface ICustomPainter {
     /// <param name="entity">The entity that the list belongs to.</param>
     /// <param name="inspector">The Inspector instance.</param>
     /// <param name="history">The CommandHistory instance.</param>
-    public void AddListElement (IList list, Entity entity, Inspector inspector, CommandHistory history);
+    public void AddListElement (IList list, Component entity, Inspector inspector, CommandHistory history);
 
     /// <summary>
     /// Disposes the custom painter, cleaning up any resources it is using.

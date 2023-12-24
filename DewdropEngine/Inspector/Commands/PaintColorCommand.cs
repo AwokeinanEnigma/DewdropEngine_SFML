@@ -1,4 +1,4 @@
-﻿using DewDrop.Entities;
+﻿using DewDrop.Internal;
 using SFML.Graphics;
 using System.Reflection;
 
@@ -9,7 +9,7 @@ public class PaintColorCommand : InspectorCommand
 	 readonly Color _color;
 	 Color _previousColor;
 
-	public PaintColorCommand(MemberInfo member, Color color, Entity entity)
+	public PaintColorCommand(MemberInfo member, Color color, Component entity)
 	{
 		_member = member;
 		_color = color;

@@ -1,7 +1,7 @@
 ﻿using DewDrop.Collision;
-using DewDrop.Entities;
 using DewDrop.Inspector.Attributes;
 using DewDrop.Inspector.Commands;
+using DewDrop.Internal;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using ImGuiNET;
@@ -23,16 +23,15 @@ namespace DewDrop.Inspector;
 /// It also supports inspecting and modifying properties of lists and arrays.
 /// </remarks>
 public class Inspector : IDisposable {
-	EntityManager _entityManager;
 	CollisionManager _collisionManager;
-	Entity _selectedEntity;
+	Component _selectedEntity;
 	FieldInfo[] _fields;
 	MethodInfo[] _methods;
 	PropertyInfo[] _properties;
 	// needed so that we can store the parameters for a method
 	// if this didn't exist, the parameter values would be lost the millisecond after the player clicked off of a imgui button
-	Dictionary<Entity, List<AssociatedEnumData>> _eMd;
-	Dictionary<Entity, List<AssociatedMethodParameter>> _aMp;
+	Dictionary<Component, List<AssociatedEnumData>> _eMd;
+	Dictionary<Component, List<AssociatedMethodParameter>> _aMp;
 	// this is a struct that holds the parameters and name for a method
 	struct AssociatedMethodParameter {
 		public object[] Parameters;
@@ -63,11 +62,10 @@ public class Inspector : IDisposable {
 	/// </summary>
 	/// <param name="entityManager">The EntityManager to use for entity management.</param>
 	/// <param name="collisionManager">The CollisionManager to use for collision detection.</param>
-	public void Initialize (EntityManager entityManager, CollisionManager collisionManager) {
+	public void Initialize (CollisionManager collisionManager) {
 		_aMp = new();
 		_eMd = new();
 		_customPainters = new List<ICustomPainter>();
-		_entityManager = entityManager;
 		_collisionManager = collisionManager;
 		_clock = new Clock();
 		Input.OnMouseClick += OnMouseClick;
@@ -97,7 +95,8 @@ public class Inspector : IDisposable {
 
 	void OnMouseClick (object? sender, MouseButtonEventArgs e) {
 		foreach (var entity in _collisionManager.ObjectsAtPosition(Input.GetMouseWorldPosition())) {
-			Entity localEntity = _entityManager.Find(x => x == entity);
+			Component localEntity = null;
+			; //_entityManager.Find(x => x == entity);
 			if (localEntity != null) {
 				if (_selectedEntity != null && _selectedEntity != localEntity) {
 					_selectedEntity = localEntity;
@@ -138,9 +137,9 @@ public class Inspector : IDisposable {
 				}
 			}
 
-			ImGui.Begin("Entity Inspector");
-			if (ImGui.CollapsingHeader("Entity Data")) {
-				ImGui.Text("Selected Entity: " + _selectedEntity.Name);
+			ImGui.Begin("Component Inspector");
+			if (ImGui.CollapsingHeader("Component Data")) {
+				ImGui.Text("Selected Component: " + _selectedEntity.Name);
 				ImGui.Text("Position: " + _selectedEntity.Position);
 				var vector2 = (System.Numerics.Vector2)_selectedEntity.Position;
 				if (ImGui.InputFloat2("Position", ref vector2)) {
@@ -379,7 +378,7 @@ public class Inspector : IDisposable {
 		}
 	}
 	#region Paint Fields
-	void PaintList (MemberInfo info, IList list, Entity entity) {
+	void PaintList (MemberInfo info, IList list, Component entity) {
 		bool isArray = list is Array;
 		Type elementType = isArray ? list.GetType().GetElementType() : list.GetType().GetGenericArguments()[0];
 		if (!_SupportedTypes.Contains(elementType)) {
@@ -454,7 +453,7 @@ public class Inspector : IDisposable {
 			ImGui.Unindent();
 		}
 	}
-	void PaintFloat (MemberInfo info, float floatValue, Entity entity, bool canWrite = true) {
+	void PaintFloat (MemberInfo info, float floatValue, Component entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Float");
 		if (!canWrite) {
 			ImGui.Text("Value: " + floatValue);
@@ -473,7 +472,7 @@ public class Inspector : IDisposable {
 			}
 		}
 	}
-	void PaintColor (MemberInfo info, Color color, Entity entity, bool canWrite = true) {
+	void PaintColor (MemberInfo info, Color color, Component entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Color");
 		Vector4 numericalColor = ColorHelper.ToNumericVector4(color);
 		if (!canWrite) {
@@ -487,7 +486,7 @@ public class Inspector : IDisposable {
 			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ColorHelper.ToSfmlColor(numericalColor), entity));
 		}
 	}
-	void PaintIntegers (MemberInfo info, int integer, Entity entity, bool canWrite = true) {
+	void PaintIntegers (MemberInfo info, int integer, Component entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Integer");
 		if (!canWrite) {
 			ImGui.Text("Value: " + integer);
@@ -506,7 +505,7 @@ public class Inspector : IDisposable {
 			}
 		}
 	}
-	void PaintString (MemberInfo info, string str, Entity entity, bool canWrite = true) {
+	void PaintString (MemberInfo info, string str, Component entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : String");
 		if (!canWrite) {
 			ImGui.Text("Value: " + str);
@@ -518,7 +517,7 @@ public class Inspector : IDisposable {
 			_commandHistory.ExecuteCommand(new PaintStringCommand( info, str, entity));
 		}
 	}
-	void PaintBool (MemberInfo info, bool boolean, Entity entity, bool canWrite = true) {
+	void PaintBool (MemberInfo info, bool boolean, Component entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Boolean");
 		if (!canWrite) {
 			ImGui.Text("Value: " + boolean);
@@ -530,7 +529,7 @@ public class Inspector : IDisposable {
 			_commandHistory.ExecuteCommand(new PaintBoolCommand(info, boolean, entity));
 		}
 	}
-	void PaintEnum (MemberInfo info, object enumValue, Entity entity, bool canWrite = true) {
+	void PaintEnum (MemberInfo info, object enumValue, Component entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Enum");
 		if (!canWrite) {
 			ImGui.Text("Value: " + enumValue);
@@ -551,7 +550,7 @@ public class Inspector : IDisposable {
 			//info.SetValue(entity, enumValue);
 		}
 	}
-	void PaintVector2 (MemberInfo info, Vector2 vector, Entity entity, bool canWrite = true) {
+	void PaintVector2 (MemberInfo info, Vector2 vector, Component entity, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Vector2");
 		var vector2 = (System.Numerics.Vector2)vector;
 		if (!canWrite) {
@@ -587,7 +586,6 @@ public class Inspector : IDisposable {
 		_fields = null;
 		_methods = null;
 		_properties = null;
-		_entityManager = null;
 		_collisionManager = null;
 		_clock.Dispose();
 		_clock = null;

@@ -1,4 +1,5 @@
-﻿using DewDrop.Entities;
+﻿/*
+using DewDrop.Entities;
  using DewDrop.Graphics;
  using DewDrop.GUI;
  using DewDrop.GUI.Fonts;
@@ -361,4 +362,4 @@ public  class TypewriterBox : Entity
 	public delegate void WaitCommandHandler();
 
 	public delegate void TriggerCommandHandler(TextTrigger trigger);
-}
+}*/

@@ -1,4 +1,4 @@
-﻿using SFML.System;
+﻿/*using SFML.System;
 using DewDrop.Entities;
 using DewDrop.GUI;
 using DewDrop.Utilities;
@@ -70,4 +70,4 @@ public class TextWriter : RenderableEntity
 	public override void Draw (RenderTarget target) {
 			
 	}
-}
+}*/

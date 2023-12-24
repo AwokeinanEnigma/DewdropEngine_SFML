@@ -8,7 +8,6 @@ using DewDrop.Tiles;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
 using ImGuiNET;
-using Prototype.Scenes;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;

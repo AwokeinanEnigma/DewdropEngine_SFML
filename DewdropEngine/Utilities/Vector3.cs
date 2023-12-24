@@ -41,6 +41,9 @@ public static implicit operator Vector3 (Vector2i v) {
 	public static implicit operator Vector2f (Vector3 v) {
 		return new Vector2f(v.X, v.Y);
 	}
+	public static implicit operator System.Numerics.Vector2 (Vector3 v) {
+		return new System.Numerics.Vector2(v.X, v.Y);
+	}
 	public static Vector2 operator + (Vector2 a, Vector3 b) {
 		return new Vector2(a.X + b.X, a.Y + b.Y);
 	}

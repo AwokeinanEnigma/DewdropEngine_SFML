@@ -1,16 +1,12 @@
-﻿using DewDrop;
-using DewDrop.Entities;
+﻿/*
 using DewDrop.Graphics;
 using DewDrop.GUI;
 using DewDrop.GUI.Fonts;
 using DewDrop.UserInput;
 using DewDrop.Utilities;
-using ImGuiNET;
-using Mother4.GUI;
 using Mother4.Scripts.Text;
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 using System.Collections;
 
 namespace Mother4.GUI; 
@@ -249,15 +245,6 @@ public class TextBox : Entity
             
         _topLetterbox.RenderPosition = new Vector2f(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _topLetterboxY);
         _bottomLetterbox.RenderPosition = new Vector2f(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _bottomLetterboxY);
-        /*
-        float num = Math.Max(0f, Math.Min(1f, amount));
-       // _topLetterbox.Visible = false;
-        _topLetterboxY = (int)(-0.5f * (1f - num));
-        _bottomLetterboxY = 180L - (int)(14f * num);; //
-        _topLetterbox.RenderPosition = new Vector2(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _topLetterboxY);
-        _bottomLetterbox.RenderPosition = new Vector2(ViewManager.Instance.Viewrect.Left, ViewManager.Instance.Viewrect.Top + _bottomLetterboxY);
-       // _bottomLetterbox.RenderPosition = new Vector2((int)(ViewManager.Instance.Viewrect.Left), (int)(ViewManager.Instance.Viewrect.Top + LETTERBOX_POSITION.y + _bottomLetterboxY));; //(int)(ViewManager.Instance.Viewrect.Top + TextBox.BOX_POSITION.Y + _textboxY); //
-        */
     }
 
     void UpdateTextbox(float amount)
@@ -405,4 +392,4 @@ public class TextBox : Entity
     protected static Vector2 NAMETEXT_POSITION = new Vector2(TextBox.NAMETAG_POSITION.X + 5f, TextBox.NAMETAG_POSITION.Y + 1f);
 
     protected static Vector2 BUTTON_POSITION = new Vector2(TextBox.BOX_POSITION.X + TextBox.BOX_SIZE.X - 14f, TextBox.BOX_POSITION.Y + TextBox.BOX_SIZE.Y - 6f);
-}
+}*/
