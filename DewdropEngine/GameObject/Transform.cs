@@ -3,7 +3,7 @@ using DewDrop.Utilities;
 namespace DewDrop.Internal; 
 
 public class Transform {
-	public const int MaxChildren = 5012;
+	public const int MaxChildren = 512;
 	public Transform[] Children;
 	public bool Visible = true;
 	public bool DrawRegardlessOfVisibility = false;
@@ -11,14 +11,20 @@ public class Transform {
 	public int ChildCount => _availableIndex;
 	public bool IsRoot => Parent == null;
 	public Vector2 Origin;
-	
+	public bool CanHaveChildren => _canHaveChildren;
 	public GameObject GameObject { get; set; }
 	public Transform Parent {
 		get => _parent; 
 		set => SetParent(value);
 	}
-	public Transform () {
-		Children = new Transform[MaxChildren];
+	readonly bool _canHaveChildren;
+	public Transform (GameObject gameObject, bool canHaveChildren = true) {
+		_canHaveChildren = canHaveChildren;
+		if (_canHaveChildren) 
+			Children = new Transform[MaxChildren];
+		
+		
+		GameObject = gameObject;
 		Position = Vector3.Zero;
 		Rotation = 0;
 		Size = Vector2.Zero;
@@ -30,7 +36,10 @@ public class Transform {
 			if ((int)_lastPosition.Z != (int)_position.Z) {
 				GameObjectRegister.ForceSort();
 			}
-			UpdatePosition(); 
+			
+			
+			if (_canHaveChildren && ChildCount > 0) 
+				UpdatePosition(); 
 		}
 	}
 	public float Rotation {
@@ -38,7 +47,9 @@ public class Transform {
 		set { 
 			_lastRotation = _rotation;
 			_rotation = value; 
-			UpdateRotation(); 
+			
+			if (_canHaveChildren && ChildCount > 0)
+				UpdateRotation(); 
 		}
 		
 	}
@@ -59,7 +70,7 @@ public class Transform {
 			return;
 		
 		// we want to position our children relative to our position. so if our position is 1, and their position is 1, their actual position is 2
-		for (int i = 0; i < MaxChildren; i++) {
+		for (int i = 0; i < _availableIndex; i++) {
 			Transform child = Children[i];
 			if (child != null) {
 				// only move by the difference between our last position and our current position
@@ -72,7 +83,7 @@ public class Transform {
 			return;
 		
 		// we want to rotate our children relative to our rotation. so if our rotation is 1, and their rotation is 1, their actual rotation is 2
-		for (int i = 0; i < MaxChildren; i++) {
+		for (int i = 0; i < _availableIndex; i++) {
 			Transform child = Children[i];
 			if (child != null) {
 				// only move by the difference between our last position and our current position
@@ -84,13 +95,19 @@ public class Transform {
 	#endregion
 	#region Child Management
 	public void SetActive (bool active) {
-	foreach (Transform child in Children) {
+		if (!CanHaveChildren)
+			return;
+		
+		foreach (Transform child in Children) {
 		if (child != null) {
 			child.GameObject.Active = active;
 		}
 	}
 }
 	public void AttachChild (Transform gameObject) {
+		if (!CanHaveChildren)
+			return;
+
 		if (_destroyed)
 			return;
 		
@@ -103,10 +120,13 @@ public class Transform {
 		_availableIndex++;
 	}
 	public void DetachChild (Transform gameObject) {
+		if (!CanHaveChildren)
+			return;
+		
 		if (_destroyed)
 			return;
 		
-		for (int i = 0; i < MaxChildren; i++) {
+		for (int i = 0; i < _availableIndex; i++) {
 			if (Children[i] == gameObject) {
 				_availableIndex--;
 				Children[i] = null;
@@ -124,7 +144,7 @@ public class Transform {
 			_parent = null;
 		}
 		
-		for (int i = 0; i < MaxChildren; i++) {
+		for (int i = 0; i < _availableIndex; i++) {
 			Transform child = Children[i];
 			if (child != null) {
 				child.GameObject.Destroy(sceneWipe);

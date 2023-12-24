@@ -1,6 +1,7 @@
 #region
 
 using DewDrop.GUI;
+using DewDrop.Internal;
 using DewDrop.Scenes;
 using DewDrop.Scenes.Transitions;
 using DewDrop.Utilities;
@@ -31,6 +32,7 @@ public static partial class Engine {
 	static double _Fps;
 	static float _AverageFps;
 	static double _LastFps;
+	static bool _Kill;
 	
 	/// <summary>
 	/// Starts the game loop of the DewDrop engine.
@@ -42,7 +44,7 @@ public static partial class Engine {
 		_Time = _FrameTimer.ElapsedTime.AsSeconds();
 		_LastTime = _Time;
 
-			while (true) {
+			while (!_Kill) {
 				
 				_Time = _FrameTimer.ElapsedTime.AsSeconds();
 				_DeltaTimeFloat = _Time - _LastTime;
@@ -83,16 +85,18 @@ public static partial class Engine {
 						Render();
 					}
 					catch (Exception value) {
-						SceneManager.AbortTransition();
-						SceneManager.Clear();
-						SceneManager.Transition = new InstantTransition();
-						SceneManager.Push(new ErrorScene(value), true);
-						
 						StreamWriter streamWriter = new StreamWriter("error.log", true);
 						streamWriter.WriteLine(format: "At {0}:", arg0: DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss:fff"));
 						streamWriter.WriteLine(value);
 						streamWriter.WriteLine();
 						streamWriter.Close();
+						
+						SceneManager.AbortTransition();
+						SceneManager.Clear();
+						SceneManager.Transition = new InstantTransition();
+						SceneManager.Push(new ErrorScene(value), true);
+						
+
 					}
 					
 					_FrameStopwatch.Stop();
@@ -132,6 +136,7 @@ public static partial class Engine {
 		Window.DispatchEvents();
 
 		// Update crucial game instances
+		GameObjectRegister.Update();
 		SceneManager.Update();
 
 		ViewManager.Instance.Update();
@@ -140,6 +145,7 @@ public static partial class Engine {
 		// OpenGL shit, we have to clear our frame buffer before we can draw to it
 		RenderTexture.Clear(Color.Black);
 		//Finally, draw our scene.
+		GameObjectRegister.Draw();
 		SceneManager.Draw();
 		// Draw over our scene.
 		if (_DebugMode) {
@@ -182,6 +188,11 @@ public static partial class Engine {
 		Window.Display();
 
 		Frame++;
-		// += 1;
+		// += 1;ssssss
+	}
+	
+	public static void Exit () {
+		_Kill = true;
+		Window.Close();
 	}
 }

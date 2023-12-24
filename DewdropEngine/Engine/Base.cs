@@ -1,6 +1,7 @@
 ﻿#region
 
 using DewDrop.GUI;
+using DewDrop.Internal;
 using DewDrop.Resources;
 using DewDrop.Scenes;
 using DewDrop.UserInput;
@@ -68,6 +69,7 @@ public static partial class Engine {
 			// initialize the view manager after the graphics are initialized but before the scenes are initialized
 			
 			SceneManager.Initialize(config.StartScene);
+			GameObjectRegister.Initialize(Engine.RenderTexture);
 			_Initialized = true;
 
 			SessionTimer = new Clock();

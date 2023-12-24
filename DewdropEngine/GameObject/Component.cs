@@ -27,55 +27,37 @@ public class Component : IDisposable {
 	public string Name { get; set; }
 	public bool Active = true;
 	protected bool _destroyed;
-	
-	MethodInfo[] _methods;
-	MethodInfo awake;
-	MethodInfo start;
-	MethodInfo update;
-	MethodInfo draw;
-	MethodInfo destroy;
+
+	readonly MethodInfo? _awake;
+	readonly MethodInfo? _start;
+	readonly MethodInfo? _update;
+	readonly MethodInfo? _draw;
+	object[] _parameters;
 	
 	public Component () {
-		_methods = GetType().GetMethods();
-		foreach (MethodInfo method in _methods) {
-			if (method.Name == "Awake") {
-				awake = method;
-			}
-			if (method.Name == "Start") {
-				start = method;
-			}
-			if (method.Name == "Update") {
-				update = method;
-			}
-			if (method.Name == "Draw") {
-				draw = method;
-			}
-			if (method.Name == "Destroy") {
-				destroy = method;
-			}
-		}
+		MethodInfo[] methods = GetType().GetMethods();
+		_awake = methods.FirstOrDefault(m => m.Name == "Awake") ?? null;
+		_start = methods.FirstOrDefault(m => m.Name == "Start") ?? null;
+		_update = methods.FirstOrDefault(m => m.Name == "Update") ?? null;
+		_draw = methods.FirstOrDefault(m => m.Name == "Draw");
+		methods = null;
+		_parameters = new object[1];
 	}
 	
 	public void InvokeAwake () {
-		awake?.Invoke(this, null);
+		_awake?.Invoke(this, null);
 	}
 	public void InvokeStart () {
-		start?.Invoke(this, null);
+		_start?.Invoke(this, null);
 	}
 	public void InvokeUpdate () {
-		update?.Invoke(this, null);
+		_update?.Invoke(this, null);
 	}
 	public void InvokeDraw (RenderTarget target) {
-		draw?.Invoke(this, new object[] {target});
+		_parameters[0] = target;
+		_draw?.Invoke(this, _parameters);
 	}
-	public void InvokeDestroy () {
-		destroy?.Invoke(this, null);
-	}
-	
-	public virtual void Awake (){}
-	public virtual void Start (){}
-	public virtual void Update (){}
-	public virtual void Draw (RenderTarget target){}
+
 	public virtual void Destroy () {
 		if (_destroyed) {
 			return;

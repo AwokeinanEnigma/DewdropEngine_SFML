@@ -86,13 +86,13 @@ public class ComponentHolder {
 	
 	public void Awake () {
 		for (int i = 0; i < _availableIndex; i++) {
-			Components[i].Awake();
+			Components[i].InvokeAwake();
 		}	
 	}
 	
 	public void Start () {
 		for (int i = 0; i < _availableIndex; i++) {
-			Components[i].Start();
+			Components[i].InvokeStart();
 		}
 	}
 	
@@ -113,14 +113,14 @@ public class ComponentHolder {
 		}
 		for (int i = 0; i < _availableIndex; i++) {
 			if (Components[i].Active) 
-				Components[i].Update();
+				Components[i].InvokeUpdate();
 		}
 	}
 	
 	public void Draw (RenderTarget target) {
 		for (int i = 0; i < _availableIndex; i++) {
 			if (Components[i].Active) 
-				Components[i].Draw(target);
+				Components[i].InvokeDraw(target);
 		}
 	}
 	

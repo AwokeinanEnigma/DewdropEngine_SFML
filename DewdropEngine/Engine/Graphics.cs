@@ -181,6 +181,7 @@ public static partial class Engine {
 	static void HandleClosingRequest (object sender, EventArgs e) {
 		RenderWindow renderWindow = (RenderWindow)sender;
 		renderWindow.Close();
+		_Kill = true;
 		Outer.LogInfo("Window closed.");
 		ImGui.SaveIniSettingsToDisk("imgui.ini");
 		NbtFile file = new NbtFile(GlobalData.SerializeToNbt());

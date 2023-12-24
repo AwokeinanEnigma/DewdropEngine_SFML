@@ -9,6 +9,7 @@ using DewDrop.UserInput;
 using DewDrop.Utilities;
 using ImGuiNET;
 using Prototype.Scenes;
+using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using System.Diagnostics;
@@ -22,9 +23,10 @@ public class GameObjectPlayground : SceneBase{
 
 	public GameObject obj;
 	public GameObject obj2;
+	bool init;
+	long frameCount = 0;
 	public override void Focus () {
 		base.Focus();
-		GameObjectRegister.Initialize(Engine.RenderTexture);
 		/*obj = new GameObject();
 			obj.Name = "Test Object";
 			obj.Transform.DrawRegardlessOfVisibility = true;
@@ -43,30 +45,35 @@ public class GameObjectPlayground : SceneBase{
 			//Debug.Assert(gameObject.GetComponent<MyComponent>() == obj2.GetComponent<MyComponent>());
 			obj2.Transform.SetParent(obj.Transform);
 			GameObjectRegister.AddGameObject(obj2);*/
-		
-		var obj3 = new GameObject();
-		obj3.RemoveComponent<MyComponent>();
+		frameCount = Engine.Frame;
+		if (!init) {
+			var obj3 = new GameObject();
+			obj3.RemoveComponent<MyComponent>();
 
-		obj3.UpdateSlot = -1;
-		PlayerComponent playerComponent = obj3.AddComponent<PlayerComponent>();
-		obj3.Transform.Position = new Vector3(21,50,3);
-		obj3.Name = "Test Object 3";
-		obj3.Transform.DrawRegardlessOfVisibility = true;
-		GameObjectRegister.AddGameObject(obj3);
-		
-		MapLoader loader = new("testmap.mdat");
-		Map mapFile = loader.Load();
-		GameObject mapParent = new();
-		mapParent.Name = "Map Parent: " + mapFile.Title;
-		GameObjectRegister.AddGameObject(mapParent);
-		foreach (GameObject tileChunkData in MakeTileChunks(0, mapFile.TileChunkData)) {
-			tileChunkData.Transform.SetParent(mapParent.Transform);
-			tileChunkData.OnlyDraw = true;
-			GameObjectRegister.AddGameObject(tileChunkData);
+			obj3.UpdateSlot = -1;
+			PlayerComponent playerComponent = obj3.AddComponent<PlayerComponent>();
+			obj3.Transform.Position = new Vector3(21, 50, 3);
+			obj3.Name = "Test Object 3";
+			obj3.Transform.DrawRegardlessOfVisibility = true;
+			GameObjectRegister.AddGameObject(obj3);
+
+			MapLoader loader = new("testmap.mdat");
+			Map mapFile = loader.Load();
+			GameObject mapParent = new();
+			mapParent.Name = "Map Parent: " + mapFile.Title;
+			GameObjectRegister.AddGameObject(mapParent);
+			foreach (GameObject tileChunkData in MakeTileChunks(0, mapFile.TileChunkData)) {
+				tileChunkData.Transform.SetParent(mapParent.Transform);
+				tileChunkData.OnlyDraw = true;
+				GameObjectRegister.AddGameObject(tileChunkData);
+			}
+			init = true;
 		}
 		Engine.OnRenderImGui += EngineOnRenderImGUI;
+		Input.OnKeyPressed += InputOnKeyPressed;
+
 	}
-	
+
 	Dictionary<GameObject, bool> _drawn = new Dictionary<GameObject, bool>();
 	void DrawGameObject (GameObject gameObject) {
 		ImGui.Text($"Position: {gameObject.Transform.Position}");
@@ -76,7 +83,7 @@ public class GameObjectPlayground : SceneBase{
 		if (ImGui.Checkbox("Active", ref visible)) {
 			gameObject.Active = visible;
 		}
-		ImGui.Text($"Awakened: {gameObject.Awakened}");
+		ImGui.Text($"Can Have Children: {gameObject.Transform.CanHaveChildren}");
 		ImGui.Text($"Update Slot: {gameObject.UpdateSlot}");
 		ImGui.Text($"Parent: {gameObject.Transform.Parent?.GameObject.Name ?? "None"}");
 	}
@@ -131,7 +138,7 @@ public class GameObjectPlayground : SceneBase{
 		string resource = "testmap.gdat";
 		List<GameObject> list = new(groups.Count);
 		long ticks = DateTime.UtcNow.Ticks;
-		Outer.Log(groups.Count);
+
 		for (int i = 0; i < groups.Count; i++)
 		{
 			TileChunkData group = groups[i];
@@ -159,7 +166,7 @@ public class GameObjectPlayground : SceneBase{
 				tileX++;
 			}
 			// converting to array allocates extra memory, and it's just not needed
-			GameObject gameObject = new();
+			GameObject gameObject = new(false);
 			gameObject.Name = "TileChunk " + (i+ 1);
 			TileChunk chunk = gameObject.AddComponent<TileChunk>();
 			chunk.Setup(tiles, resource, (int)group.Depth, new Vector2(group.X, group.Y), palette);
@@ -170,30 +177,45 @@ public class GameObjectPlayground : SceneBase{
 	}
 	
 	public override void TransitionIn () { base.TransitionIn(); }
-	public override void Unfocus () { base.Unfocus(); }
+	public override void Unfocus () {
+		base.Unfocus();
+		Engine.OnRenderImGui -= EngineOnRenderImGUI;
+		Input.OnKeyPressed -= InputOnKeyPressed;
+
+	}
 	bool dunnit;
+	bool dunnit2;
 	public override void Update () {
-		base.Update(); 
-		if (GameObjectRegister.Initialized) 
-			GameObjectRegister.Update();
-		
-		if (Input.Instance[Keyboard.Key.P] && !dunnit) {
-			obj2.Destroy();
+		base.Update();
+
+	}
+	void InputOnKeyPressed(object? sender, Keyboard.Key e) {
+		if (e == Keyboard.Key.K && !SceneManager.IsTransitioning) {
+
+			dunnit = true;
+			SceneManager.Transition = new ColorFuckTransition(0.45f, new [] {
+				Color.Red,
+				Color.Blue,
+				Color.Blue,
+				Color.Red,
+			});
+			SceneManager.Push(new GameObjectPlayground(), false);
 		}
 		
-		if (Input.Instance[Keyboard.Key.O] && !dunnit) {
-			obj.Destroy();
-		}
-		
-		if (Input.Instance[Keyboard.Key.K] && !dunnit) {
-			SceneManager.Transition = new InstantTransition();
-			SceneManager.Push(new TestScene(), true);
+		if (e == Keyboard.Key.Space && !SceneManager.IsTransitioning) 
+		{
+			dunnit2 = true;
+			SceneManager.Transition = new ColorFuckTransition(0.45f, new [] {
+				Color.Red,
+				Color.Blue,
+				Color.Blue,
+				Color.Red,
+			});			
+			SceneManager.Pop();
 		}
 	}
 	public override void Draw () {
 		base.Draw();
-		if (GameObjectRegister.Initialized) 
-			GameObjectRegister.Draw();
 	}
 	protected override void Dispose (bool disposing) {
 		Outer.Log("HEY");

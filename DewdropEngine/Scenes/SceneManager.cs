@@ -138,6 +138,11 @@ public static class SceneManager {
 
 	#endregion
 
+	public static event Action? OnSceneChange;
+	public static OnSceneDisposedDelegate SceneDisposed;
+
+	public delegate void OnSceneDisposedDelegate(SceneBase scene);
+	 
 	#region Methods
 	
 	internal static void Initialize ( SceneBase startScene ) {
@@ -239,6 +244,7 @@ public static class SceneManager {
 			if (scene2 == scene) {
 				scene2.Unfocus();
 			}
+			SceneDisposed?.Invoke(scene2);
 			scene2.Dispose();
 		}
 	}
@@ -250,6 +256,10 @@ public static class SceneManager {
 		}
 	}
 
+	public static SceneBase CurrentScene () {
+		return scenes.Peek();
+	}
+	
 	static void UpdateScene () {
 		if (scenes.Count > 0) {
 			SceneBase scene = scenes.Peek();
@@ -268,6 +278,8 @@ public static class SceneManager {
 				// if popped is true,
 				// then we completely dispose of the previous scene
 				if (popped) {
+					SceneDisposed?.Invoke(previousScene);
+					previousScene.Unfocus();
 					previousScene.Dispose();
 					popped = false;
 				}
@@ -277,10 +289,15 @@ public static class SceneManager {
 					previousScene.Unfocus();
 				}
 			}
+			
+			
 
+			OnSceneChange.Invoke();
 			// get the new scene which is at the bottom of the list
 			SceneBase scene = scenes.Peek();
+			
 
+			
 			// focus!
 			scene.Focus();
 
@@ -310,7 +327,7 @@ public static class SceneManager {
 			// so what this is saying is "Okay if the transition is halfway done let's clean up our shit and make sure we don't clean up our shit again"		
 			if (Transition.Progress > 0.5f && !cleanupFlag) {
 				// TextureManager.Instance.Purge();
-				GC.Collect();
+				//dddGC.Collect();
 				// transition.Destroy();
 				cleanupFlag = true;
 			}
@@ -332,6 +349,8 @@ public static class SceneManager {
 	public static void AbortTransition () {
 		if (state == SceneManagerState.Transition) {
 			if (previousScene != null) {
+				SceneDisposed?.Invoke(previousScene);
+				previousScene.Unfocus();
 				previousScene.Dispose();
 				previousScene = null;
 			}

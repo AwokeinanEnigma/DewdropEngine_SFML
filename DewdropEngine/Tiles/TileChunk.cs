@@ -87,6 +87,13 @@ public class TileChunk : Component  {
 		// Clear the tiles list (optional)
 		//tiles = null;
 		//tiles.Clear();
+		
+		_TileGroupShader.SetUniform("image", TilesetSpritesheet.Image);
+		_TileGroupShader.SetUniform("palette", TilesetSpritesheet.Palette);
+		_TileGroupShader.SetUniform("palIndex", TilesetSpritesheet.CurrentPaletteFloat);
+		_TileGroupShader.SetUniform("palSize", TilesetSpritesheet.PaletteSize);
+		_TileGroupShader.SetUniform("blend", _blendColor);
+		_TileGroupShader.SetUniform("blendMode", 1f);
 	}
 
 	void ResetTransform () {
@@ -295,7 +302,9 @@ public class TileChunk : Component  {
 			}
 		}
 
+		//Outer.Log("Created vertex array with " + _vertices.Length + " vertices");
 		transform.Size = v2 - v;
+		
 	}
 
 	/// <summary>
@@ -345,14 +354,7 @@ public class TileChunk : Component  {
 			}
 		}
 	}
-	public override void Draw (RenderTarget target) {
-		_TileGroupShader.SetUniform("image", TilesetSpritesheet.Image);
-		_TileGroupShader.SetUniform("palette", TilesetSpritesheet.Palette);
-		_TileGroupShader.SetUniform("palIndex", TilesetSpritesheet.CurrentPaletteFloat);
-		_TileGroupShader.SetUniform("palSize", TilesetSpritesheet.PaletteSize);
-		_TileGroupShader.SetUniform("blend", _blendColor);
-		_TileGroupShader.SetUniform("blendMode", 1f);
-
+	public void Draw (RenderTarget target) {
 		UpdateAnimations();
 		target.Draw(_vertices, PrimitiveType.Quads, _renderState);
 	}

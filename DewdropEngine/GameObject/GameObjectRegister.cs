@@ -1,4 +1,5 @@
 ﻿using DewDrop.Exceptions;
+using DewDrop.Scenes;
 using DewDrop.Utilities;
 using SFML.Graphics;
 namespace DewDrop.Internal; 
@@ -18,23 +19,32 @@ public static class GameObjectRegister {
 			}
 
 			// If Importance is equal, compare based on IDs to ensure uniqueness
-			return _Ids[y] - _Ids[x];
+			return Ids[y] - Ids[x];
 		}
 	}
 	class GameObjectZComparer : IComparer<GameObject> {
 		public int Compare(GameObject x, GameObject y) {
-			return (int)(x.Transform.Position.Z != y.Transform.Position.Z ? x.Transform.Position.Z - y.Transform.Position.Z : _Ids[y] - _Ids[x]); 
+			return (int)(x.Z != y.Z ? x.Z - y.Z : Ids[y] - Ids[x]); 
 		}
 	}
 
 	#endregion
 
-	 public static List<GameObject> GameObjects { get; private set; }
-	//static SortedSet<GameObject> _GameObjectsSortedByZ;
-	static List<GameObject> _DrawableGameObjects;
-	static SortedSet<GameObject> _UpdateableGameObjects;
-	static Dictionary<GameObject, int> _Ids;
-	static FloatRect _ViewRect;
+	public struct SceneBoundObjects {
+		public List<GameObject> GameObjects;
+		public List<GameObject> DrawableGameObjects;
+		public SortedSet<GameObject> UpdateableGameObjects;
+		public Dictionary<GameObject, int> Ids;
+		public SceneBoundObjects() {
+			//Outer.Log("Creating new scene bound objects");
+			GameObjects = new List<GameObject>();
+			DrawableGameObjects = new List<GameObject>();
+			UpdateableGameObjects = new SortedSet<GameObject>(new GameObjectComparer());
+			Ids = new Dictionary<GameObject, int>();
+		}
+	}
+	 public static List<GameObject> GameObjects => _CurrentSceneBoundObjects.GameObjects;
+	 static FloatRect _ViewRect;
 	static FloatRect _RenderableRect;
 	static View _View;
 	static RenderTarget _Target;
@@ -42,16 +52,37 @@ public static class GameObjectRegister {
 	static Stack<GameObject> _GameObjectsToRemove;
 	static bool _Sort;
 	static int _IdCounter;
+	static GameObjectZComparer _GameObjectZComparer;
+	static Dictionary<SceneBase, SceneBoundObjects> _SceneBoundObjects;
+	static SceneBoundObjects _CurrentSceneBoundObjects;
 	public static bool Initialized;
+	static List<GameObject> DrawableGameObjects=> _CurrentSceneBoundObjects.DrawableGameObjects;
+	static SortedSet<GameObject> UpdateableGameObjects=> _CurrentSceneBoundObjects.UpdateableGameObjects;
+	static Dictionary<GameObject, int> Ids => _CurrentSceneBoundObjects.Ids;
 	
 	public static void Initialize(RenderTarget target) {
 		_Target = target;
-		GameObjects = new List<GameObject>();
-		_DrawableGameObjects = new List<GameObject>(); //= new SortedSet<GameObject>(new GameObjectZComparer());
-		_UpdateableGameObjects = new SortedSet<GameObject>(new GameObjectComparer());
+		_SceneBoundObjects = new Dictionary<SceneBase, SceneBoundObjects>();
+		//Outer.Log("Initializing GameObjectRegister");
+		
+		_CurrentSceneBoundObjects = new SceneBoundObjects();
+		SceneBase initScene = SceneManager.CurrentScene();
+		_SceneBoundObjects.Add(initScene, _CurrentSceneBoundObjects);
+		
+		SceneManager.OnSceneChange += () => {
+			SceneBase scene = SceneManager.CurrentScene();
+		//	Outer.Log($"Scene changed to {scene}");
+			if (_SceneBoundObjects.TryGetValue(scene, out SceneBoundObjects o)) {
+				_CurrentSceneBoundObjects = o;
+			} else {
+				_CurrentSceneBoundObjects = new SceneBoundObjects();
+				_SceneBoundObjects.Add(scene, _CurrentSceneBoundObjects);
+			}
+		};
+		Outer.Log("Waiting for scene change");
 		_GameObjectsToAdd = new Stack<GameObject>();
 		_GameObjectsToRemove = new Stack<GameObject>();
-		_Ids = new Dictionary<GameObject, int>();
+		_GameObjectZComparer = new GameObjectZComparer();
 		Initialized = true;
 	}
 
@@ -75,14 +106,16 @@ public static class GameObjectRegister {
 	}
 	
 	public static void Update() {
+		// We do our additions and removals before updating.
+		// It's okay to do it here, because Draw() is called after Update(), so when we Draw, we'll already have the updated lists
 		DoRemovals();
 		DoAdditions();
 		if (_Sort) {
-			_DrawableGameObjects.Sort(new GameObjectZComparer());
+			DrawableGameObjects.Sort(_GameObjectZComparer);
 			_Sort = false;
 		}
 		
-		foreach (GameObject gameObject in _UpdateableGameObjects) {
+		foreach (GameObject gameObject in UpdateableGameObjects) {
 			if (Engine.Frame - gameObject.FrameRegistered == 1) {
 				gameObject.Start();
 			}
@@ -97,20 +130,20 @@ public static class GameObjectRegister {
 			// remove the thing from the top of this
 			GameObject key = _GameObjectsToAdd.Pop();
 
-			_Ids.Add(key, _IdCounter);
+			Ids.Add(key, _IdCounter);
 
 			// if it's only drawable, add it to the drawable list
 			if (key.OnlyDraw) {
-				_DrawableGameObjects.Add(key);
+				DrawableGameObjects.Add(key);
 			}
 			// if it's only updateable, add it to the updateable list
 			else if (key.OnlyUpdate) {
-				_UpdateableGameObjects.Add(key);
+				UpdateableGameObjects.Add(key);
 			}
 			// otherwise, add it to both
 			else {
-				_DrawableGameObjects.Add(key);
-				_UpdateableGameObjects.Add(key);
+				DrawableGameObjects.Add(key);
+				UpdateableGameObjects.Add(key);
 			}
 			GameObjects.Add(key);
 
@@ -123,8 +156,8 @@ public static class GameObjectRegister {
 	static void DoRemovals () {
 		while (_GameObjectsToRemove.Count > 0) {
 			GameObject key = _GameObjectsToRemove.Pop();
-			_DrawableGameObjects.Remove(key);
-			_UpdateableGameObjects.Remove(key);
+			DrawableGameObjects.Remove(key);
+			UpdateableGameObjects.Remove(key);
 			GameObjects.Remove(key);
 			// this is pretty obvious, but you don't need to sort again if something was removed 
 		}
@@ -143,7 +176,7 @@ public static class GameObjectRegister {
 		_ViewRect.Height = _View.Size.Y;
 		
 		
-		foreach (GameObject gameObject in _DrawableGameObjects) {
+		foreach (GameObject gameObject in DrawableGameObjects) {
 			if (Engine.Frame - gameObject.FrameRegistered == 1) {
 				gameObject.Start();
 			}
@@ -173,8 +206,8 @@ public static class GameObjectRegister {
 			gameObject.Destroy(sceneWipe);
 		}
 		GameObjects.Clear();
-		_DrawableGameObjects.Clear();
-		_UpdateableGameObjects.Clear();
+		DrawableGameObjects.Clear();
+		UpdateableGameObjects.Clear();
 	}
 
 	public static GameObject? GetGameObjectByName(string name) {

@@ -32,10 +32,8 @@ public class GameObject : IDisposable {
 	}
 	bool _active = true;
 	bool _destroyed;
-	public GameObject () {
-		Transform = new Transform {
-			GameObject = this
-		};
+	public GameObject (bool canHaveChildren = true) {
+		Transform = new Transform(this, canHaveChildren);
 		ComponentHolder = new ComponentHolder(this);
 		Name = "GameObject";
 		UpdateSlot = 0;																					

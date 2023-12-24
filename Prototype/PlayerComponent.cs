@@ -8,8 +8,7 @@ namespace Prototype;
 public class PlayerComponent : Component{
 	public override int Importance { get; set; }
 	Shape _shape;
-	public override void Awake () {
-		base.Awake();
+	public void Awake () {
 		_shape = new RectangleShape(new Vector2(11, 20));
 		_shape.FillColor = Color.Green;
 		_shape.Position = transform.Position;	
@@ -19,9 +18,13 @@ public class PlayerComponent : Component{
 		ViewManager.Instance.Offset = new Vector2(0, (float)(-(float)((int)11)/2));
 
 	}
-	public override void Start () { base.Start(); }
-	public override void Update () {
-		base.Update();
+	public void Start () {
+		
+	}
+	public void Update () {
+		if (ViewManager.Instance.EntityFollow != GameObject) {
+			ViewManager.Instance.EntityFollow = GameObject;
+		}
 		Vector3 nuposition = ((Input.Instance.Axis) * 2) + position;
 		nuposition.Z = nuposition.Y;
 		base.position = nuposition;
@@ -37,8 +40,7 @@ public class PlayerComponent : Component{
 		
 		
 	}
-	public override void Draw (RenderTarget target) {
-		base.Draw(target); 
+	public  void Draw (RenderTarget target) {
 		target.Draw(_shape);
 	}
 	public override void Destroy () {
