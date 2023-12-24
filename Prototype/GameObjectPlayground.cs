@@ -57,7 +57,7 @@ public class GameObjectPlayground : SceneBase{
 			obj3.Transform.DrawRegardlessOfVisibility = true;
 			GameObjectRegister.AddGameObject(obj3);
 
-			MapLoader loader = new("testmap.mdat");
+			MapLoader loader = new("railwaycave1.mdat");
 			Map mapFile = loader.Load();
 			GameObject mapParent = new();
 			mapParent.Name = "Map Parent: " + mapFile.Title;
@@ -135,7 +135,7 @@ public class GameObjectPlayground : SceneBase{
 		string arg = "default";
 
 		//string resource = "C:\\Users\\Tom\\Documents\\Mother 4\\Union\\Resources\\Graphics\\cave2.dat";// string.Format("{0}{1}.mtdat", graphicDirectory, arg);
-		string resource = "testmap.gdat";
+		string resource = "railwaycave1.gdat";
 		List<GameObject> list = new(groups.Count);
 		long ticks = DateTime.UtcNow.Ticks;
 
