@@ -1,4 +1,5 @@
 ﻿using DewDrop;
+using DewDrop.Inspector;
 using DewDrop.Internal;
 using DewDrop.Maps;
 using DewDrop.Maps.MapData;
@@ -24,6 +25,7 @@ public class GameObjectPlayground : SceneBase{
 	public GameObject obj2;
 	bool init;
 	long frameCount = 0;
+	Inspector _inspector;
 	public override void Focus () {
 		base.Focus();
 		/*obj = new GameObject();
@@ -54,6 +56,7 @@ public class GameObjectPlayground : SceneBase{
 			obj3.Transform.Position = new Vector3(21, 50, 3);
 			obj3.Name = "Test Object 3";
 			obj3.Transform.DrawRegardlessOfVisibility = true;
+			obj3.AddComponent<IStealMoneyFromPeopleOfSouthAmericanOrigin>();
 			GameObjectRegister.AddGameObject(obj3);
 
 			MapLoader loader = new("railwaycave1.mdat");
@@ -66,6 +69,8 @@ public class GameObjectPlayground : SceneBase{
 				tileChunkData.OnlyDraw = true;
 				GameObjectRegister.AddGameObject(tileChunkData);
 			}
+			_inspector = new Inspector();
+			_inspector.Initialize(null);
 			init = true;
 		}
 		Engine.OnRenderImGui += EngineOnRenderImGUI;
@@ -85,6 +90,9 @@ public class GameObjectPlayground : SceneBase{
 		ImGui.Text($"Can Have Children: {gameObject.Transform.CanHaveChildren}");
 		ImGui.Text($"Update Slot: {gameObject.UpdateSlot}");
 		ImGui.Text($"Parent: {gameObject.Transform.Parent?.GameObject.Name ?? "None"}");
+		if (ImGui.Button("SelectGameObject")) {
+			_inspector.Select(gameObject);
+		}
 	}
 	void EngineOnRenderImGUI () {
 		if (ImGui.CollapsingHeader("Hierarchy")) {

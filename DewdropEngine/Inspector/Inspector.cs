@@ -24,7 +24,7 @@ namespace DewDrop.Inspector;
 /// </remarks>
 public class Inspector : IDisposable {
 	CollisionManager _collisionManager;
-	Component _selectedEntity;
+	GameObject _selectedGameobject;
 	FieldInfo[] _fields;
 	MethodInfo[] _methods;
 	PropertyInfo[] _properties;
@@ -93,8 +93,11 @@ public class Inspector : IDisposable {
 		_customPainters.Add(painter);
 	}
 
+	public void Select (GameObject gameObject) {
+		_selectedGameobject = gameObject;
+	}
 	void OnMouseClick (object? sender, MouseButtonEventArgs e) {
-		foreach (var entity in _collisionManager.ObjectsAtPosition(Input.GetMouseWorldPosition())) {
+		/*foreach (var entity in _collisionManager.ObjectsAtPosition(Input.GetMouseWorldPosition())) {
 			Component localEntity = null;
 			; //_entityManager.Find(x => x == entity);
 			if (localEntity != null) {
@@ -116,14 +119,15 @@ public class Inspector : IDisposable {
 					_aMp.TryAdd(localEntity, new List<AssociatedMethodParameter>());
 				}
 			}
-		}
+		}*/
 	}
 
+	Component _selectedComponent; 
 	/// <summary>
 	/// Renders the Inspector user interface.
 	/// </summary>
 	void Paint () {
-		if (_selectedEntity != null) {
+		if (_selectedGameobject != null) {
 			if (Keyboard.IsKeyPressed(Keyboard.Key.LControl) || Keyboard.IsKeyPressed(Keyboard.Key.RControl)) {
 				if (Keyboard.IsKeyPressed(Keyboard.Key.Z) && _clock.ElapsedTime.AsMilliseconds() > 150) {
 					_clock.Restart();
@@ -139,35 +143,53 @@ public class Inspector : IDisposable {
 
 			ImGui.Begin("Component Inspector");
 			if (ImGui.CollapsingHeader("Component Data")) {
-				ImGui.Text("Selected Component: " + _selectedEntity.Name);
-				ImGui.Text("Position: " + _selectedEntity.Position);
-				var vector2 = (System.Numerics.Vector2)_selectedEntity.Position;
+				ImGui.Text("Selected Component: " + _selectedGameobject.Name);
+				ImGui.Text("Position: " + _selectedGameobject.Transform.Position);
+				/*var vector2 = (System.Numerics.Vector2)_selectedEntity.Position;
 				if (ImGui.InputFloat2("Position", ref vector2)) {
 					_commandHistory.ExecuteCommand(new PaintVector2Command(_selectedEntity.GetType().GetProperty("Position"), vector2, _selectedEntity));
-				}
+				}*/
 			}
 			ImGui.Separator();
-			if (ImGui.CollapsingHeader("Fields")) {
-				// go through each field and draw it
-				foreach (var field in _fields) {
-					PaintField(field);
+			Component[] components = _selectedGameobject.ComponentHolder.GetComponentsArray();
+			foreach (Component component in components) {
+				if (component == null) {
+					continue;
+				}
+
+				if (ImGui.CollapsingHeader("Component: " + component.GetType().Name)) {
+					_fields = component.GetType().GetFields();
+					_methods = component.GetType().GetMethods();
+					_properties = component.GetType().GetProperties();
+					_selectedComponent = component;
+					
+					_eMd.TryAdd(_selectedComponent, new List<AssociatedEnumData>());
+					_aMp.TryAdd(_selectedComponent, new List<AssociatedMethodParameter>());
+					ImGui.Indent(5);
+					if (ImGui.CollapsingHeader("Fields: " + component.GetType().Name)) {
+						// go through each field and draw it
+						foreach (var field in _fields) {
+							PaintField(field);
+						}
+					}
+					ImGui.Separator();
+					if (ImGui.CollapsingHeader("Properties: " + component.GetType().Name)) {
+						// go through each property and draw it
+						foreach (var property in _properties) {
+							PaintProperty(property);
+						}
+					}
+					ImGui.Separator();
+					if (ImGui.CollapsingHeader("Methods: " + component.GetType().Name)) {
+						// go through each method and draw it
+						foreach (var method in _methods) {
+							PaintMethod(method);
+						}
+					}
+					ImGui.Unindent(5);
+					ImGui.Separator();
 				}
 			}
-			ImGui.Separator();
-			if (ImGui.CollapsingHeader("Properties")) {
-				// go through each property and draw it
-				foreach (var property in _properties) {
-					PaintProperty(property);
-				}
-			}
-			ImGui.Separator();
-			if (ImGui.CollapsingHeader("Methods")) {
-				// go through each method and draw it
-				foreach (var method in _methods) {
-					PaintMethod(method);
-				}
-			}
-			ImGui.Separator();
 			if (ImGui.CollapsingHeader("Inspector Info ")) {
 				if (ImGui.CollapsingHeader("Command History")) {
 					// start at 1 so it makes sense to the user
@@ -195,33 +217,33 @@ public class Inspector : IDisposable {
 		}
 	}
 	void PaintField (FieldInfo field) {
-		object value = field.GetValue(_selectedEntity);
+		object value = field.GetValue(_selectedComponent);
 		// Daily reminder never to use GetType() in a loop. It may not cause a System Access Violation, but it'll still stall the program and crash it.
 		if (_Blacklist.Contains(field.Name)) {
 			return;
 		}
 		switch (value) {
-		case Color color: PaintColor(field, color, _selectedEntity);
+		case Color color: PaintColor(field, color, _selectedComponent);
 			break;
-		case int integer: PaintIntegers(field, integer, _selectedEntity);
+		case int integer: PaintIntegers(field, integer, _selectedComponent);
 			break;
-		case float floatValue: PaintFloat(field, floatValue, _selectedEntity);
+		case float floatValue: PaintFloat(field, floatValue, _selectedComponent);
 			break;
-		case bool boolean: PaintBool(field, boolean, _selectedEntity);
+		case bool boolean: PaintBool(field, boolean, _selectedComponent);
 			break;
-		case string str: PaintString(field, str, _selectedEntity);
+		case string str: PaintString(field, str, _selectedComponent);
 			break;
-		case Enum: PaintEnum(field, value, _selectedEntity);
+		case Enum: PaintEnum(field, value, _selectedComponent);
 			break;
-		case Vector2 vector2: PaintVector2(field, vector2, _selectedEntity);
+		case Vector2 vector2: PaintVector2(field, vector2, _selectedComponent);
 			break;
-		case IList list: PaintList(field, list, _selectedEntity);
+		case IList list: PaintList(field, list, _selectedComponent);
 			break;
 		}
 		if (_customPainters.Count > 0) {
 			foreach (var painter in _customPainters) {
 				if (painter.Type == field.FieldType) {
-					painter.PaintField(field, value, _selectedEntity, this, _commandHistory);
+					painter.PaintField(field, value, _selectedComponent, this, _commandHistory);
 				}
 			}
 		}
@@ -229,41 +251,41 @@ public class Inspector : IDisposable {
 	}
 	void PaintProperty (PropertyInfo property) {
 		// Don't use GetType() here, it'll cause a System Access Violation.
-		object value = property.GetValue(_selectedEntity);
+		object value = property.GetValue(_selectedComponent);
 		bool canWrite = property.GetSetMethod() != null;
 		if (_Blacklist.Contains(property.Name)) {
 			return;
 		}
 		switch (value) {
 		case Color color:
-			PaintColor(property, color, _selectedEntity, canWrite);
+			PaintColor(property, color, _selectedComponent, canWrite);
 			break;
 		case int integer:
-			PaintIntegers(property, integer, _selectedEntity, canWrite);
+			PaintIntegers(property, integer, _selectedComponent, canWrite);
 			break;
 		case float floatValue:
-			PaintFloat(property, floatValue, _selectedEntity, canWrite);
+			PaintFloat(property, floatValue, _selectedComponent, canWrite);
 			break;
 		case bool boolean:
-			PaintBool(property, boolean, _selectedEntity, canWrite);
+			PaintBool(property, boolean, _selectedComponent, canWrite);
 			break;
 		case string str:
-			PaintString(property, str, _selectedEntity, canWrite);
+			PaintString(property, str, _selectedComponent, canWrite);
 			break;
 		case Enum enumValue:
-			PaintEnum(property, enumValue, _selectedEntity, canWrite);
+			PaintEnum(property, enumValue, _selectedComponent, canWrite);
 			break;
 		case Vector2 vector2:
-			PaintVector2(property, vector2, _selectedEntity, canWrite);
+			PaintVector2(property, vector2, _selectedComponent, canWrite);
 			break;
 		case IList list:
-			PaintList(property, list, _selectedEntity);
+			PaintList(property, list, _selectedComponent);
 			break;
 		}
 		if (_customPainters.Count > 0) {
 			foreach (var painter in _customPainters) {
 				if (painter.Type == property.PropertyType) {
-					painter.PaintProperty(property, value, _selectedEntity, this, _commandHistory);
+					painter.PaintProperty(property, value, _selectedComponent, this, _commandHistory);
 				}
 			}
 		}
@@ -274,7 +296,7 @@ public class Inspector : IDisposable {
 		if (button != null) {
 			PaintTooltip(info);
 			ParameterInfo[] parameters = info.GetParameters();
-			AssociatedMethodParameter aMp = _aMp[_selectedEntity].Find(x => x.Method == info);
+			AssociatedMethodParameter aMp = _aMp[_selectedComponent].Find(x => x.Method == info);
 			if (aMp.Method == null) {
 				Outer.Log($"AMP for method '{info.Name}' not found, creating new one");
 				aMp.Method = info;
@@ -302,7 +324,7 @@ public class Inspector : IDisposable {
 						aMp.Parameters[i] = Vector2.Zero;
 					}
 				}
-				_aMp[_selectedEntity].Add(aMp);
+				_aMp[_selectedComponent].Add(aMp);
 			}
 			if (parameters.Length > 0) {
 				// go through each parameter and display it
@@ -341,12 +363,12 @@ public class Inspector : IDisposable {
 						}
 					}
 					if (parameter.ParameterType.IsEnum) {
-						AssociatedEnumData aEd = _eMd[_selectedEntity].Find(x => x.EnumName == parameter.ParameterType.Name);
+						AssociatedEnumData aEd = _eMd[_selectedComponent].Find(x => x.EnumName == parameter.ParameterType.Name);
 						object enumValue = aMp.Parameters[i];
 						if (aEd.EnumName == null) {
 							aEd.EnumOptions = Enum.GetNames(enumValue.GetType());
 							aEd.EnumName = enumValue.GetType().Name;
-							_eMd[_selectedEntity].Add(aEd);
+							_eMd[_selectedComponent].Add(aEd);
 						}
 						var index = Array.IndexOf(aEd.EnumOptions, enumValue.ToString());
 						if (ImGui.Combo("Parameter: "+ aEd.EnumName, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
@@ -365,14 +387,14 @@ public class Inspector : IDisposable {
 				}
 				if (ImGui.Button(button.MethodName)) {
 					Outer.Log($"Invoking method '{info.Name}'");
-					info.Invoke(_selectedEntity, aMp.Parameters);
+					info.Invoke(_selectedComponent, aMp.Parameters);
 				}
 				ImGui.Separator();
 			}
 			// else we have no parameters, so just invoke the method with null params
 			else {
 				if (ImGui.Button(button.MethodName)) {
-					info.Invoke(_selectedEntity, null);
+					info.Invoke(_selectedComponent, null);
 				}
 			}
 		}
@@ -582,7 +604,7 @@ public class Inspector : IDisposable {
 		Engine.OnRenderImGui -= Paint;
 		_customPainters.ForEach(x => x.Dispose());
 		_customPainters = null;
-		_selectedEntity = null;
+		_selectedGameobject = null;
 		_fields = null;
 		_methods = null;
 		_properties = null;

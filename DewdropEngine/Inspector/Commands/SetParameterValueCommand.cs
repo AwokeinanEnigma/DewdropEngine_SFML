@@ -17,6 +17,7 @@ public class SetParameterValueCommand : InspectorCommand
 
 	public override void Execute()
 	{
+		
 		_list[_index] = _newValue;
 	}
 

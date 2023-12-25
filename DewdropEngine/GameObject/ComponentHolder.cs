@@ -77,6 +77,21 @@ public class ComponentHolder {
 		return component;
 	}
 	
+	public List<Component> GetComponents () {
+		List<Component> components = new List<Component>();
+		for (int i = 0; i < _availableIndex; i++) {
+			components.Add(Components[i]);
+		}
+		return components;
+	}
+	
+	public Component[] GetComponentsArray () {
+		Component[] components = new Component[_availableIndex];
+		for (int i = 0; i < _availableIndex; i++) {
+			components[i] = Components[i];
+		}
+		return components;
+	}
 	
 	public void Clone (ComponentHolder componentHolder) {
 		for (int i = 0; i < _availableIndex; i++) {
