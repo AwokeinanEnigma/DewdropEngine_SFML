@@ -7,7 +7,7 @@ using Transform = DewDrop.Internal.Transform;
 namespace Prototype; 
 
 public class MyComponent : Component {
-	public override int Importance => 10;
+	public override int UpdateSlot => 10;
 	private Shape _shape;
 	public float offset;
 	public bool dos = false;

@@ -80,16 +80,6 @@ public class GameObjectPlayground : SceneBase{
 
 	Dictionary<GameObject, bool> _drawn = new Dictionary<GameObject, bool>();
 	void DrawGameObject (GameObject gameObject) {
-		ImGui.Text($"Position: {gameObject.Transform.Position}");
-		ImGui.Text($"Rotation: {gameObject.Transform.Rotation}");
-		ImGui.Text($"Size: {gameObject.Transform.Size}");
-		bool visible = gameObject.Active;
-		if (ImGui.Checkbox("Active", ref visible)) {
-			gameObject.Active = visible;
-		}
-		ImGui.Text($"Can Have Children: {gameObject.Transform.CanHaveChildren}");
-		ImGui.Text($"Update Slot: {gameObject.UpdateSlot}");
-		ImGui.Text($"Parent: {gameObject.Transform.Parent?.GameObject.Name ?? "None"}");
 		if (ImGui.Button("SelectGameObject")) {
 			_inspector.Select(gameObject);
 		}

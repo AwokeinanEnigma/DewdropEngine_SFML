@@ -4,7 +4,7 @@ using System.Reflection;
 namespace DewDrop.Internal; 
 
 public class Component : IDisposable {
-	public virtual int Importance { get; set; }
+	public virtual int UpdateSlot { get; set; }
 	public GameObject GameObject { get; set; }
 	public Transform Transform => GameObject.Transform;
 	public Vector3 Position {

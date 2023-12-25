@@ -114,7 +114,7 @@ public class ComponentHolder {
 	void SortComponents () {
 		for (int i = 0; i < _availableIndex; i++) {
 			for (int j = i; j > 0; j--) {
-				if (Components[j].Importance > Components[j - 1].Importance) {
+				if (Components[j].UpdateSlot > Components[j - 1].UpdateSlot) {
 					(Components[j], Components[j - 1]) = (Components[j - 1], Components[j]);
 				}
 			}

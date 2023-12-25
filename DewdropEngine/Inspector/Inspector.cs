@@ -153,14 +153,18 @@ public class Inspector : IDisposable {
 				}
 			}
 
-			ImGui.Begin("Component Inspector");
-			if (ImGui.CollapsingHeader("Component Data")) {
-				ImGui.Text("Selected Component: " + _selectedGameobject.Name);
-				ImGui.Text("Position: " + _selectedGameobject.Transform.Position);
-				/*var vector2 = (System.Numerics.Vector2)_selectedEntity.Position;
-				if (ImGui.InputFloat2("Position", ref vector2)) {
-					_commandHistory.ExecuteCommand(new PaintVector2Command(_selectedEntity.GetType().GetProperty("Position"), vector2, _selectedEntity));
-				}*/
+			ImGui.Begin("Inspector");
+			if (ImGui.CollapsingHeader("Transform")) {
+				ImGui.Text($"Position: {_selectedGameobject.Transform.Position}");
+				ImGui.Text($"Rotation: {_selectedGameobject.Transform.Rotation}");
+				ImGui.Text($"Size: {_selectedGameobject.Transform.Size}");
+				bool visible = _selectedGameobject.Active;
+				if (ImGui.Checkbox("Active", ref visible)) {
+					_selectedGameobject.Active = visible;
+				}
+				ImGui.Text($"Can Have Children: {_selectedGameobject.Transform.CanHaveChildren}");
+				ImGui.Text($"Update Slot: {_selectedGameobject.UpdateSlot}");
+				ImGui.Text($"Parent: {_selectedGameobject.Transform.Parent?.GameObject.Name ?? "None"}");
 			}
 			ImGui.Separator();
 			foreach (Component component in _components) {
@@ -189,7 +193,7 @@ public class Inspector : IDisposable {
 					_eMd.TryAdd(component, new List<AssociatedEnumData>());
 					_aMp.TryAdd(component, new List<AssociatedMethodParameter>());
 				}
-				if (ImGui.CollapsingHeader("Component: " + type)) {
+				if (ImGui.CollapsingHeader("Component: " + type.Name)) {
 					_fields = _fieldInfo[component];
 					_methods = _methodInfo[component];
 					_properties = _propertyInfo[component];
@@ -201,6 +205,9 @@ public class Inspector : IDisposable {
 						foreach (var field in _fields) {
 							PaintField(field, component);
 						}
+						if (_fields.Length == 0) {
+							ImGui.Text("No fields :(");
+						}
 						ImGui.Unindent(5);
 					}
 					ImGui.Separator();
@@ -209,6 +216,9 @@ public class Inspector : IDisposable {
 						ImGui.Indent(5);
 						foreach (var property in _properties) {
 							PaintProperty(property, component);
+						}
+						if (_properties.Length == 0) {
+							ImGui.Text("No properties :(");
 						}
 						ImGui.Unindent(5);
 					}
@@ -219,11 +229,15 @@ public class Inspector : IDisposable {
 						foreach (var method in _methods) {
 							PaintMethod(method, component);
 						}
+						if (_methods.Any(x => x.GetCustomAttribute<ButtonMethodAttribute>() != null) == false) {
+							ImGui.Text("No methods :(");
+						}
 						ImGui.Unindent(5);
 					}
 					ImGui.Unindent(5);
-					ImGui.Separator();
 				}
+				ImGui.Separator();
+	
 			}
 			if (ImGui.CollapsingHeader("Inspector Info ")) {
 				ImGui.Indent(5);
@@ -284,7 +298,6 @@ public class Inspector : IDisposable {
 				}
 			}
 		}
-		ImGui.Separator();
 	}
 	void PaintProperty (PropertyInfo property, Component component) {
 		// Don't use GetType() here, it'll cause a System Access Violation.

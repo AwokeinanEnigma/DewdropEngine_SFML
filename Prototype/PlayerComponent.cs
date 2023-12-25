@@ -6,7 +6,7 @@ using SFML.Window;
 namespace Prototype; 
 
 public class PlayerComponent : Component{
-	public override int Importance { get; set; }
+	public override int UpdateSlot { get; set; }
 	Shape _shape;
 	public void Awake () {
 		_shape = new RectangleShape(new Vector2(11, 20));
