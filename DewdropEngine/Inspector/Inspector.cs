@@ -122,7 +122,7 @@ public class Inspector : IDisposable {
 		}*/
 	}
 
-	Component _selectedComponent; 
+	//Component _selectedComponent; 
 	/// <summary>
 	/// Renders the Inspector user interface.
 	/// </summary>
@@ -161,30 +161,35 @@ public class Inspector : IDisposable {
 					_fields = component.GetType().GetFields();
 					_methods = component.GetType().GetMethods();
 					_properties = component.GetType().GetProperties();
-					_selectedComponent = component;
 					
-					_eMd.TryAdd(_selectedComponent, new List<AssociatedEnumData>());
-					_aMp.TryAdd(_selectedComponent, new List<AssociatedMethodParameter>());
+					_eMd.TryAdd(component, new List<AssociatedEnumData>());
+					_aMp.TryAdd(component, new List<AssociatedMethodParameter>());
 					ImGui.Indent(5);
 					if (ImGui.CollapsingHeader("Fields: " + component.GetType().Name)) {
 						// go through each field and draw it
+						ImGui.Indent(5);
 						foreach (var field in _fields) {
-							PaintField(field);
+							PaintField(field, component);
 						}
+						ImGui.Unindent(5);
 					}
 					ImGui.Separator();
 					if (ImGui.CollapsingHeader("Properties: " + component.GetType().Name)) {
 						// go through each property and draw it
+						ImGui.Indent(5);
 						foreach (var property in _properties) {
-							PaintProperty(property);
+							PaintProperty(property, component);
 						}
+						ImGui.Unindent(5);
 					}
 					ImGui.Separator();
 					if (ImGui.CollapsingHeader("Methods: " + component.GetType().Name)) {
 						// go through each method and draw it
+						ImGui.Indent(5);
 						foreach (var method in _methods) {
-							PaintMethod(method);
+							PaintMethod(method, component);
 						}
+						ImGui.Unindent(5);
 					}
 					ImGui.Unindent(5);
 					ImGui.Separator();
@@ -216,87 +221,87 @@ public class Inspector : IDisposable {
 			ImGui.End();
 		}
 	}
-	void PaintField (FieldInfo field) {
-		object value = field.GetValue(_selectedComponent);
+	void PaintField (FieldInfo field, Component component) {
+		object value = field.GetValue(component);
 		// Daily reminder never to use GetType() in a loop. It may not cause a System Access Violation, but it'll still stall the program and crash it.
 		if (_Blacklist.Contains(field.Name)) {
 			return;
 		}
 		switch (value) {
-		case Color color: PaintColor(field, color, _selectedComponent);
+		case Color color: PaintColor(field, color, component);
 			break;
-		case int integer: PaintIntegers(field, integer, _selectedComponent);
+		case int integer: PaintIntegers(field, integer, component);
 			break;
-		case float floatValue: PaintFloat(field, floatValue, _selectedComponent);
+		case float floatValue: PaintFloat(field, floatValue, component);
 			break;
-		case bool boolean: PaintBool(field, boolean, _selectedComponent);
+		case bool boolean: PaintBool(field, boolean, component);
 			break;
-		case string str: PaintString(field, str, _selectedComponent);
+		case string str: PaintString(field, str, component);
 			break;
-		case Enum: PaintEnum(field, value, _selectedComponent);
+		case Enum: PaintEnum(field, value, component);
 			break;
-		case Vector2 vector2: PaintVector2(field, vector2, _selectedComponent);
+		case Vector2 vector2: PaintVector2(field, vector2, component);
 			break;
-		case IList list: PaintList(field, list, _selectedComponent);
+		case IList list: PaintList(field, list, component);
 			break;
 		}
 		if (_customPainters.Count > 0) {
 			foreach (var painter in _customPainters) {
 				if (painter.Type == field.FieldType) {
-					painter.PaintField(field, value, _selectedComponent, this, _commandHistory);
+					painter.PaintField(field, value, component, this, _commandHistory);
 				}
 			}
 		}
 		ImGui.Separator();
 	}
-	void PaintProperty (PropertyInfo property) {
+	void PaintProperty (PropertyInfo property, Component component) {
 		// Don't use GetType() here, it'll cause a System Access Violation.
-		object value = property.GetValue(_selectedComponent);
+		object value = property.GetValue(component);
 		bool canWrite = property.GetSetMethod() != null;
 		if (_Blacklist.Contains(property.Name)) {
 			return;
 		}
 		switch (value) {
 		case Color color:
-			PaintColor(property, color, _selectedComponent, canWrite);
+			PaintColor(property, color, component, canWrite);
 			break;
 		case int integer:
-			PaintIntegers(property, integer, _selectedComponent, canWrite);
+			PaintIntegers(property, integer, component, canWrite);
 			break;
 		case float floatValue:
-			PaintFloat(property, floatValue, _selectedComponent, canWrite);
+			PaintFloat(property, floatValue, component, canWrite);
 			break;
 		case bool boolean:
-			PaintBool(property, boolean, _selectedComponent, canWrite);
+			PaintBool(property, boolean, component, canWrite);
 			break;
 		case string str:
-			PaintString(property, str, _selectedComponent, canWrite);
+			PaintString(property, str, component, canWrite);
 			break;
 		case Enum enumValue:
-			PaintEnum(property, enumValue, _selectedComponent, canWrite);
+			PaintEnum(property, enumValue, component, canWrite);
 			break;
 		case Vector2 vector2:
-			PaintVector2(property, vector2, _selectedComponent, canWrite);
+			PaintVector2(property, vector2, component, canWrite);
 			break;
 		case IList list:
-			PaintList(property, list, _selectedComponent);
+			PaintList(property, list, component);
 			break;
 		}
 		if (_customPainters.Count > 0) {
 			foreach (var painter in _customPainters) {
 				if (painter.Type == property.PropertyType) {
-					painter.PaintProperty(property, value, _selectedComponent, this, _commandHistory);
+					painter.PaintProperty(property, value, component, this, _commandHistory);
 				}
 			}
 		}
-		ImGui.Separator();
+		//ImGui.Separator();
 	}
-	void PaintMethod (MethodInfo info) {
+	void PaintMethod (MethodInfo info, Component component) {
 		ButtonMethodAttribute button = info.GetCustomAttribute<ButtonMethodAttribute>();
 		if (button != null) {
 			PaintTooltip(info);
 			ParameterInfo[] parameters = info.GetParameters();
-			AssociatedMethodParameter aMp = _aMp[_selectedComponent].Find(x => x.Method == info);
+			AssociatedMethodParameter aMp = _aMp[component].Find(x => x.Method == info);
 			if (aMp.Method == null) {
 				Outer.Log($"AMP for method '{info.Name}' not found, creating new one");
 				aMp.Method = info;
@@ -324,7 +329,7 @@ public class Inspector : IDisposable {
 						aMp.Parameters[i] = Vector2.Zero;
 					}
 				}
-				_aMp[_selectedComponent].Add(aMp);
+				_aMp[component].Add(aMp);
 			}
 			if (parameters.Length > 0) {
 				// go through each parameter and display it
@@ -333,45 +338,45 @@ public class Inspector : IDisposable {
 					ParameterInfo parameter = parameters[i];
 					if (parameter.ParameterType == typeof(int)) {
 						int value = (int)aMp.Parameters[i];
-						if (ImGui.InputInt("Parameter: " + parameter.Name, ref value)) {
+						if (ImGui.InputInt("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(float)) {
 						float value = (float)aMp.Parameters[i];
-						if (ImGui.InputFloat("Parameter: " + parameter.Name, ref value)) {
+						if (ImGui.InputFloat("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(bool)) {
 						bool value = (bool)aMp.Parameters[i];
-						if (ImGui.Checkbox("Parameter: " + parameter.Name, ref value)) {
+						if (ImGui.Checkbox("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(string)) {
 						string value = (string)aMp.Parameters[i];
-						if (ImGui.InputText( "Parameter: " + parameter.Name, ref value, 100)) {
+						if (ImGui.InputText( "Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value, 100)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(Color)) {
 						Color value = (Color)aMp.Parameters[i];
 						Vector4 numericalColor = ColorHelper.ToNumericVector4(value);
-						if (ImGui.ColorPicker4("Parameter: " + parameter.Name, ref numericalColor)) {
+						if (ImGui.ColorPicker4("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref numericalColor)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, ColorHelper.ToSfmlColor(numericalColor), i));
 						}
 					}
 					if (parameter.ParameterType.IsEnum) {
-						AssociatedEnumData aEd = _eMd[_selectedComponent].Find(x => x.EnumName == parameter.ParameterType.Name);
+						AssociatedEnumData aEd = _eMd[component].Find(x => x.EnumName == parameter.ParameterType.Name);
 						object enumValue = aMp.Parameters[i];
 						if (aEd.EnumName == null) {
 							aEd.EnumOptions = Enum.GetNames(enumValue.GetType());
 							aEd.EnumName = enumValue.GetType().Name;
-							_eMd[_selectedComponent].Add(aEd);
+							_eMd[component].Add(aEd);
 						}
 						var index = Array.IndexOf(aEd.EnumOptions, enumValue.ToString());
-						if (ImGui.Combo("Parameter: "+ aEd.EnumName, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
+						if (ImGui.Combo("Parameter: "+ aEd.EnumName + " : " + component.GetType().Name, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
 							enumValue = Enum.Parse(enumValue.GetType(), aEd.EnumOptions[index]);
 							Outer.Log($"Setting enum value to {enumValue}");
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, enumValue, i));
@@ -380,21 +385,21 @@ public class Inspector : IDisposable {
 					if (parameter.ParameterType == typeof(Vector2)) {
 						Vector2 value = (Vector2)aMp.Parameters[i];
 						var vector2 = (System.Numerics.Vector2)value;
-						if (ImGui.InputFloat2("Parameter: " + parameter.Name, ref vector2)) {
+						if (ImGui.InputFloat2("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref vector2)) {
 							aMp.Parameters[i] = (Vector2)vector2;
 						}
 					}
 				}
-				if (ImGui.Button(button.MethodName)) {
+				if (ImGui.Button(button.MethodName + " : " + component.GetType().Name)) {
 					Outer.Log($"Invoking method '{info.Name}'");
-					info.Invoke(_selectedComponent, aMp.Parameters);
+					info.Invoke(component, aMp.Parameters);
 				}
 				ImGui.Separator();
 			}
 			// else we have no parameters, so just invoke the method with null params
 			else {
 				if (ImGui.Button(button.MethodName)) {
-					info.Invoke(_selectedComponent, null);
+					info.Invoke(component, null);
 				}
 			}
 		}
@@ -442,29 +447,29 @@ public class Inspector : IDisposable {
 			for (var i = 0; i < list.Count; i++) {
 				switch (list[i]) {
 				case int value:
-					if (ImGui.DragInt($"{i} : {info.Name}", ref value)) {
+					if (ImGui.DragInt($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref value)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
 					break;
 				case float value:
-					if (ImGui.DragFloat($"{i} : {info.Name}", ref value)) {
+					if (ImGui.DragFloat($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref value)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
 					break;
 				case string value:
-					if (ImGui.InputText($"{i} : {info.Name}", ref value, 200)) {
+					if (ImGui.InputText($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref value, 200)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
 					break;
 				case Vector2 value:
 					var vector2 = (System.Numerics.Vector2)value;
-					if (ImGui.DragFloat2($"{i} : {info.Name}", ref vector2)) {
+					if (ImGui.DragFloat2($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref vector2)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, (Vector2)vector2, i));
 					}
 					break;
 				case Color value:
 					Vector4 numericalColor = ColorHelper.ToNumericVector4(value);
-					if (ImGui.ColorPicker4($"{i} : {info.Name}", ref numericalColor)) {
+					if (ImGui.ColorPicker4($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref numericalColor)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, ColorHelper.ToSfmlColor(numericalColor), i));
 					}
 					break;
@@ -485,11 +490,11 @@ public class Inspector : IDisposable {
 		FloatRangeAttribute range = info.GetCustomAttribute<FloatRangeAttribute>();
 		PaintTooltip(info);
 		if (range != null) {
-			if (ImGui.SliderFloat(info.Name, ref floatValue, range.Min, range.Max)) {
+			if (ImGui.SliderFloat(info.Name + " : "+ entity.GetType().Name, ref floatValue, range.Min, range.Max)) {
 				_commandHistory.ExecuteCommand(new PaintFloatCommand(info, floatValue, entity));
 			}
 		} else {
-			if (ImGui.InputFloat(info.Name, ref floatValue)) {
+			if (ImGui.InputFloat(info.Name + " : "+ entity.GetType().Name, ref floatValue)) {
 				_commandHistory.ExecuteCommand(new PaintFloatCommand(info, floatValue, entity));
 			}
 		}
@@ -499,17 +504,17 @@ public class Inspector : IDisposable {
 		Vector4 numericalColor = ColorHelper.ToNumericVector4(color);
 		if (!canWrite) {
 			// i don't think there's any way to display a color without using a color picker
-			ImGui.ColorPicker4(info.Name, ref numericalColor);
+			ImGui.ColorPicker4(info.Name + " : "+ entity.GetType().Name, ref numericalColor);
 			ImGui.Text("Can't set this property.");
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.ColorPicker4(info.Name, ref numericalColor)) {
+		if (ImGui.ColorPicker4(info.Name + " : "+ entity.GetType().Name, ref numericalColor)) {
 			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ColorHelper.ToSfmlColor(numericalColor), entity));
 		}
 	}
 	void PaintIntegers (MemberInfo info, int integer, Component entity, bool canWrite = true) {
-		ImGui.Text(info.Name + " : Integer");
+		ImGui.Text(info.Name + " : Integer");;
 		if (!canWrite) {
 			ImGui.Text("Value: " + integer);
 			ImGui.Text("Can't set this property.");
@@ -518,11 +523,11 @@ public class Inspector : IDisposable {
 		IntegerRangeAttribute range = info.GetCustomAttribute<IntegerRangeAttribute>();
 		PaintTooltip(info);
 		if (range != null) {
-			if (ImGui.SliderInt(info.Name, ref integer, range.Min, range.Max)) {
+			if (ImGui.SliderInt(info.Name + " : "+ entity.GetType().Name, ref integer, range.Min, range.Max)) {
 				_commandHistory.ExecuteCommand(new PaintIntegerCommand(info, integer, entity));
 			}
 		} else {
-			if (ImGui.InputInt(info.Name, ref integer)) {
+			if (ImGui.InputInt(info.Name + " : "+ entity.GetType().Name, ref integer)) {
 				_commandHistory.ExecuteCommand(new PaintIntegerCommand(info, integer, entity));
 			}
 		}
@@ -535,7 +540,7 @@ public class Inspector : IDisposable {
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.InputText(info.Name, ref str, 100)) {
+		if (ImGui.InputText(info.Name + " : "+ entity.GetType().Name, ref str, 100)) {
 			_commandHistory.ExecuteCommand(new PaintStringCommand( info, str, entity));
 		}
 	}
@@ -547,7 +552,7 @@ public class Inspector : IDisposable {
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.Checkbox(info.Name, ref boolean)) {
+		if (ImGui.Checkbox(info.Name + " : "+ entity.GetType().Name, ref boolean)) {
 			_commandHistory.ExecuteCommand(new PaintBoolCommand(info, boolean, entity));
 		}
 	}
@@ -566,7 +571,7 @@ public class Inspector : IDisposable {
 			_eMd[entity].Add(aEd);
 		}
 		var index = Array.IndexOf(aEd.EnumOptions, enumValue.ToString());
-		if (ImGui.Combo(aEd.EnumName, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
+		if (ImGui.Combo(aEd.EnumName + " : "+ entity.GetType().Name, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
 			enumValue = Enum.Parse(enumValue.GetType(), aEd.EnumOptions[index]);
 			_commandHistory.ExecuteCommand(new PaintEnumCommand(info, enumValue, entity));
 			//info.SetValue(entity, enumValue);
@@ -577,12 +582,12 @@ public class Inspector : IDisposable {
 		var vector2 = (System.Numerics.Vector2)vector;
 		if (!canWrite) {
 			// like the color, i don't think there's any way to display a vector without using inputfloat2	
-			ImGui.InputFloat2(info.Name, ref vector2);
+			ImGui.InputFloat2(info.Name + " : "+ entity.GetType().Name, ref vector2);
 			ImGui.Text("Can't set this property.");
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.InputFloat2(info.Name, ref vector2)) {
+		if (ImGui.InputFloat2(info.Name + " : "+ entity.GetType().Name, ref vector2)) {
 			_commandHistory.ExecuteCommand(new PaintVector2Command( info, vector2, entity));
 			//info.SetValue(entity,  (Utilities.Vector2)vector2);
 		}
