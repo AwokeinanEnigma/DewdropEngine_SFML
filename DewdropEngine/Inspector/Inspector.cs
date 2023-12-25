@@ -56,6 +56,11 @@ public class Inspector : IDisposable {
 		public string[] EnumOptions;
 		public string EnumName;
 	}
+	Dictionary<Component, FieldInfo[]> _fieldInfo;
+	Dictionary<Component, PropertyInfo[]> _propertyInfo;
+	Dictionary<Component, MethodInfo[]> _methodInfo;
+	Dictionary<Component, Type> _componentType;
+	Component[] _components;
 	Clock _clock;
 	/// <summary>
 	/// Initializes the Inspector with the given EntityManager and CollisionManager.
@@ -68,6 +73,12 @@ public class Inspector : IDisposable {
 		_customPainters = new List<ICustomPainter>();
 		_collisionManager = collisionManager;
 		_clock = new Clock();
+		
+		_methodInfo = new Dictionary<Component, MethodInfo[]>();
+		_fieldInfo = new Dictionary<Component, FieldInfo[]>();
+		_propertyInfo = new Dictionary<Component, PropertyInfo[]>();
+		_componentType = new Dictionary<Component, Type>();
+		
 		Input.OnMouseClick += OnMouseClick;
 		Engine.OnRenderImGui += Paint;
 
@@ -95,6 +106,7 @@ public class Inspector : IDisposable {
 
 	public void Select (GameObject gameObject) {
 		_selectedGameobject = gameObject;
+		_components = gameObject.ComponentHolder.GetComponentsArray();
 	}
 	void OnMouseClick (object? sender, MouseButtonEventArgs e) {
 		/*foreach (var entity in _collisionManager.ObjectsAtPosition(Input.GetMouseWorldPosition())) {
@@ -151,21 +163,39 @@ public class Inspector : IDisposable {
 				}*/
 			}
 			ImGui.Separator();
-			Component[] components = _selectedGameobject.ComponentHolder.GetComponentsArray();
-			foreach (Component component in components) {
+			foreach (Component component in _components) {
 				if (component == null) {
 					continue;
 				}
 
-				if (ImGui.CollapsingHeader("Component: " + component.GetType().Name)) {
-					_fields = component.GetType().GetFields();
-					_methods = component.GetType().GetMethods();
-					_properties = component.GetType().GetProperties();
+
+				Type type = null;
+				bool cache = false;
+				if (!_componentType.ContainsKey(component)) {
+					type = component.GetType();
+					Outer.Log("Caching component info for " + type.Name);
+					_componentType.Add(component, type);
+					cache = true;
+				} else {
+					type = _componentType[component];
+				} 
 					
+				if (cache) {
+					Outer.Log("Cached component info for " + type.Name);
+					_componentType.TryAdd(component, type);
+					_fieldInfo.TryAdd(component, type.GetFields());
+					_propertyInfo.TryAdd(component, type.GetProperties());
+					_methodInfo.TryAdd(component, type.GetMethods());
 					_eMd.TryAdd(component, new List<AssociatedEnumData>());
 					_aMp.TryAdd(component, new List<AssociatedMethodParameter>());
+				}
+				if (ImGui.CollapsingHeader("Component: " + type)) {
+					_fields = _fieldInfo[component];
+					_methods = _methodInfo[component];
+					_properties = _propertyInfo[component];
+					
 					ImGui.Indent(5);
-					if (ImGui.CollapsingHeader("Fields: " + component.GetType().Name)) {
+					if (ImGui.CollapsingHeader("Fields: " + type.Name)) {
 						// go through each field and draw it
 						ImGui.Indent(5);
 						foreach (var field in _fields) {
@@ -174,7 +204,7 @@ public class Inspector : IDisposable {
 						ImGui.Unindent(5);
 					}
 					ImGui.Separator();
-					if (ImGui.CollapsingHeader("Properties: " + component.GetType().Name)) {
+					if (ImGui.CollapsingHeader("Properties: " + type.Name)) {
 						// go through each property and draw it
 						ImGui.Indent(5);
 						foreach (var property in _properties) {
@@ -183,7 +213,7 @@ public class Inspector : IDisposable {
 						ImGui.Unindent(5);
 					}
 					ImGui.Separator();
-					if (ImGui.CollapsingHeader("Methods: " + component.GetType().Name)) {
+					if (ImGui.CollapsingHeader("Methods: " + type.Name)) {
 						// go through each method and draw it
 						ImGui.Indent(5);
 						foreach (var method in _methods) {
@@ -196,6 +226,7 @@ public class Inspector : IDisposable {
 				}
 			}
 			if (ImGui.CollapsingHeader("Inspector Info ")) {
+				ImGui.Indent(5);
 				if (ImGui.CollapsingHeader("Command History")) {
 					// start at 1 so it makes sense to the user
 					int i = 1;
@@ -216,6 +247,7 @@ public class Inspector : IDisposable {
 						ImGui.Text("No custom painters have been added :(");
 					}
 				}
+				ImGui.Unindent(5);
 			}
 
 			ImGui.End();
@@ -338,32 +370,32 @@ public class Inspector : IDisposable {
 					ParameterInfo parameter = parameters[i];
 					if (parameter.ParameterType == typeof(int)) {
 						int value = (int)aMp.Parameters[i];
-						if (ImGui.InputInt("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value)) {
+						if (ImGui.InputInt("Parameter: " + parameter.Name + " : " + _componentType[component].Name, ref value)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(float)) {
 						float value = (float)aMp.Parameters[i];
-						if (ImGui.InputFloat("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value)) {
+						if (ImGui.InputFloat("Parameter: " + parameter.Name + " : " + _componentType[component].Name, ref value)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(bool)) {
 						bool value = (bool)aMp.Parameters[i];
-						if (ImGui.Checkbox("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value)) {
+						if (ImGui.Checkbox("Parameter: " + parameter.Name + " : " + _componentType[component].Name, ref value)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(string)) {
 						string value = (string)aMp.Parameters[i];
-						if (ImGui.InputText( "Parameter: " + parameter.Name + " : " + component.GetType().Name, ref value, 100)) {
+						if (ImGui.InputText( "Parameter: " + parameter.Name + " : " + _componentType[component].Name, ref value, 100)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, value, i));
 						}
 					}
 					if (parameter.ParameterType == typeof(Color)) {
 						Color value = (Color)aMp.Parameters[i];
 						Vector4 numericalColor = ColorHelper.ToNumericVector4(value);
-						if (ImGui.ColorPicker4("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref numericalColor)) {
+						if (ImGui.ColorPicker4("Parameter: " + parameter.Name + " : " + _componentType[component].Name, ref numericalColor)) {
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, ColorHelper.ToSfmlColor(numericalColor), i));
 						}
 					}
@@ -376,7 +408,7 @@ public class Inspector : IDisposable {
 							_eMd[component].Add(aEd);
 						}
 						var index = Array.IndexOf(aEd.EnumOptions, enumValue.ToString());
-						if (ImGui.Combo("Parameter: "+ aEd.EnumName + " : " + component.GetType().Name, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
+						if (ImGui.Combo("Parameter: "+ aEd.EnumName + " : " + _componentType[component].Name, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
 							enumValue = Enum.Parse(enumValue.GetType(), aEd.EnumOptions[index]);
 							Outer.Log($"Setting enum value to {enumValue}");
 							_commandHistory.ExecuteCommand(new SetParameterValueCommand(aMp.Parameters, enumValue, i));
@@ -385,12 +417,12 @@ public class Inspector : IDisposable {
 					if (parameter.ParameterType == typeof(Vector2)) {
 						Vector2 value = (Vector2)aMp.Parameters[i];
 						var vector2 = (System.Numerics.Vector2)value;
-						if (ImGui.InputFloat2("Parameter: " + parameter.Name + " : " + component.GetType().Name, ref vector2)) {
+						if (ImGui.InputFloat2("Parameter: " + parameter.Name + " : " + _componentType[component].Name, ref vector2)) {
 							aMp.Parameters[i] = (Vector2)vector2;
 						}
 					}
 				}
-				if (ImGui.Button(button.MethodName + " : " + component.GetType().Name)) {
+				if (ImGui.Button(button.MethodName + " : " + _componentType[component].Name)) {
 					Outer.Log($"Invoking method '{info.Name}'");
 					info.Invoke(component, aMp.Parameters);
 				}
@@ -405,7 +437,7 @@ public class Inspector : IDisposable {
 		}
 	}
 	#region Paint Fields
-	void PaintList (MemberInfo info, IList list, Component entity) {
+	void PaintList (MemberInfo info, IList list, Component component) {
 		bool isArray = list is Array;
 		Type elementType = isArray ? list.GetType().GetElementType() : list.GetType().GetGenericArguments()[0];
 		if (!_SupportedTypes.Contains(elementType)) {
@@ -425,7 +457,7 @@ public class Inspector : IDisposable {
 					if (_customPainters.Count > 0) {
 						foreach (var painter in _customPainters) {
 							if (painter.Type == elementType) {
-								painter.AddListElement(list, entity, this, _commandHistory);
+								painter.AddListElement(list, component, this, _commandHistory);
 								return;
 							}
 						}
@@ -447,29 +479,29 @@ public class Inspector : IDisposable {
 			for (var i = 0; i < list.Count; i++) {
 				switch (list[i]) {
 				case int value:
-					if (ImGui.DragInt($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref value)) {
+					if (ImGui.DragInt($"{i} : {info.Name}" + " : "+ _componentType[component].Name, ref value)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
 					break;
 				case float value:
-					if (ImGui.DragFloat($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref value)) {
+					if (ImGui.DragFloat($"{i} : {info.Name}" + " : "+ _componentType[component].Name, ref value)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
 					break;
 				case string value:
-					if (ImGui.InputText($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref value, 200)) {
+					if (ImGui.InputText($"{i} : {info.Name}" + " : "+ _componentType[component].Name, ref value, 200)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, value, i));
 					}
 					break;
 				case Vector2 value:
 					var vector2 = (System.Numerics.Vector2)value;
-					if (ImGui.DragFloat2($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref vector2)) {
+					if (ImGui.DragFloat2($"{i} : {info.Name}" + " : "+ _componentType[component].Name, ref vector2)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, (Vector2)vector2, i));
 					}
 					break;
 				case Color value:
 					Vector4 numericalColor = ColorHelper.ToNumericVector4(value);
-					if (ImGui.ColorPicker4($"{i} : {info.Name}" + " : "+ entity.GetType().Name, ref numericalColor)) {
+					if (ImGui.ColorPicker4($"{i} : {info.Name}" + " : "+ _componentType[component].Name, ref numericalColor)) {
 						_commandHistory.ExecuteCommand(new SetListValueCommand(list, ColorHelper.ToSfmlColor(numericalColor), i));
 					}
 					break;
@@ -480,7 +512,7 @@ public class Inspector : IDisposable {
 			ImGui.Unindent();
 		}
 	}
-	void PaintFloat (MemberInfo info, float floatValue, Component entity, bool canWrite = true) {
+	void PaintFloat (MemberInfo info, float floatValue, Component component, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Float");
 		if (!canWrite) {
 			ImGui.Text("Value: " + floatValue);
@@ -490,30 +522,30 @@ public class Inspector : IDisposable {
 		FloatRangeAttribute range = info.GetCustomAttribute<FloatRangeAttribute>();
 		PaintTooltip(info);
 		if (range != null) {
-			if (ImGui.SliderFloat(info.Name + " : "+ entity.GetType().Name, ref floatValue, range.Min, range.Max)) {
-				_commandHistory.ExecuteCommand(new PaintFloatCommand(info, floatValue, entity));
+			if (ImGui.SliderFloat(info.Name + " : "+ _componentType[component].Name, ref floatValue, range.Min, range.Max)) {
+				_commandHistory.ExecuteCommand(new PaintFloatCommand(info, floatValue, component));
 			}
 		} else {
-			if (ImGui.InputFloat(info.Name + " : "+ entity.GetType().Name, ref floatValue)) {
-				_commandHistory.ExecuteCommand(new PaintFloatCommand(info, floatValue, entity));
+			if (ImGui.InputFloat(info.Name + " : "+ _componentType[component].Name, ref floatValue)) {
+				_commandHistory.ExecuteCommand(new PaintFloatCommand(info, floatValue, component));
 			}
 		}
 	}
-	void PaintColor (MemberInfo info, Color color, Component entity, bool canWrite = true) {
+	void PaintColor (MemberInfo info, Color color, Component component, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Color");
 		Vector4 numericalColor = ColorHelper.ToNumericVector4(color);
 		if (!canWrite) {
 			// i don't think there's any way to display a color without using a color picker
-			ImGui.ColorPicker4(info.Name + " : "+ entity.GetType().Name, ref numericalColor);
+			ImGui.ColorPicker4(info.Name + " : "+ _componentType[component].Name, ref numericalColor);
 			ImGui.Text("Can't set this property.");
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.ColorPicker4(info.Name + " : "+ entity.GetType().Name, ref numericalColor)) {
-			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ColorHelper.ToSfmlColor(numericalColor), entity));
+		if (ImGui.ColorPicker4(info.Name + " : "+ _componentType[component].Name, ref numericalColor)) {
+			_commandHistory.ExecuteCommand(new PaintColorCommand(info, ColorHelper.ToSfmlColor(numericalColor), component));
 		}
 	}
-	void PaintIntegers (MemberInfo info, int integer, Component entity, bool canWrite = true) {
+	void PaintIntegers (MemberInfo info, int integer, Component component, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Integer");;
 		if (!canWrite) {
 			ImGui.Text("Value: " + integer);
@@ -523,16 +555,16 @@ public class Inspector : IDisposable {
 		IntegerRangeAttribute range = info.GetCustomAttribute<IntegerRangeAttribute>();
 		PaintTooltip(info);
 		if (range != null) {
-			if (ImGui.SliderInt(info.Name + " : "+ entity.GetType().Name, ref integer, range.Min, range.Max)) {
-				_commandHistory.ExecuteCommand(new PaintIntegerCommand(info, integer, entity));
+			if (ImGui.SliderInt(info.Name + " : "+ _componentType[component].Name, ref integer, range.Min, range.Max)) {
+				_commandHistory.ExecuteCommand(new PaintIntegerCommand(info, integer, component));
 			}
 		} else {
-			if (ImGui.InputInt(info.Name + " : "+ entity.GetType().Name, ref integer)) {
-				_commandHistory.ExecuteCommand(new PaintIntegerCommand(info, integer, entity));
+			if (ImGui.InputInt(info.Name + " : "+ _componentType[component].Name, ref integer)) {
+				_commandHistory.ExecuteCommand(new PaintIntegerCommand(info, integer, component));
 			}
 		}
 	}
-	void PaintString (MemberInfo info, string str, Component entity, bool canWrite = true) {
+	void PaintString (MemberInfo info, string str, Component component, bool canWrite = true) {
 		ImGui.Text(info.Name + " : String");
 		if (!canWrite) {
 			ImGui.Text("Value: " + str);
@@ -540,11 +572,11 @@ public class Inspector : IDisposable {
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.InputText(info.Name + " : "+ entity.GetType().Name, ref str, 100)) {
-			_commandHistory.ExecuteCommand(new PaintStringCommand( info, str, entity));
+		if (ImGui.InputText(info.Name + " : "+ _componentType[component].Name, ref str, 100)) {
+			_commandHistory.ExecuteCommand(new PaintStringCommand( info, str, component));
 		}
 	}
-	void PaintBool (MemberInfo info, bool boolean, Component entity, bool canWrite = true) {
+	void PaintBool (MemberInfo info, bool boolean, Component component, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Boolean");
 		if (!canWrite) {
 			ImGui.Text("Value: " + boolean);
@@ -552,11 +584,11 @@ public class Inspector : IDisposable {
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.Checkbox(info.Name + " : "+ entity.GetType().Name, ref boolean)) {
-			_commandHistory.ExecuteCommand(new PaintBoolCommand(info, boolean, entity));
+		if (ImGui.Checkbox(info.Name + " : "+ _componentType[component].Name, ref boolean)) {
+			_commandHistory.ExecuteCommand(new PaintBoolCommand(info, boolean, component));
 		}
 	}
-	void PaintEnum (MemberInfo info, object enumValue, Component entity, bool canWrite = true) {
+	void PaintEnum (MemberInfo info, object enumValue, Component component, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Enum");
 		if (!canWrite) {
 			ImGui.Text("Value: " + enumValue);
@@ -564,31 +596,31 @@ public class Inspector : IDisposable {
 			return;
 		}
 		PaintTooltip(info);
-		AssociatedEnumData aEd =  _eMd[entity].Find(x => x.EnumName == enumValue.GetType().Name);
+		AssociatedEnumData aEd =  _eMd[component].Find(x => x.EnumName == enumValue.GetType().Name);
 		if (aEd.EnumName == null) {
 			aEd.EnumOptions = Enum.GetNames(enumValue.GetType());
 			aEd.EnumName = enumValue.GetType().Name;
-			_eMd[entity].Add(aEd);
+			_eMd[component].Add(aEd);
 		}
 		var index = Array.IndexOf(aEd.EnumOptions, enumValue.ToString());
-		if (ImGui.Combo(aEd.EnumName + " : "+ entity.GetType().Name, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
+		if (ImGui.Combo(aEd.EnumName + " : "+ _componentType[component].Name, ref index, aEd.EnumOptions, aEd.EnumOptions.Length)) {
 			enumValue = Enum.Parse(enumValue.GetType(), aEd.EnumOptions[index]);
-			_commandHistory.ExecuteCommand(new PaintEnumCommand(info, enumValue, entity));
+			_commandHistory.ExecuteCommand(new PaintEnumCommand(info, enumValue, component));
 			//info.SetValue(entity, enumValue);
 		}
 	}
-	void PaintVector2 (MemberInfo info, Vector2 vector, Component entity, bool canWrite = true) {
+	void PaintVector2 (MemberInfo info, Vector2 vector, Component component, bool canWrite = true) {
 		ImGui.Text(info.Name + " : Vector2");
 		var vector2 = (System.Numerics.Vector2)vector;
 		if (!canWrite) {
 			// like the color, i don't think there's any way to display a vector without using inputfloat2	
-			ImGui.InputFloat2(info.Name + " : "+ entity.GetType().Name, ref vector2);
+			ImGui.InputFloat2(info.Name + " : "+ _componentType[component].Name, ref vector2);
 			ImGui.Text("Can't set this property.");
 			return;
 		}
 		PaintTooltip(info);
-		if (ImGui.InputFloat2(info.Name + " : "+ entity.GetType().Name, ref vector2)) {
-			_commandHistory.ExecuteCommand(new PaintVector2Command( info, vector2, entity));
+		if (ImGui.InputFloat2(info.Name + " : "+ _componentType[component].Name, ref vector2)) {
+			_commandHistory.ExecuteCommand(new PaintVector2Command( info, vector2, component));
 			//info.SetValue(entity,  (Utilities.Vector2)vector2);
 		}
 	}

@@ -231,6 +231,7 @@ public class GameObjectPlayground : SceneBase{
 		if (disposing && !disposed) {
 			obj2 = null;
 			obj = null;
+			_inspector.Dispose();
 			GameObjectRegister.Destroy(true);
 		}
 		base.Dispose(disposing); 

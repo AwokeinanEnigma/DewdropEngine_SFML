@@ -85,18 +85,16 @@ public static partial class Engine {
 						Render();
 					}
 					catch (Exception value) {
-						StreamWriter streamWriter = new StreamWriter("error.log", true);
-						streamWriter.WriteLine(format: "At {0}:", arg0: DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss:fff"));
-						streamWriter.WriteLine(value);
-						streamWriter.WriteLine();
-						streamWriter.Close();
-						
 						SceneManager.AbortTransition();
 						SceneManager.Clear();
 						SceneManager.Transition = new InstantTransition();
 						SceneManager.Push(new ErrorScene(value), true);
 						
-
+						StreamWriter streamWriter = new StreamWriter("error.log", true);
+						streamWriter.WriteLine(format: "At {0}:", arg0: DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss:fff"));
+						streamWriter.WriteLine(value);
+						streamWriter.WriteLine();
+						streamWriter.Close();
 					}
 					
 					_FrameStopwatch.Stop();
